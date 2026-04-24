@@ -403,17 +403,15 @@ export const retryFailedItems = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
 
-    const q = supabaseAdmin.from("import_job_items").update({
-      status: "pending", attempts: 0, last_error: null,
+    const base = supabaseAdmin.from("import_job_items").update({
+      status: "pending" as const, attempts: 0, last_error: null,
     }).eq("job_id", data.jobId);
-
-    const { error, count } = await (data.itemId
-      ? q.eq("id", data.itemId).select("*", { count: "exact", head: true })
-      : q.eq("status", "failed").select("*", { count: "exact", head: true }));
+    const query = data.itemId ? base.eq("id", data.itemId) : base.eq("status", "failed");
+    const { data: rows, error } = await query.select("id");
     if (error) throw new Error(error.message);
 
     await supabaseAdmin.from("import_jobs").update({ status: "pending", error: null }).eq("id", data.jobId);
-    return { reset: count ?? 0 };
+    return { reset: rows?.length ?? 0 };
   });
 
 const JobIdInput = z.object({ jobId: z.string().uuid() });
