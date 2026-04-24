@@ -11,7 +11,7 @@ export function Footer() {
             <img
               src={sandiegoLogo}
               alt="sandiego.com"
-              className="h-10 w-10 invert brightness-0 contrast-200"
+              className="h-12 w-auto"
             />
             <div className="font-display text-2xl font-semibold">
               sandiego<span className="text-teal-soft">.com</span>
