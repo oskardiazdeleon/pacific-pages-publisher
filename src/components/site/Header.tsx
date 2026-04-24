@@ -128,9 +128,15 @@ export function Header() {
           </button>
           <Link
             to="/partners"
-            className="hidden md:inline-flex items-center rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground hover:opacity-90 transition"
+            className="hidden lg:inline-flex items-center rounded-full border border-border px-3 py-2 text-xs font-semibold text-foreground/75 hover:text-foreground hover:bg-secondary transition"
           >
             For Partners
+          </Link>
+          <Link
+            to="/insider"
+            className="hidden md:inline-flex items-center rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground hover:opacity-90 transition"
+          >
+            Join Insider
           </Link>
           <button
             aria-label={open ? "Close menu" : "Open menu"}
@@ -187,9 +193,16 @@ export function Header() {
               );
             })}
             <Link
-              to="/partners"
+              to="/insider"
               onClick={() => setOpen(false)}
               className="mt-3 inline-flex items-center justify-center rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground"
+            >
+              Join Insider
+            </Link>
+            <Link
+              to="/partners"
+              onClick={() => setOpen(false)}
+              className="mt-2 inline-flex items-center justify-center rounded-full border border-border px-4 py-2.5 text-sm font-medium text-foreground/80"
             >
               For Partners
             </Link>

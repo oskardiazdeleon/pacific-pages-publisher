@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, MapPin, TrendingUp } from "lucide-react";
+import { ArrowRight, MapPin, Sparkles, TrendingUp } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ListingCard, type ListingCardData } from "@/components/site/ListingCard";
 import { ArticleCard, type ArticleCardData } from "@/components/site/ArticleCard";
+import { EmailCapture } from "@/components/site/EmailCapture";
 import { listings as mockListings, articles as mockArticles, neighborhoods } from "@/lib/mock-data";
 import { fetchPublishedListings, fetchPublishedArticles } from "@/lib/content-queries";
 import hero from "@/assets/hero-sandiego.jpg";
