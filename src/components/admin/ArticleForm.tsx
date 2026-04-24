@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 export interface ArticleFormValues {
   id?: string;
@@ -104,10 +105,13 @@ export function ArticleForm({ initial }: { initial?: Partial<ArticleFormValues> 
               onChange={(e) => set("tags", e.target.value)} />
           </Field>
         </div>
-        <Field label="Hero image URL">
-          <input className={inputCls} value={v.hero_image}
-            onChange={(e) => set("hero_image", e.target.value)} />
-        </Field>
+        <ImageUpload
+          label="Hero image"
+          bucket="article-media"
+          folder={v.slug || "uploads"}
+          value={v.hero_image}
+          onChange={(url) => set("hero_image", url)}
+        />
         <Field label="Excerpt (1–2 sentences shown in cards)">
           <textarea className={inputCls} rows={2} value={v.excerpt}
             onChange={(e) => set("excerpt", e.target.value)} />

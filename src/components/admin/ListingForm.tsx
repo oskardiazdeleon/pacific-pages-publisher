@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 export interface ListingFormValues {
   id?: string;
@@ -127,11 +128,13 @@ export function ListingForm({ initial }: { initial?: Partial<ListingFormValues> 
           <textarea className={inputCls + " min-h-32"} value={v.description}
             onChange={(e) => set("description", e.target.value)} />
         </Field>
-        <Field label="Hero image URL">
-          <input className={inputCls} value={v.hero_image}
-            onChange={(e) => set("hero_image", e.target.value)}
-            placeholder="https://…" />
-        </Field>
+        <ImageUpload
+          label="Hero image"
+          bucket="listing-media"
+          folder={v.slug || "uploads"}
+          value={v.hero_image}
+          onChange={(url) => set("hero_image", url)}
+        />
       </section>
 
       <section className="rounded-2xl border border-border bg-card p-6 space-y-4">
