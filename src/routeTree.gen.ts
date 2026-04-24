@@ -13,7 +13,6 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as NeighborhoodsRouteImport } from './routes/neighborhoods'
-import { Route as ListingsRouteImport } from './routes/listings'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ArticlesRouteImport } from './routes/articles'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -49,11 +48,6 @@ const PartnersRoute = PartnersRouteImport.update({
 const NeighborhoodsRoute = NeighborhoodsRouteImport.update({
   id: '/neighborhoods',
   path: '/neighborhoods',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ListingsRoute = ListingsRouteImport.update({
-  id: '/listings',
-  path: '/listings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -142,7 +136,6 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/articles': typeof ArticlesRouteWithChildren
   '/auth': typeof AuthRoute
-  '/listings': typeof ListingsRouteWithChildren
   '/neighborhoods': typeof NeighborhoodsRoute
   '/partners': typeof PartnersRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -187,7 +180,6 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/articles': typeof ArticlesRouteWithChildren
   '/auth': typeof AuthRoute
-  '/listings': typeof ListingsRouteWithChildren
   '/neighborhoods': typeof NeighborhoodsRoute
   '/partners': typeof PartnersRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -212,7 +204,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/articles'
     | '/auth'
-    | '/listings'
     | '/neighborhoods'
     | '/partners'
     | '/robots.txt'
@@ -256,7 +247,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/articles'
     | '/auth'
-    | '/listings'
     | '/neighborhoods'
     | '/partners'
     | '/robots.txt'
@@ -280,7 +270,6 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   ArticlesRoute: typeof ArticlesRouteWithChildren
   AuthRoute: typeof AuthRoute
-  ListingsRoute: typeof ListingsRouteWithChildren
   NeighborhoodsRoute: typeof NeighborhoodsRoute
   PartnersRoute: typeof PartnersRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
@@ -315,13 +304,6 @@ declare module '@tanstack/react-router' {
       path: '/neighborhoods'
       fullPath: '/neighborhoods'
       preLoaderRoute: typeof NeighborhoodsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/listings': {
-      id: '/listings'
-      path: '/listings'
-      fullPath: '/listings'
-      preLoaderRoute: typeof ListingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -477,26 +459,11 @@ const ArticlesRouteWithChildren = ArticlesRoute._addFileChildren(
   ArticlesRouteChildren,
 )
 
-interface ListingsRouteChildren {
-  ListingsSlugRoute: typeof ListingsSlugRoute
-  ListingsIndexRoute: typeof ListingsIndexRoute
-}
-
-const ListingsRouteChildren: ListingsRouteChildren = {
-  ListingsSlugRoute: ListingsSlugRoute,
-  ListingsIndexRoute: ListingsIndexRoute,
-}
-
-const ListingsRouteWithChildren = ListingsRoute._addFileChildren(
-  ListingsRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   ArticlesRoute: ArticlesRouteWithChildren,
   AuthRoute: AuthRoute,
-  ListingsRoute: ListingsRouteWithChildren,
   NeighborhoodsRoute: NeighborhoodsRoute,
   PartnersRoute: PartnersRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
