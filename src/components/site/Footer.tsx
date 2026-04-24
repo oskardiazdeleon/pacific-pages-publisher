@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Facebook, Instagram, Twitter } from "lucide-react";
-import sandiegoLogo from "@/assets/sandiego-logo.svg";
+import sandiegoLogo from "@/assets/sandiego-logo.png";
 
 export function Footer() {
   return (
@@ -11,11 +11,8 @@ export function Footer() {
             <img
               src={sandiegoLogo}
               alt="sandiego.com"
-              className="h-10 w-10 invert brightness-0 contrast-200"
+              className="h-12 w-auto"
             />
-            <div className="font-display text-2xl font-semibold">
-              sandiego<span className="text-teal-soft">.com</span>
-            </div>
           </div>
           <p className="mt-4 max-w-md text-sm text-primary-foreground/70">
             The definitive guide to America's Finest City — places to stay, eat, explore and the

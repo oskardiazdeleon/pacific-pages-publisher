@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, Menu, Search, X } from "lucide-react";
 import { useState } from "react";
-import sandiegoLogo from "@/assets/sandiego-logo.svg";
+import sandiegoLogo from "@/assets/sandiego-logo.png";
 
 /**
  * Top navigation modeled on sandiego.com's information architecture.
@@ -79,13 +79,8 @@ export function Header() {
           <img
             src={sandiegoLogo}
             alt="sandiego.com"
-            className="h-9 w-9"
-            width={36}
-            height={36}
+            className="h-10 w-auto"
           />
-          <span className="font-display text-lg font-semibold tracking-tight">
-            sandiego<span className="text-accent">.com</span>
-          </span>
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1 text-sm font-medium">
