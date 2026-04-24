@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as NeighborhoodsRouteImport } from './routes/neighborhoods'
 import { Route as ListingsRouteImport } from './routes/listings'
@@ -27,6 +29,16 @@ import { Route as AdminListingsIdRouteImport } from './routes/admin.listings.$id
 import { Route as AdminArticlesNewRouteImport } from './routes/admin.articles.new'
 import { Route as AdminArticlesIdRouteImport } from './routes/admin.articles.$id'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PartnersRoute = PartnersRouteImport.update({
   id: '/partners',
   path: '/partners',
@@ -121,6 +133,8 @@ export interface FileRoutesByFullPath {
   '/listings': typeof ListingsRouteWithChildren
   '/neighborhoods': typeof NeighborhoodsRoute
   '/partners': typeof PartnersRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
@@ -139,6 +153,8 @@ export interface FileRoutesByTo {
   '/listings': typeof ListingsRouteWithChildren
   '/neighborhoods': typeof NeighborhoodsRoute
   '/partners': typeof PartnersRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
@@ -159,6 +175,8 @@ export interface FileRoutesById {
   '/listings': typeof ListingsRouteWithChildren
   '/neighborhoods': typeof NeighborhoodsRoute
   '/partners': typeof PartnersRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
@@ -180,6 +198,8 @@ export interface FileRouteTypes {
     | '/listings'
     | '/neighborhoods'
     | '/partners'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/admin/impressions'
     | '/articles/$slug'
     | '/listings/$slug'
@@ -198,6 +218,8 @@ export interface FileRouteTypes {
     | '/listings'
     | '/neighborhoods'
     | '/partners'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/admin/impressions'
     | '/articles/$slug'
     | '/listings/$slug'
@@ -217,6 +239,8 @@ export interface FileRouteTypes {
     | '/listings'
     | '/neighborhoods'
     | '/partners'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/admin/impressions'
     | '/articles/$slug'
     | '/listings/$slug'
@@ -237,10 +261,26 @@ export interface RootRouteChildren {
   ListingsRoute: typeof ListingsRouteWithChildren
   NeighborhoodsRoute: typeof NeighborhoodsRoute
   PartnersRoute: typeof PartnersRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/partners': {
       id: '/partners'
       path: '/partners'
@@ -419,16 +459,9 @@ const rootRouteChildren: RootRouteChildren = {
   ListingsRoute: ListingsRouteWithChildren,
   NeighborhoodsRoute: NeighborhoodsRoute,
   PartnersRoute: PartnersRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 
 export interface ArticleFormValues {
   id?: string;
@@ -116,9 +117,12 @@ export function ArticleForm({ initial }: { initial?: Partial<ArticleFormValues> 
           <textarea className={inputCls} rows={2} value={v.excerpt}
             onChange={(e) => set("excerpt", e.target.value)} />
         </Field>
-        <Field label="Body (Markdown supported soon — plain text or HTML for now)">
-          <textarea className={inputCls + " min-h-[300px] font-mono text-xs"}
-            value={v.body} onChange={(e) => set("body", e.target.value)} />
+        <Field label="Body">
+          <RichTextEditor
+            value={v.body}
+            uploadFolder={v.slug || "inline"}
+            onChange={(html) => set("body", html)}
+          />
         </Field>
       </section>
 
