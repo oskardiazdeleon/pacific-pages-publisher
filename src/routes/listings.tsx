@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
-import { ListingCard } from "@/components/site/ListingCard";
-import { listings } from "@/lib/mock-data";
+import { ListingCard, type ListingCardData } from "@/components/site/ListingCard";
+import { listings as mockListings } from "@/lib/mock-data";
+import { fetchPublishedListings } from "@/lib/content-queries";
 
 export const Route = createFileRoute("/listings")({
   head: () => ({
@@ -24,11 +25,36 @@ export const Route = createFileRoute("/listings")({
   component: ListingsPage,
 });
 
-const categories = ["All", "Restaurant", "Hotel", "Attraction", "Tour"] as const;
+const categories = ["All", "Restaurant", "Hotel", "Attraction", "Tour", "Shopping", "Nightlife"] as const;
 
 function ListingsPage() {
   const [active, setActive] = useState<(typeof categories)[number]>("All");
-  const filtered = active === "All" ? listings : listings.filter((l) => l.category === active);
+  const [items, setItems] = useState<ListingCardData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    (async () => {
+      try {
+        const data = await fetchPublishedListings({ category: active });
+        if (cancelled) return;
+        if (data.length) {
+          setItems(data as ListingCardData[]);
+        } else {
+          // Fallback to mock data when DB is empty
+          const mock = active === "All" ? mockListings : mockListings.filter((l) => l.category === active);
+          setItems(mock as ListingCardData[]);
+        }
+      } catch {
+        const mock = active === "All" ? mockListings : mockListings.filter((l) => l.category === active);
+        setItems(mock as ListingCardData[]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [active]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -63,9 +89,19 @@ function ListingsPage() {
       </section>
 
       <section className="container-page py-12">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((l) => <ListingCard key={l.slug} listing={l} />)}
-        </div>
+        {loading ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="rounded-2xl border border-border bg-card aspect-[4/3] animate-pulse" />
+            ))}
+          </div>
+        ) : items.length === 0 ? (
+          <div className="text-center text-muted-foreground py-20">No listings in this category yet.</div>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map((l) => <ListingCard key={l.slug} listing={l} />)}
+          </div>
+        )}
       </section>
 
       <Footer />
