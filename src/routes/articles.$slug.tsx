@@ -90,9 +90,10 @@ function ArticleDetail() {
         )}
 
         {article.body && (
-          <div className="prose prose-neutral mt-10 max-w-none whitespace-pre-line text-foreground leading-relaxed">
-            {article.body}
-          </div>
+          <div
+            className="prose prose-neutral mt-10 max-w-none text-foreground leading-relaxed prose-headings:font-display prose-a:text-accent prose-img:rounded-2xl"
+            dangerouslySetInnerHTML={{ __html: article.body }}
+          />
         )}
       </article>
 
