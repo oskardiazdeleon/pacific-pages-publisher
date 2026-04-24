@@ -139,6 +139,35 @@ function PartnersPage() {
         ))}
       </section>
 
+      {/* Insider flywheel */}
+      <section className="container-page mt-20">
+        <div className="rounded-3xl bg-primary text-primary-foreground p-10 md:p-14 grid gap-10 md:grid-cols-2 items-center">
+          <div>
+            <div className="eyebrow text-teal-soft">The Insider flywheel</div>
+            <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">
+              Your member discount is the loop that funds itself.
+            </h2>
+            <p className="mt-3 text-primary-foreground/80 max-w-md">
+              Every Featured tier and above includes a discount listing inside the sandiego.com
+              Insider Travel Club. The discount makes membership more valuable. More members means
+              more bookings into your business.
+            </p>
+          </div>
+          <div className="grid gap-3 text-sm">
+            {[
+              "1. You list a member discount (e.g. 15% off)",
+              "2. We promote it across 133K+ social followers",
+              "3. New Insider members book directly with you",
+              "4. Your renewal funds the next 90-day campaign",
+            ].map((step) => (
+              <div key={step} className="rounded-xl bg-primary-foreground/10 px-4 py-3 backdrop-blur">
+                {step}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="container-page mt-20">
         <div className="rounded-3xl border border-border bg-card p-10 md:p-14">
           <div className="grid gap-10 md:grid-cols-2 items-center">
