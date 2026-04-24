@@ -1,9 +1,9 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LogOut, LayoutDashboard, FileText, Building2, BarChart3 } from "lucide-react";
+import { LogOut, LayoutDashboard, FileText, Building2, BarChart3, Download } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
 const navItems: ReadonlyArray<{
-  to: "/admin" | "/admin/listings" | "/admin/articles" | "/admin/impressions";
+  to: "/admin" | "/admin/listings" | "/admin/articles" | "/admin/impressions" | "/admin/import";
   label: string;
   icon: typeof LayoutDashboard;
   exact?: boolean;
@@ -12,6 +12,7 @@ const navItems: ReadonlyArray<{
   { to: "/admin/listings", label: "Listings", icon: Building2 },
   { to: "/admin/articles", label: "Articles", icon: FileText },
   { to: "/admin/impressions", label: "Impressions", icon: BarChart3 },
+  { to: "/admin/import", label: "Import", icon: Download },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

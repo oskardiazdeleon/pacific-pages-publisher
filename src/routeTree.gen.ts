@@ -22,6 +22,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ListingsSlugRouteImport } from './routes/listings.$slug'
 import { Route as ArticlesSlugRouteImport } from './routes/articles.$slug'
 import { Route as AdminImpressionsRouteImport } from './routes/admin.impressions'
+import { Route as AdminImportRouteImport } from './routes/admin.import'
 import { Route as AdminListingsIndexRouteImport } from './routes/admin.listings.index'
 import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
 import { Route as AdminListingsNewRouteImport } from './routes/admin.listings.new'
@@ -94,6 +95,11 @@ const AdminImpressionsRoute = AdminImpressionsRouteImport.update({
   path: '/impressions',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminImportRoute = AdminImportRouteImport.update({
+  id: '/import',
+  path: '/import',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminListingsIndexRoute = AdminListingsIndexRouteImport.update({
   id: '/listings/',
   path: '/listings/',
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/partners': typeof PartnersRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/partners': typeof PartnersRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
@@ -177,6 +185,7 @@ export interface FileRoutesById {
   '/partners': typeof PartnersRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
@@ -200,6 +209,7 @@ export interface FileRouteTypes {
     | '/partners'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
     | '/listings/$slug'
@@ -220,6 +230,7 @@ export interface FileRouteTypes {
     | '/partners'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
     | '/listings/$slug'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/partners'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
     | '/listings/$slug'
@@ -358,6 +370,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminImpressionsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/import': {
+      id: '/admin/import'
+      path: '/import'
+      fullPath: '/admin/import'
+      preLoaderRoute: typeof AdminImportRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/listings/': {
       id: '/admin/listings/'
       path: '/listings'
@@ -404,6 +423,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminImportRoute: typeof AdminImportRoute
   AdminImpressionsRoute: typeof AdminImpressionsRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminArticlesIdRoute: typeof AdminArticlesIdRoute
@@ -415,6 +435,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminImportRoute: AdminImportRoute,
   AdminImpressionsRoute: AdminImpressionsRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminArticlesIdRoute: AdminArticlesIdRoute,
