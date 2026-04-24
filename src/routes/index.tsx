@@ -80,16 +80,16 @@ function HomePage() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
-              to="/listings"
+              to="/insider"
               className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground hover:opacity-90 transition"
             >
-              Explore listings <ArrowRight className="h-4 w-4" />
+              <Sparkles className="h-4 w-4" /> Join Insider — from $19/mo
             </Link>
             <Link
-              to="/articles"
+              to="/listings"
               className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/30 bg-primary-foreground/10 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-primary-foreground/20 transition"
             >
-              Read the magazine
+              Explore San Diego <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
