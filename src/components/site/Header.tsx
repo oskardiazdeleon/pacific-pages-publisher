@@ -75,10 +75,14 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
       <div className="container-page flex h-16 items-center justify-between gap-6">
-        <Link to="/" className="flex items-center gap-2 group">
-          <span className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground font-display font-bold">
-            SD
-          </span>
+        <Link to="/" className="flex items-center gap-2 group" aria-label="sandiego.com home">
+          <img
+            src={sandiegoLogo}
+            alt="sandiego.com"
+            className="h-9 w-9"
+            width={36}
+            height={36}
+          />
           <span className="font-display text-lg font-semibold tracking-tight">
             sandiego<span className="text-accent">.com</span>
           </span>
