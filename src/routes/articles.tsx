@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
-import { ArticleCard } from "@/components/site/ArticleCard";
-import { articles } from "@/lib/mock-data";
+import { ArticleCard, type ArticleCardData } from "@/components/site/ArticleCard";
+import { articles as mockArticles } from "@/lib/mock-data";
+import { fetchPublishedArticles } from "@/lib/content-queries";
 
 export const Route = createFileRoute("/articles")({
   head: () => ({
@@ -24,7 +26,23 @@ export const Route = createFileRoute("/articles")({
 });
 
 function ArticlesPage() {
-  const [lead, ...rest] = articles;
+  const [items, setItems] = useState<ArticleCardData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await fetchPublishedArticles();
+        setItems(data.length ? (data as ArticleCardData[]) : (mockArticles as ArticleCardData[]));
+      } catch {
+        setItems(mockArticles as ArticleCardData[]);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const [lead, ...rest] = items;
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -35,13 +53,25 @@ function ArticlesPage() {
         </h1>
       </section>
 
-      <section className="container-page">
-        {lead && <ArticleCard article={lead} large />}
-      </section>
+      {loading ? (
+        <section className="container-page">
+          <div className="aspect-[4/3] md:aspect-[16/7] rounded-2xl bg-card border border-border animate-pulse" />
+        </section>
+      ) : items.length === 0 ? (
+        <section className="container-page py-20 text-center text-muted-foreground">No articles yet.</section>
+      ) : (
+        <>
+          <section className="container-page">
+            {lead && <ArticleCard article={lead} large />}
+          </section>
 
-      <section className="container-page mt-16 grid gap-12 md:grid-cols-2 lg:grid-cols-3">
-        {rest.concat(rest).map((a, i) => <ArticleCard key={`${a.slug}-${i}`} article={a} />)}
-      </section>
+          {rest.length > 0 && (
+            <section className="container-page mt-16 grid gap-12 md:grid-cols-2 lg:grid-cols-3">
+              {rest.map((a) => <ArticleCard key={a.slug} article={a} />)}
+            </section>
+          )}
+        </>
+      )}
 
       <Footer />
     </div>

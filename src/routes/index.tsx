@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { ArrowRight, MapPin, TrendingUp } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
-import { ListingCard } from "@/components/site/ListingCard";
-import { ArticleCard } from "@/components/site/ArticleCard";
-import { listings, articles, neighborhoods } from "@/lib/mock-data";
+import { ListingCard, type ListingCardData } from "@/components/site/ListingCard";
+import { ArticleCard, type ArticleCardData } from "@/components/site/ArticleCard";
+import { listings as mockListings, articles as mockArticles, neighborhoods } from "@/lib/mock-data";
+import { fetchPublishedListings, fetchPublishedArticles } from "@/lib/content-queries";
 import hero from "@/assets/hero-sandiego.jpg";
 
 export const Route = createFileRoute("/")({
@@ -28,8 +30,27 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const featured = listings.filter((l) => l.tier !== "free").slice(0, 3);
-  const [leadArticle, ...moreArticles] = articles;
+  const [featured, setFeatured] = useState<ListingCardData[]>([]);
+  const [posts, setPosts] = useState<ArticleCardData[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [l, a] = await Promise.all([
+          fetchPublishedListings({ limit: 6 }),
+          fetchPublishedArticles({ limit: 4 }),
+        ]);
+        const feat = l.filter((x) => x.tier !== "free").slice(0, 3);
+        setFeatured(feat.length ? (feat as ListingCardData[]) : (mockListings.filter((m) => m.tier !== "free").slice(0, 3) as ListingCardData[]));
+        setPosts(a.length ? (a as ArticleCardData[]) : (mockArticles as ArticleCardData[]));
+      } catch {
+        setFeatured(mockListings.filter((m) => m.tier !== "free").slice(0, 3) as ListingCardData[]);
+        setPosts(mockArticles as ArticleCardData[]);
+      }
+    })();
+  }, []);
+
+  const [leadArticle, ...moreArticles] = posts;
 
   return (
     <div className="min-h-screen bg-background">
