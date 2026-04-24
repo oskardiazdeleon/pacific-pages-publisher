@@ -98,9 +98,6 @@ export function Header() {
               {section.children && (
                 <div className="invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-150 absolute left-0 top-full pt-2 min-w-[220px] z-50">
                   <div className="rounded-xl border border-border bg-popover text-popover-foreground shadow-xl p-2">
-                    <div className="px-3 pb-2 pt-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                      Listing Types
-                    </div>
                     {section.children.map((child) => (
                       <Link
                         key={child.label}
