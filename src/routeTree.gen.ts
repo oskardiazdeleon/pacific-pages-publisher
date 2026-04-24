@@ -12,8 +12,18 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as NeighborhoodsRouteImport } from './routes/neighborhoods'
 import { Route as ListingsRouteImport } from './routes/listings'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ArticlesRouteImport } from './routes/articles'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminImpressionsRouteImport } from './routes/admin.impressions'
+import { Route as AdminListingsIndexRouteImport } from './routes/admin.listings.index'
+import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
+import { Route as AdminListingsNewRouteImport } from './routes/admin.listings.new'
+import { Route as AdminListingsIdRouteImport } from './routes/admin.listings.$id'
+import { Route as AdminArticlesNewRouteImport } from './routes/admin.articles.new'
+import { Route as AdminArticlesIdRouteImport } from './routes/admin.articles.$id'
 
 const PartnersRoute = PartnersRouteImport.update({
   id: '/partners',
@@ -30,9 +40,19 @@ const ListingsRoute = ListingsRouteImport.update({
   path: '/listings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ArticlesRoute = ArticlesRouteImport.update({
   id: '/articles',
   path: '/articles',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -40,46 +60,156 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminImpressionsRoute = AdminImpressionsRouteImport.update({
+  id: '/impressions',
+  path: '/impressions',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminListingsIndexRoute = AdminListingsIndexRouteImport.update({
+  id: '/listings/',
+  path: '/listings/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminArticlesIndexRoute = AdminArticlesIndexRouteImport.update({
+  id: '/articles/',
+  path: '/articles/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminListingsNewRoute = AdminListingsNewRouteImport.update({
+  id: '/listings/new',
+  path: '/listings/new',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminListingsIdRoute = AdminListingsIdRouteImport.update({
+  id: '/listings/$id',
+  path: '/listings/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminArticlesNewRoute = AdminArticlesNewRouteImport.update({
+  id: '/articles/new',
+  path: '/articles/new',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminArticlesIdRoute = AdminArticlesIdRouteImport.update({
+  id: '/articles/$id',
+  path: '/articles/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/articles': typeof ArticlesRoute
+  '/auth': typeof AuthRoute
   '/listings': typeof ListingsRoute
   '/neighborhoods': typeof NeighborhoodsRoute
   '/partners': typeof PartnersRoute
+  '/admin/impressions': typeof AdminImpressionsRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/articles/$id': typeof AdminArticlesIdRoute
+  '/admin/articles/new': typeof AdminArticlesNewRoute
+  '/admin/listings/$id': typeof AdminListingsIdRoute
+  '/admin/listings/new': typeof AdminListingsNewRoute
+  '/admin/articles/': typeof AdminArticlesIndexRoute
+  '/admin/listings/': typeof AdminListingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/articles': typeof ArticlesRoute
+  '/auth': typeof AuthRoute
   '/listings': typeof ListingsRoute
   '/neighborhoods': typeof NeighborhoodsRoute
   '/partners': typeof PartnersRoute
+  '/admin/impressions': typeof AdminImpressionsRoute
+  '/admin': typeof AdminIndexRoute
+  '/admin/articles/$id': typeof AdminArticlesIdRoute
+  '/admin/articles/new': typeof AdminArticlesNewRoute
+  '/admin/listings/$id': typeof AdminListingsIdRoute
+  '/admin/listings/new': typeof AdminListingsNewRoute
+  '/admin/articles': typeof AdminArticlesIndexRoute
+  '/admin/listings': typeof AdminListingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/articles': typeof ArticlesRoute
+  '/auth': typeof AuthRoute
   '/listings': typeof ListingsRoute
   '/neighborhoods': typeof NeighborhoodsRoute
   '/partners': typeof PartnersRoute
+  '/admin/impressions': typeof AdminImpressionsRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/articles/$id': typeof AdminArticlesIdRoute
+  '/admin/articles/new': typeof AdminArticlesNewRoute
+  '/admin/listings/$id': typeof AdminListingsIdRoute
+  '/admin/listings/new': typeof AdminListingsNewRoute
+  '/admin/articles/': typeof AdminArticlesIndexRoute
+  '/admin/listings/': typeof AdminListingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/articles' | '/listings' | '/neighborhoods' | '/partners'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/articles' | '/listings' | '/neighborhoods' | '/partners'
-  id:
-    | '__root__'
+  fullPaths:
     | '/'
+    | '/admin'
     | '/articles'
+    | '/auth'
     | '/listings'
     | '/neighborhoods'
     | '/partners'
+    | '/admin/impressions'
+    | '/admin/'
+    | '/admin/articles/$id'
+    | '/admin/articles/new'
+    | '/admin/listings/$id'
+    | '/admin/listings/new'
+    | '/admin/articles/'
+    | '/admin/listings/'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/articles'
+    | '/auth'
+    | '/listings'
+    | '/neighborhoods'
+    | '/partners'
+    | '/admin/impressions'
+    | '/admin'
+    | '/admin/articles/$id'
+    | '/admin/articles/new'
+    | '/admin/listings/$id'
+    | '/admin/listings/new'
+    | '/admin/articles'
+    | '/admin/listings'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/articles'
+    | '/auth'
+    | '/listings'
+    | '/neighborhoods'
+    | '/partners'
+    | '/admin/impressions'
+    | '/admin/'
+    | '/admin/articles/$id'
+    | '/admin/articles/new'
+    | '/admin/listings/$id'
+    | '/admin/listings/new'
+    | '/admin/articles/'
+    | '/admin/listings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   ArticlesRoute: typeof ArticlesRoute
+  AuthRoute: typeof AuthRoute
   ListingsRoute: typeof ListingsRoute
   NeighborhoodsRoute: typeof NeighborhoodsRoute
   PartnersRoute: typeof PartnersRoute
@@ -108,11 +238,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ListingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/articles': {
       id: '/articles'
       path: '/articles'
       fullPath: '/articles'
       preLoaderRoute: typeof ArticlesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -122,12 +266,94 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/impressions': {
+      id: '/admin/impressions'
+      path: '/impressions'
+      fullPath: '/admin/impressions'
+      preLoaderRoute: typeof AdminImpressionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/listings/': {
+      id: '/admin/listings/'
+      path: '/listings'
+      fullPath: '/admin/listings/'
+      preLoaderRoute: typeof AdminListingsIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/articles/': {
+      id: '/admin/articles/'
+      path: '/articles'
+      fullPath: '/admin/articles/'
+      preLoaderRoute: typeof AdminArticlesIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/listings/new': {
+      id: '/admin/listings/new'
+      path: '/listings/new'
+      fullPath: '/admin/listings/new'
+      preLoaderRoute: typeof AdminListingsNewRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/listings/$id': {
+      id: '/admin/listings/$id'
+      path: '/listings/$id'
+      fullPath: '/admin/listings/$id'
+      preLoaderRoute: typeof AdminListingsIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/articles/new': {
+      id: '/admin/articles/new'
+      path: '/articles/new'
+      fullPath: '/admin/articles/new'
+      preLoaderRoute: typeof AdminArticlesNewRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/articles/$id': {
+      id: '/admin/articles/$id'
+      path: '/articles/$id'
+      fullPath: '/admin/articles/$id'
+      preLoaderRoute: typeof AdminArticlesIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminImpressionsRoute: typeof AdminImpressionsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminArticlesIdRoute: typeof AdminArticlesIdRoute
+  AdminArticlesNewRoute: typeof AdminArticlesNewRoute
+  AdminListingsIdRoute: typeof AdminListingsIdRoute
+  AdminListingsNewRoute: typeof AdminListingsNewRoute
+  AdminArticlesIndexRoute: typeof AdminArticlesIndexRoute
+  AdminListingsIndexRoute: typeof AdminListingsIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminImpressionsRoute: AdminImpressionsRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  AdminArticlesIdRoute: AdminArticlesIdRoute,
+  AdminArticlesNewRoute: AdminArticlesNewRoute,
+  AdminListingsIdRoute: AdminListingsIdRoute,
+  AdminListingsNewRoute: AdminListingsNewRoute,
+  AdminArticlesIndexRoute: AdminArticlesIndexRoute,
+  AdminListingsIndexRoute: AdminListingsIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   ArticlesRoute: ArticlesRoute,
+  AuthRoute: AuthRoute,
   ListingsRoute: ListingsRoute,
   NeighborhoodsRoute: NeighborhoodsRoute,
   PartnersRoute: PartnersRoute,

@@ -4,7 +4,7 @@ import { Plus, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 
-export const Route = createFileRoute("/admin/listings")({
+export const Route = createFileRoute("/admin/listings/")({
   component: AdminListings,
 });
 

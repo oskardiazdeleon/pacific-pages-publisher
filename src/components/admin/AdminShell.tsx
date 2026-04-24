@@ -2,12 +2,17 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { LogOut, LayoutDashboard, FileText, Building2, BarChart3 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
-const navItems = [
+const navItems: ReadonlyArray<{
+  to: "/admin" | "/admin/listings" | "/admin/articles" | "/admin/impressions";
+  label: string;
+  icon: typeof LayoutDashboard;
+  exact?: boolean;
+}> = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/listings", label: "Listings", icon: Building2 },
   { to: "/admin/articles", label: "Articles", icon: FileText },
   { to: "/admin/impressions", label: "Impressions", icon: BarChart3 },
-] as const;
+];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const { user, roles, signOut } = useAuth();
