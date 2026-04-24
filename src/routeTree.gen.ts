@@ -18,6 +18,7 @@ import { Route as ArticlesRouteImport } from './routes/articles'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ListingsIndexRouteImport } from './routes/listings.index'
+import { Route as ArticlesIndexRouteImport } from './routes/articles.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ListingsSlugRouteImport } from './routes/listings.$slug'
 import { Route as ArticlesSlugRouteImport } from './routes/articles.$slug'
@@ -74,6 +75,11 @@ const ListingsIndexRoute = ListingsIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => ListingsRoute,
+} as any)
+const ArticlesIndexRoute = ArticlesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ArticlesRoute,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/articles/$slug': typeof ArticlesSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/articles/': typeof ArticlesIndexRoute
   '/listings/': typeof ListingsIndexRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
@@ -155,7 +162,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/articles': typeof ArticlesRouteWithChildren
   '/auth': typeof AuthRoute
   '/neighborhoods': typeof NeighborhoodsRoute
   '/partners': typeof PartnersRoute
@@ -166,6 +172,7 @@ export interface FileRoutesByTo {
   '/articles/$slug': typeof ArticlesSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
   '/admin': typeof AdminIndexRoute
+  '/articles': typeof ArticlesIndexRoute
   '/listings': typeof ListingsIndexRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
@@ -189,6 +196,7 @@ export interface FileRoutesById {
   '/articles/$slug': typeof ArticlesSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/articles/': typeof ArticlesIndexRoute
   '/listings/': typeof ListingsIndexRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
@@ -213,6 +221,7 @@ export interface FileRouteTypes {
     | '/articles/$slug'
     | '/listings/$slug'
     | '/admin/'
+    | '/articles/'
     | '/listings/'
     | '/admin/articles/$id'
     | '/admin/articles/new'
@@ -223,7 +232,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/articles'
     | '/auth'
     | '/neighborhoods'
     | '/partners'
@@ -234,6 +242,7 @@ export interface FileRouteTypes {
     | '/articles/$slug'
     | '/listings/$slug'
     | '/admin'
+    | '/articles'
     | '/listings'
     | '/admin/articles/$id'
     | '/admin/articles/new'
@@ -256,6 +265,7 @@ export interface FileRouteTypes {
     | '/articles/$slug'
     | '/listings/$slug'
     | '/admin/'
+    | '/articles/'
     | '/listings/'
     | '/admin/articles/$id'
     | '/admin/articles/new'
@@ -340,6 +350,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/listings/'
       preLoaderRoute: typeof ListingsIndexRouteImport
       parentRoute: typeof ListingsRoute
+    }
+    '/articles/': {
+      id: '/articles/'
+      path: '/'
+      fullPath: '/articles/'
+      preLoaderRoute: typeof ArticlesIndexRouteImport
+      parentRoute: typeof ArticlesRoute
     }
     '/admin/': {
       id: '/admin/'
@@ -449,10 +466,12 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface ArticlesRouteChildren {
   ArticlesSlugRoute: typeof ArticlesSlugRoute
+  ArticlesIndexRoute: typeof ArticlesIndexRoute
 }
 
 const ArticlesRouteChildren: ArticlesRouteChildren = {
   ArticlesSlugRoute: ArticlesSlugRoute,
+  ArticlesIndexRoute: ArticlesIndexRoute,
 }
 
 const ArticlesRouteWithChildren = ArticlesRoute._addFileChildren(
