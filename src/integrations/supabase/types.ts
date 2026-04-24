@@ -14,16 +14,276 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      articles: {
+        Row: {
+          author_id: string | null
+          body: string | null
+          category: string
+          created_at: string
+          excerpt: string | null
+          hero_image: string | null
+          id: string
+          meta_description: string | null
+          meta_title: string | null
+          published_at: string | null
+          read_time_minutes: number | null
+          slug: string
+          status: Database["public"]["Enums"]["content_status"]
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          body?: string | null
+          category: string
+          created_at?: string
+          excerpt?: string | null
+          hero_image?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          read_time_minutes?: number | null
+          slug: string
+          status?: Database["public"]["Enums"]["content_status"]
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          body?: string | null
+          category?: string
+          created_at?: string
+          excerpt?: string | null
+          hero_image?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          read_time_minutes?: number | null
+          slug?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      listing_impressions: {
+        Row: {
+          created_at: string
+          id: string
+          impression_type: Database["public"]["Enums"]["impression_type"]
+          listing_id: string
+          referrer: string | null
+          session_hash: string | null
+          source: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          impression_type?: Database["public"]["Enums"]["impression_type"]
+          listing_id: string
+          referrer?: string | null
+          session_hash?: string | null
+          source?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          impression_type?: Database["public"]["Enums"]["impression_type"]
+          listing_id?: string
+          referrer?: string | null
+          session_hash?: string | null
+          source?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_impressions_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listings: {
+        Row: {
+          address: string | null
+          category: Database["public"]["Enums"]["listing_category"]
+          created_at: string
+          description: string | null
+          email: string | null
+          gallery: string[] | null
+          hero_image: string | null
+          hours: Json | null
+          id: string
+          meta_description: string | null
+          meta_title: string | null
+          name: string
+          neighborhood: string
+          partner_id: string | null
+          phone: string | null
+          price_range: string | null
+          published_at: string | null
+          rating: number | null
+          short_description: string | null
+          slug: string
+          status: Database["public"]["Enums"]["content_status"]
+          tier: Database["public"]["Enums"]["listing_tier"]
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          category: Database["public"]["Enums"]["listing_category"]
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          gallery?: string[] | null
+          hero_image?: string | null
+          hours?: Json | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          name: string
+          neighborhood: string
+          partner_id?: string | null
+          phone?: string | null
+          price_range?: string | null
+          published_at?: string | null
+          rating?: number | null
+          short_description?: string | null
+          slug: string
+          status?: Database["public"]["Enums"]["content_status"]
+          tier?: Database["public"]["Enums"]["listing_tier"]
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          category?: Database["public"]["Enums"]["listing_category"]
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          gallery?: string[] | null
+          hero_image?: string | null
+          hours?: Json | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          name?: string
+          neighborhood?: string
+          partner_id?: string | null
+          phone?: string | null
+          price_range?: string | null
+          published_at?: string | null
+          rating?: number | null
+          short_description?: string | null
+          slug?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          tier?: Database["public"]["Enums"]["listing_tier"]
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          display_name: string | null
+          headshot_url: string | null
+          id: string
+          instagram: string | null
+          partner_company: string | null
+          twitter: string | null
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          headshot_url?: string | null
+          id?: string
+          instagram?: string | null
+          partner_company?: string | null
+          twitter?: string | null
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          headshot_url?: string | null
+          id?: string
+          instagram?: string | null
+          partner_company?: string | null
+          twitter?: string | null
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "editor" | "partner" | "user"
+      content_status: "draft" | "published" | "archived"
+      impression_type: "view" | "click" | "phone_click" | "website_click"
+      listing_category:
+        | "Restaurant"
+        | "Hotel"
+        | "Attraction"
+        | "Tour"
+        | "Shopping"
+        | "Nightlife"
+      listing_tier: "free" | "featured" | "premium"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +410,19 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "editor", "partner", "user"],
+      content_status: ["draft", "published", "archived"],
+      impression_type: ["view", "click", "phone_click", "website_click"],
+      listing_category: [
+        "Restaurant",
+        "Hotel",
+        "Attraction",
+        "Tour",
+        "Shopping",
+        "Nightlife",
+      ],
+      listing_tier: ["free", "featured", "premium"],
+    },
   },
 } as const
