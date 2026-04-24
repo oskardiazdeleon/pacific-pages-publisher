@@ -40,10 +40,11 @@ const tiers = [
       "Everything in Free",
       "Featured badge & priority placement",
       "Up to 10 photos + gallery",
+      "Insider member discount listing",
       "Monthly impression reports",
     ],
     cta: "Start Featured",
-    highlight: true,
+    highlight: false,
   },
   {
     name: "Premium",
@@ -54,10 +55,27 @@ const tiers = [
       "Everything in Featured",
       "Homepage hero rotation",
       "Editorial sponsored article (1/qtr)",
+      "Featured in Insider member newsletter",
       "Real-time analytics dashboard",
       "Dedicated account manager",
     ],
     cta: "Go Premium",
+    highlight: true,
+  },
+  {
+    name: "Founding Partner",
+    price: "$999",
+    suffix: "/mo",
+    desc: "Category exclusivity and co-branded campaigns.",
+    features: [
+      "Everything in Premium",
+      "Category exclusivity in your neighborhood",
+      "Co-branded landing page (e.g. /partners/your-brand)",
+      "Quarterly social campaign (3.7M annual reach)",
+      "Direct integration with Insider booking flow",
+      "Founding-rate locked for life",
+    ],
+    cta: "Apply for Founding",
     highlight: false,
   },
 ];
@@ -77,7 +95,7 @@ function PartnersPage() {
         </p>
       </section>
 
-      <section className="container-page grid gap-6 md:grid-cols-3">
+      <section className="container-page grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {tiers.map((t) => (
           <div
             key={t.name}
@@ -119,6 +137,35 @@ function PartnersPage() {
             </button>
           </div>
         ))}
+      </section>
+
+      {/* Insider flywheel */}
+      <section className="container-page mt-20">
+        <div className="rounded-3xl bg-primary text-primary-foreground p-10 md:p-14 grid gap-10 md:grid-cols-2 items-center">
+          <div>
+            <div className="eyebrow text-teal-soft">The Insider flywheel</div>
+            <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">
+              Your member discount is the loop that funds itself.
+            </h2>
+            <p className="mt-3 text-primary-foreground/80 max-w-md">
+              Every Featured tier and above includes a discount listing inside the sandiego.com
+              Insider Travel Club. The discount makes membership more valuable. More members means
+              more bookings into your business.
+            </p>
+          </div>
+          <div className="grid gap-3 text-sm">
+            {[
+              "1. You list a member discount (e.g. 15% off)",
+              "2. We promote it across 133K+ social followers",
+              "3. New Insider members book directly with you",
+              "4. Your renewal funds the next 90-day campaign",
+            ].map((step) => (
+              <div key={step} className="rounded-xl bg-primary-foreground/10 px-4 py-3 backdrop-blur">
+                {step}
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       <section className="container-page mt-20">

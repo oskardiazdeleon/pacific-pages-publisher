@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, MapPin, TrendingUp } from "lucide-react";
+import { ArrowRight, MapPin, Sparkles, TrendingUp } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ListingCard, type ListingCardData } from "@/components/site/ListingCard";
 import { ArticleCard, type ArticleCardData } from "@/components/site/ArticleCard";
+import { EmailCapture } from "@/components/site/EmailCapture";
 import { listings as mockListings, articles as mockArticles, neighborhoods } from "@/lib/mock-data";
 import { fetchPublishedListings, fetchPublishedArticles } from "@/lib/content-queries";
 import hero from "@/assets/hero-sandiego.jpg";
@@ -79,16 +80,16 @@ function HomePage() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
-              to="/listings"
+              to="/insider"
               className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground hover:opacity-90 transition"
             >
-              Explore listings <ArrowRight className="h-4 w-4" />
+              <Sparkles className="h-4 w-4" /> Join Insider — from $19/mo
             </Link>
             <Link
-              to="/articles"
+              to="/listings"
               className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/30 bg-primary-foreground/10 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-primary-foreground/20 transition"
             >
-              Read the magazine
+              Explore San Diego <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
@@ -162,17 +163,22 @@ function HomePage() {
         </div>
       </section>
 
+      {/* Insider lead magnet */}
+      <section className="container-page mt-24">
+        <EmailCapture source="home_lead_magnet" />
+      </section>
+
       {/* Partner CTA */}
       <section className="container-page mt-24">
         <div className="overflow-hidden rounded-3xl bg-primary text-primary-foreground p-10 md:p-16 grid md:grid-cols-2 gap-8 items-center">
           <div>
             <div className="eyebrow text-teal-soft">For partners</div>
             <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">
-              Reach millions of travelers planning a San Diego trip.
+              Reach high-intent travelers — and Insider members ready to book.
             </h2>
             <p className="mt-3 text-primary-foreground/80 max-w-md">
-              Featured and Premium listings put your business in front of high-intent visitors —
-              with transparent impression reporting and editorial integrity.
+              Featured and Premium listings put your business in front of 40K+ active US travelers a
+              quarter. Offer an Insider member discount and we send you bookings, too.
             </p>
             <Link
               to="/partners"
@@ -183,9 +189,9 @@ function HomePage() {
           </div>
           <div className="grid grid-cols-3 gap-4 text-center">
             {[
-              { n: "2.4M", l: "Monthly visitors" },
-              { n: "180k", l: "Avg. impressions" },
-              { n: "94%", l: "Renewal rate" },
+              { n: "133K", l: "Social followers" },
+              { n: "40K", l: "Active US travelers / qtr" },
+              { n: "3.7M", l: "Annual organic views" },
             ].map((s) => (
               <div key={s.l} className="rounded-2xl bg-primary-foreground/10 p-5">
                 <div className="font-display text-3xl font-semibold text-teal-soft">{s.n}</div>

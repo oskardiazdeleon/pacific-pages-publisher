@@ -71,6 +71,42 @@ export type Database = {
         }
         Relationships: []
       }
+      email_leads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          source: string | null
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          source?: string | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          source?: string | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
       import_job_items: {
         Row: {
           attempts: number
@@ -163,6 +199,39 @@ export type Database = {
           status?: Database["public"]["Enums"]["import_job_status"]
           total?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      insider_signups: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          tier: Database["public"]["Enums"]["insider_tier"]
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          tier: Database["public"]["Enums"]["insider_tier"]
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          tier?: Database["public"]["Enums"]["insider_tier"]
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
         }
         Relationships: []
       }
@@ -378,6 +447,7 @@ export type Database = {
         | "failed"
         | "cancelled"
       impression_type: "view" | "click" | "phone_click" | "website_click"
+      insider_tier: "trial" | "explorer" | "premier" | "plus" | "elite"
       listing_category:
         | "Restaurant"
         | "Hotel"
@@ -524,6 +594,7 @@ export const Constants = {
         "cancelled",
       ],
       impression_type: ["view", "click", "phone_click", "website_click"],
+      insider_tier: ["trial", "explorer", "premier", "plus", "elite"],
       listing_category: [
         "Restaurant",
         "Hotel",
