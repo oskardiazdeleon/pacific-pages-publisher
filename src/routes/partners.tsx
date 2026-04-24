@@ -95,7 +95,7 @@ function PartnersPage() {
         </p>
       </section>
 
-      <section className="container-page grid gap-6 md:grid-cols-3">
+      <section className="container-page grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {tiers.map((t) => (
           <div
             key={t.name}
