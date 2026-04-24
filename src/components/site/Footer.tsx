@@ -13,9 +13,6 @@ export function Footer() {
               alt="sandiego.com"
               className="h-12 w-auto"
             />
-            <div className="font-display text-2xl font-semibold">
-              sandiego<span className="text-teal-soft">.com</span>
-            </div>
           </div>
           <p className="mt-4 max-w-md text-sm text-primary-foreground/70">
             The definitive guide to America's Finest City — places to stay, eat, explore and the
