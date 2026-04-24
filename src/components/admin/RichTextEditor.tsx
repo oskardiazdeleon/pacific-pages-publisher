@@ -125,7 +125,7 @@ export function RichTextEditor({ value, onChange, placeholder, uploadFolder }: P
   useEffect(() => {
     if (!editor) return;
     if (value && value !== editor.getHTML()) {
-      editor.commands.setContent(value, { emitUpdate: false });
+      editor.commands.setContent(value, false);
     }
   }, [value, editor]);
 
