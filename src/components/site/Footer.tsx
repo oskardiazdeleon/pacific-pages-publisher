@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Facebook, Instagram, Twitter } from "lucide-react";
-import sandiegoLogo from "@/assets/sandiego-logo.svg";
+import sandiegoLogo from "@/assets/sandiego-logo.png";
 
 export function Footer() {
   return (
