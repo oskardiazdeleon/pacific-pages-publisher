@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, Menu, Search, X } from "lucide-react";
 import { useState } from "react";
+import sandiegoLogo from "@/assets/sandiego-logo.svg";
 
 /**
  * Top navigation modeled on sandiego.com's information architecture.
