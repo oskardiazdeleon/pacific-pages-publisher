@@ -71,6 +71,101 @@ export type Database = {
         }
         Relationships: []
       }
+      import_job_items: {
+        Row: {
+          attempts: number
+          created_at: string
+          id: string
+          job_id: string
+          last_error: string | null
+          result_kind: string | null
+          result_slug: string | null
+          status: Database["public"]["Enums"]["import_item_status"]
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          id?: string
+          job_id: string
+          last_error?: string | null
+          result_kind?: string | null
+          result_slug?: string | null
+          status?: Database["public"]["Enums"]["import_item_status"]
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          id?: string
+          job_id?: string
+          last_error?: string | null
+          result_kind?: string | null
+          result_slug?: string | null
+          status?: Database["public"]["Enums"]["import_item_status"]
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_job_items_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "import_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_jobs: {
+        Row: {
+          created_at: string
+          created_by: string
+          done_count: number
+          error: string | null
+          failed_count: number
+          id: string
+          kind: string
+          publish: boolean
+          search: string | null
+          section_url: string
+          status: Database["public"]["Enums"]["import_job_status"]
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          done_count?: number
+          error?: string | null
+          failed_count?: number
+          id?: string
+          kind: string
+          publish?: boolean
+          search?: string | null
+          section_url: string
+          status?: Database["public"]["Enums"]["import_job_status"]
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          done_count?: number
+          error?: string | null
+          failed_count?: number
+          id?: string
+          kind?: string
+          publish?: boolean
+          search?: string | null
+          section_url?: string
+          status?: Database["public"]["Enums"]["import_job_status"]
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       listing_impressions: {
         Row: {
           created_at: string
@@ -275,6 +370,13 @@ export type Database = {
     Enums: {
       app_role: "admin" | "editor" | "partner" | "user"
       content_status: "draft" | "published" | "archived"
+      import_item_status: "pending" | "processing" | "done" | "failed"
+      import_job_status:
+        | "pending"
+        | "running"
+        | "completed"
+        | "failed"
+        | "cancelled"
       impression_type: "view" | "click" | "phone_click" | "website_click"
       listing_category:
         | "Restaurant"
@@ -413,6 +515,14 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "editor", "partner", "user"],
       content_status: ["draft", "published", "archived"],
+      import_item_status: ["pending", "processing", "done", "failed"],
+      import_job_status: [
+        "pending",
+        "running",
+        "completed",
+        "failed",
+        "cancelled",
+      ],
       impression_type: ["view", "click", "phone_click", "website_click"],
       listing_category: [
         "Restaurant",

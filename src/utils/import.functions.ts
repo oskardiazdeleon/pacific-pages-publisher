@@ -12,6 +12,9 @@ const NEIGHBORHOODS = [
   "Mission Valley", "Old Town", "Point Loma", "Encinitas", "Carlsbad",
 ];
 
+const MAX_ATTEMPTS = 3;
+const BATCH_SIZE = 5;
+
 function slugify(s: string) {
   return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80);
 }
@@ -27,11 +30,7 @@ async function firecrawlScrape(url: string) {
   const res = await fetch("https://api.firecrawl.dev/v2/scrape", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      url,
-      formats: ["markdown", "html"],
-      onlyMainContent: true,
-    }),
+    body: JSON.stringify({ url, formats: ["markdown", "html"], onlyMainContent: true }),
   });
   if (!res.ok) {
     const t = await res.text();
@@ -80,11 +79,11 @@ async function aiNormalize(scraped: { markdown: string; metadata: Record<string,
             category: { type: "string", enum: ["Restaurant", "Hotel", "Attraction", "Tour", "Shopping", "Nightlife"] },
             neighborhood: { type: "string" },
             short_description: { type: "string" },
-            description: { type: "string", description: "Full markdown description, 2-4 paragraphs" },
+            description: { type: "string" },
             address: { type: "string" },
             phone: { type: "string" },
             website: { type: "string" },
-            price_range: { type: "string", description: "$, $$, $$$ or $$$$" },
+            price_range: { type: "string" },
             meta_title: { type: "string" },
             meta_description: { type: "string" },
           },
@@ -96,9 +95,9 @@ async function aiNormalize(scraped: { markdown: string; metadata: Record<string,
           properties: {
             kind: { type: "string", enum: ["article"] },
             title: { type: "string" },
-            category: { type: "string", description: "Editorial category, e.g. Food, Hotels, Things To Do, Travel" },
-            excerpt: { type: "string", description: "1-2 sentence summary" },
-            body: { type: "string", description: "Full article body in HTML, with <h2>, <p>, <ul>, etc." },
+            category: { type: "string" },
+            excerpt: { type: "string" },
+            body: { type: "string" },
             tags: { type: "array", items: { type: "string" } },
             read_time_minutes: { type: "number" },
             meta_title: { type: "string" },
@@ -110,8 +109,8 @@ async function aiNormalize(scraped: { markdown: string; metadata: Record<string,
 
   const sys =
     kind === "listing"
-      ? `You convert scraped web content into a clean San Diego listing record. Pick the best matching neighborhood from this list when possible: ${NEIGHBORHOODS.join(", ")}. Write original, concise editorial-quality copy — do not copy verbatim marketing text. Detect the listing category accurately.`
-      : `You convert scraped web content into a clean San Diego editorial article. Preserve the structure with semantic HTML (<h2>, <p>, <ul>, <blockquote>). Write original, concise editorial copy. Estimate read time based on body length (~200 wpm).`;
+      ? `You convert scraped web content into a clean San Diego listing record. Pick the best matching neighborhood from this list when possible: ${NEIGHBORHOODS.join(", ")}. Write original, concise editorial-quality copy. Detect the listing category accurately.`
+      : `You convert scraped web content into a clean San Diego editorial article. Preserve the structure with semantic HTML. Write original, concise editorial copy. Estimate read time (~200 wpm).`;
 
   const user = `Source URL: ${scraped.sourceUrl}
 Page title: ${scraped.metadata?.title ?? ""}
@@ -129,10 +128,7 @@ ${scraped.markdown.slice(0, 15000)}`;
         { role: "system", content: sys },
         { role: "user", content: user },
       ],
-      response_format: {
-        type: "json_schema",
-        json_schema: { name: "import_record", strict: true, schema },
-      },
+      response_format: { type: "json_schema", json_schema: { name: "import_record", strict: true, schema } },
     }),
   });
 
@@ -178,10 +174,7 @@ async function insertListing(record: any, hero: string | null, autoPublish: bool
     published_at: autoPublish ? new Date().toISOString() : null,
   };
   const { data, error } = await supabaseAdmin
-    .from("listings")
-    .upsert(payload, { onConflict: "slug" })
-    .select("id, slug")
-    .single();
+    .from("listings").upsert(payload, { onConflict: "slug" }).select("id, slug").single();
   if (error) throw new Error(error.message);
   return data;
 }
@@ -203,24 +196,33 @@ async function insertArticle(record: any, hero: string | null, autoPublish: bool
     published_at: autoPublish ? new Date().toISOString() : null,
   };
   const { data, error } = await supabaseAdmin
-    .from("articles")
-    .upsert(payload, { onConflict: "slug" })
-    .select("id, slug")
-    .single();
+    .from("articles").upsert(payload, { onConflict: "slug" }).select("id, slug").single();
   if (error) throw new Error(error.message);
   return data;
 }
 
+async function processOneUrl(url: string, kind: ContentKind, publish: boolean) {
+  const scraped = await firecrawlScrape(url);
+  const record = await aiNormalize(scraped, kind);
+  const hero = pickHeroImage(scraped.html, scraped.metadata, url);
+  return kind === "listing"
+    ? await insertListing(record, hero, publish)
+    : await insertArticle(record, hero, publish);
+}
+
 async function ensureAdmin(supabase: any, userId: string) {
-  const { data, error } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId);
+  const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
   if (error) throw new Error(error.message);
   const roles = (data ?? []).map((r: any) => r.role);
   if (!roles.includes("admin") && !roles.includes("editor")) {
     throw new Error("Forbidden: admin or editor role required");
   }
+}
+
+function guessKind(url: string): ContentKind {
+  const u = url.toLowerCase();
+  if (/\b(blog|article|news|story|guide|stories)\b/.test(u)) return "article";
+  return "listing";
 }
 
 const ImportInput = z.object({
@@ -234,79 +236,201 @@ export const importFromUrl = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => ImportInput.parse(d))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
-
-    const scraped = await firecrawlScrape(data.url);
-
-    let kind: ContentKind = data.kind === "auto" ? guessKind(data.url) : data.kind;
-    const record = await aiNormalize(scraped, kind);
-    if (record.kind && (record.kind === "listing" || record.kind === "article")) {
-      kind = record.kind;
-    }
-
-    const hero = pickHeroImage(scraped.html, scraped.metadata, data.url);
-
-    const result =
-      kind === "listing"
-        ? await insertListing(record, hero, data.publish)
-        : await insertArticle(record, hero, data.publish);
-
+    const kind: ContentKind = data.kind === "auto" ? guessKind(data.url) : data.kind;
+    const result = await processOneUrl(data.url, kind, data.publish);
     return { kind, slug: result.slug, id: result.id };
   });
 
-function guessKind(url: string): ContentKind {
-  const u = url.toLowerCase();
-  if (/\b(blog|article|news|story|guide|stories)\b/.test(u)) return "article";
-  return "listing";
-}
+// ============= Queued bulk import =============
 
-const BulkInput = z.object({
+const EnqueueInput = z.object({
   sectionUrl: z.string().url(),
   kind: z.enum(["listing", "article"]),
   search: z.string().optional(),
-  limit: z.number().int().min(1).max(50).default(15),
+  limit: z.number().int().min(1).max(200).default(25),
   publish: z.boolean().default(true),
 });
 
-export const bulkImportSection = createServerFn({ method: "POST" })
+export const enqueueBulkImport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => BulkInput.parse(d))
+  .inputValidator((d: unknown) => EnqueueInput.parse(d))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
 
     const links = await firecrawlMap(data.sectionUrl, data.search, data.limit * 3);
-
-    // Filter to plausible detail pages on same host
     const base = new URL(data.sectionUrl);
-    const candidates = Array.from(
-      new Set(
-        links
-          .filter((l) => {
-            try {
-              const u = new URL(l);
-              if (u.hostname.replace(/^www\./, "") !== base.hostname.replace(/^www\./, "")) return false;
-              return u.pathname.length > base.pathname.length;
-            } catch {
-              return false;
-            }
-          })
-      )
-    ).slice(0, data.limit);
+    const candidates = Array.from(new Set(
+      links.filter((l) => {
+        try {
+          const u = new URL(l);
+          if (u.hostname.replace(/^www\./, "") !== base.hostname.replace(/^www\./, "")) return false;
+          return u.pathname.length > base.pathname.length;
+        } catch { return false; }
+      })
+    )).slice(0, data.limit);
 
-    const results: Array<{ url: string; ok: boolean; slug?: string; error?: string }> = [];
-    for (const link of candidates) {
+    const { data: job, error: jobErr } = await supabaseAdmin
+      .from("import_jobs")
+      .insert({
+        created_by: context.userId,
+        section_url: data.sectionUrl,
+        kind: data.kind,
+        search: data.search ?? null,
+        publish: data.publish,
+        status: "pending",
+        total: candidates.length,
+      })
+      .select("id").single();
+    if (jobErr) throw new Error(jobErr.message);
+
+    if (candidates.length > 0) {
+      const rows = candidates.map((url) => ({ job_id: job.id, url }));
+      const { error: itemsErr } = await supabaseAdmin.from("import_job_items").insert(rows);
+      if (itemsErr) throw new Error(itemsErr.message);
+    }
+
+    return { jobId: job.id, total: candidates.length };
+  });
+
+const ProcessInput = z.object({
+  jobId: z.string().uuid(),
+  batchSize: z.number().int().min(1).max(20).default(BATCH_SIZE),
+});
+
+export const processImportBatch = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => ProcessInput.parse(d))
+  .handler(async ({ data, context }) => {
+    await ensureAdmin(context.supabase, context.userId);
+
+    const { data: job, error: jobErr } = await supabaseAdmin
+      .from("import_jobs").select("*").eq("id", data.jobId).single();
+    if (jobErr || !job) throw new Error(jobErr?.message ?? "Job not found");
+    if (job.status === "completed" || job.status === "cancelled") {
+      return { processed: 0, remaining: 0, status: job.status };
+    }
+
+    // Fetch next batch of pending items (or failed under retry limit)
+    const { data: items, error: itemsErr } = await supabaseAdmin
+      .from("import_job_items")
+      .select("*")
+      .eq("job_id", data.jobId)
+      .in("status", ["pending"])
+      .lt("attempts", MAX_ATTEMPTS)
+      .order("created_at", { ascending: true })
+      .limit(data.batchSize);
+    if (itemsErr) throw new Error(itemsErr.message);
+
+    if (!items || items.length === 0) {
+      // Mark job complete based on remaining state
+      const { count: pendingCount } = await supabaseAdmin
+        .from("import_job_items").select("*", { count: "exact", head: true })
+        .eq("job_id", data.jobId).eq("status", "pending").lt("attempts", MAX_ATTEMPTS);
+      if ((pendingCount ?? 0) === 0) {
+        const { count: failedCount } = await supabaseAdmin
+          .from("import_job_items").select("*", { count: "exact", head: true })
+          .eq("job_id", data.jobId).eq("status", "failed");
+        await supabaseAdmin.from("import_jobs").update({
+          status: (failedCount ?? 0) > 0 ? "failed" : "completed",
+        }).eq("id", data.jobId);
+      }
+      return { processed: 0, remaining: 0, status: "idle" };
+    }
+
+    if (job.status !== "running") {
+      await supabaseAdmin.from("import_jobs").update({ status: "running" }).eq("id", data.jobId);
+    }
+
+    // Mark items processing
+    const ids = items.map((i: any) => i.id);
+    await supabaseAdmin.from("import_job_items").update({ status: "processing" }).in("id", ids);
+
+    let done = 0;
+    let failed = 0;
+    for (const item of items) {
+      const attempts = item.attempts + 1;
       try {
-        const scraped = await firecrawlScrape(link);
-        const record = await aiNormalize(scraped, data.kind);
-        const hero = pickHeroImage(scraped.html, scraped.metadata, link);
-        const r =
-          data.kind === "listing"
-            ? await insertListing(record, hero, data.publish)
-            : await insertArticle(record, hero, data.publish);
-        results.push({ url: link, ok: true, slug: r.slug });
+        const r = await processOneUrl(item.url, job.kind as ContentKind, job.publish);
+        await supabaseAdmin.from("import_job_items").update({
+          status: "done",
+          attempts,
+          last_error: null,
+          result_kind: job.kind,
+          result_slug: r.slug,
+        }).eq("id", item.id);
+        done++;
       } catch (e: any) {
-        results.push({ url: link, ok: false, error: String(e?.message ?? e).slice(0, 200) });
+        const msg = String(e?.message ?? e).slice(0, 500);
+        const finalFail = attempts >= MAX_ATTEMPTS;
+        await supabaseAdmin.from("import_job_items").update({
+          status: finalFail ? "failed" : "pending",
+          attempts,
+          last_error: msg,
+        }).eq("id", item.id);
+        if (finalFail) failed++;
       }
     }
 
-    return { attempted: candidates.length, results };
+    // Update aggregate counts
+    const { count: doneTotal } = await supabaseAdmin
+      .from("import_job_items").select("*", { count: "exact", head: true })
+      .eq("job_id", data.jobId).eq("status", "done");
+    const { count: failedTotal } = await supabaseAdmin
+      .from("import_job_items").select("*", { count: "exact", head: true })
+      .eq("job_id", data.jobId).eq("status", "failed");
+    const { count: remaining } = await supabaseAdmin
+      .from("import_job_items").select("*", { count: "exact", head: true })
+      .eq("job_id", data.jobId).eq("status", "pending").lt("attempts", MAX_ATTEMPTS);
+
+    const isDone = (remaining ?? 0) === 0;
+    await supabaseAdmin.from("import_jobs").update({
+      done_count: doneTotal ?? 0,
+      failed_count: failedTotal ?? 0,
+      status: isDone ? ((failedTotal ?? 0) > 0 ? "failed" : "completed") : "running",
+    }).eq("id", data.jobId);
+
+    return { processed: items.length, done, failed, remaining: remaining ?? 0, status: isDone ? "done" : "running" };
+  });
+
+const RetryInput = z.object({
+  jobId: z.string().uuid(),
+  itemId: z.string().uuid().optional(),
+});
+
+export const retryFailedItems = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => RetryInput.parse(d))
+  .handler(async ({ data, context }) => {
+    await ensureAdmin(context.supabase, context.userId);
+
+    const base = supabaseAdmin.from("import_job_items").update({
+      status: "pending" as const, attempts: 0, last_error: null,
+    }).eq("job_id", data.jobId);
+    const query = data.itemId ? base.eq("id", data.itemId) : base.eq("status", "failed");
+    const { data: rows, error } = await query.select("id");
+    if (error) throw new Error(error.message);
+
+    await supabaseAdmin.from("import_jobs").update({ status: "pending", error: null }).eq("id", data.jobId);
+    return { reset: rows?.length ?? 0 };
+  });
+
+const JobIdInput = z.object({ jobId: z.string().uuid() });
+
+export const cancelImportJob = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => JobIdInput.parse(d))
+  .handler(async ({ data, context }) => {
+    await ensureAdmin(context.supabase, context.userId);
+    await supabaseAdmin.from("import_jobs").update({ status: "cancelled" }).eq("id", data.jobId);
+    return { ok: true };
+  });
+
+export const deleteImportJob = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => JobIdInput.parse(d))
+  .handler(async ({ data, context }) => {
+    await ensureAdmin(context.supabase, context.userId);
+    const { error } = await supabaseAdmin.from("import_jobs").delete().eq("id", data.jobId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
