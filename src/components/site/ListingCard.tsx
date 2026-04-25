@@ -15,6 +15,9 @@ export interface ListingCardData {
   tier: "free" | "featured" | "premium";
   rating?: number | null;
   price_range?: string | null;
+  is_sponsored?: boolean | null;
+  sponsor_name?: string | null;
+  sponsor_until?: string | null;
 }
 
 // Lightweight, deterministic "insight" per category to drive engagement
