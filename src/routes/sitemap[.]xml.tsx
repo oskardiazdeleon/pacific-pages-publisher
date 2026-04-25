@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { neighborhoodHubs } from "@/lib/neighborhoods-data";
 
 const SITE_URL = process.env.SITE_URL || "https://sandiego.com";
 
-const STATIC_PATHS = ["/", "/listings", "/articles", "/neighborhoods", "/partners"];
+const STATIC_PATHS = ["/", "/listings", "/articles", "/neighborhoods", "/partners", "/insider"];
 
 function xmlEscape(s: string) {
   return s.replace(/[<>&'"]/g, (c) =>
@@ -32,6 +33,11 @@ export const Route = createFileRoute("/sitemap.xml")({
         for (const path of STATIC_PATHS) {
           urls.push(
             `<url><loc>${SITE_URL}${path}</loc><lastmod>${now}</lastmod><changefreq>daily</changefreq></url>`,
+          );
+        }
+        for (const n of neighborhoodHubs) {
+          urls.push(
+            `<url><loc>${SITE_URL}/neighborhoods/${n.slug}</loc><lastmod>${now}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`,
           );
         }
         for (const l of listings ?? []) {
