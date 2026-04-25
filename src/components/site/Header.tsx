@@ -74,23 +74,23 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
-      <div className="container-page flex h-16 items-center justify-between gap-6">
-        <Link to="/" className="flex items-center gap-2 group" aria-label="sandiego.com home">
+      <div className="container-page flex h-16 items-center justify-between gap-4">
+        <Link to="/" className="flex items-center gap-2 group shrink-0" aria-label="sandiego.com home">
           <img
             src={sandiegoLogo}
             alt="sandiego.com"
-            className="h-10 w-auto"
+            className="h-9 w-auto"
           />
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-1 text-sm font-medium">
+        <nav className="hidden xl:flex items-center gap-0.5 text-sm font-medium">
           {nav.map((section) => (
             <div key={section.label} className="group relative">
               <Link
                 to={section.to}
                 activeProps={{ className: "text-accent" }}
                 activeOptions={{ exact: section.to === "/" }}
-                className="inline-flex items-center gap-1 rounded-full px-3 py-2 text-foreground/80 hover:text-foreground hover:bg-secondary transition-colors"
+                className="inline-flex items-center gap-1 rounded-full px-2.5 py-2 text-foreground/80 hover:text-foreground hover:bg-secondary transition-colors whitespace-nowrap"
               >
                 {section.label}
                 {section.children && <ChevronDown className="h-3.5 w-3.5 opacity-60" />}
@@ -114,7 +114,7 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             aria-label="Search"
             className="hidden sm:grid h-9 w-9 place-items-center rounded-full border border-border hover:bg-secondary transition"
@@ -123,20 +123,20 @@ export function Header() {
           </button>
           <Link
             to="/partners"
-            className="hidden lg:inline-flex items-center rounded-full border border-border px-3 py-2 text-xs font-semibold text-foreground/75 hover:text-foreground hover:bg-secondary transition"
+            className="hidden xl:inline-flex items-center rounded-full border border-border px-3 py-2 text-xs font-semibold text-foreground/75 hover:text-foreground hover:bg-secondary transition whitespace-nowrap"
           >
             For Partners
           </Link>
           <Link
             to="/insider"
-            className="hidden md:inline-flex items-center rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground hover:opacity-90 transition"
+            className="hidden md:inline-flex items-center rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground hover:opacity-90 transition whitespace-nowrap"
           >
             Join Insider
           </Link>
           <button
             aria-label={open ? "Close menu" : "Open menu"}
             onClick={() => setOpen((v) => !v)}
-            className="lg:hidden grid h-9 w-9 place-items-center rounded-full border border-border"
+            className="xl:hidden grid h-9 w-9 place-items-center rounded-full border border-border"
           >
             {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>
@@ -144,7 +144,7 @@ export function Header() {
       </div>
 
       {open && (
-        <div className="lg:hidden border-t border-border bg-background">
+        <div className="xl:hidden border-t border-border bg-background">
           <nav className="container-page flex flex-col py-3">
             {nav.map((section) => {
               const isOpen = openSection === section.label;
