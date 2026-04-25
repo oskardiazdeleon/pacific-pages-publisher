@@ -22,6 +22,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ListingsIndexRouteImport } from './routes/listings.index'
 import { Route as ArticlesIndexRouteImport } from './routes/articles.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as PagesSlugRouteImport } from './routes/pages.$slug'
 import { Route as NeighborhoodsSlugRouteImport } from './routes/neighborhoods.$slug'
 import { Route as ListingsSlugRouteImport } from './routes/listings.$slug'
 import { Route as ArticlesSlugRouteImport } from './routes/articles.$slug'
@@ -31,8 +32,13 @@ import { Route as AdminListingsIndexRouteImport } from './routes/admin.listings.
 import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
 import { Route as AdminListingsNewRouteImport } from './routes/admin.listings.new'
 import { Route as AdminListingsIdRouteImport } from './routes/admin.listings.$id'
+import { Route as AdminCmsSettingsRouteImport } from './routes/admin.cms.settings'
+import { Route as AdminCmsNavigationRouteImport } from './routes/admin.cms.navigation'
+import { Route as AdminCmsHomepageRouteImport } from './routes/admin.cms.homepage'
 import { Route as AdminArticlesNewRouteImport } from './routes/admin.articles.new'
 import { Route as AdminArticlesIdRouteImport } from './routes/admin.articles.$id'
+import { Route as AdminCmsPagesIndexRouteImport } from './routes/admin.cms.pages.index'
+import { Route as AdminCmsPagesIdRouteImport } from './routes/admin.cms.pages.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -99,6 +105,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const PagesSlugRoute = PagesSlugRouteImport.update({
+  id: '/pages/$slug',
+  path: '/pages/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NeighborhoodsSlugRoute = NeighborhoodsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -144,6 +155,21 @@ const AdminListingsIdRoute = AdminListingsIdRouteImport.update({
   path: '/listings/$id',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCmsSettingsRoute = AdminCmsSettingsRouteImport.update({
+  id: '/cms/settings',
+  path: '/cms/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCmsNavigationRoute = AdminCmsNavigationRouteImport.update({
+  id: '/cms/navigation',
+  path: '/cms/navigation',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCmsHomepageRoute = AdminCmsHomepageRouteImport.update({
+  id: '/cms/homepage',
+  path: '/cms/homepage',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminArticlesNewRoute = AdminArticlesNewRouteImport.update({
   id: '/articles/new',
   path: '/articles/new',
@@ -152,6 +178,16 @@ const AdminArticlesNewRoute = AdminArticlesNewRouteImport.update({
 const AdminArticlesIdRoute = AdminArticlesIdRouteImport.update({
   id: '/articles/$id',
   path: '/articles/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCmsPagesIndexRoute = AdminCmsPagesIndexRouteImport.update({
+  id: '/cms/pages/',
+  path: '/cms/pages/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCmsPagesIdRoute = AdminCmsPagesIdRouteImport.update({
+  id: '/cms/pages/$id',
+  path: '/cms/pages/$id',
   getParentRoute: () => AdminRoute,
 } as any)
 
@@ -171,15 +207,21 @@ export interface FileRoutesByFullPath {
   '/articles/$slug': typeof ArticlesSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
   '/neighborhoods/$slug': typeof NeighborhoodsSlugRoute
+  '/pages/$slug': typeof PagesSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/articles/': typeof ArticlesIndexRoute
   '/listings/': typeof ListingsIndexRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
+  '/admin/cms/homepage': typeof AdminCmsHomepageRoute
+  '/admin/cms/navigation': typeof AdminCmsNavigationRoute
+  '/admin/cms/settings': typeof AdminCmsSettingsRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/listings/': typeof AdminListingsIndexRoute
+  '/admin/cms/pages/$id': typeof AdminCmsPagesIdRoute
+  '/admin/cms/pages/': typeof AdminCmsPagesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -194,15 +236,21 @@ export interface FileRoutesByTo {
   '/articles/$slug': typeof ArticlesSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
   '/neighborhoods/$slug': typeof NeighborhoodsSlugRoute
+  '/pages/$slug': typeof PagesSlugRoute
   '/admin': typeof AdminIndexRoute
   '/articles': typeof ArticlesIndexRoute
   '/listings': typeof ListingsIndexRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
+  '/admin/cms/homepage': typeof AdminCmsHomepageRoute
+  '/admin/cms/navigation': typeof AdminCmsNavigationRoute
+  '/admin/cms/settings': typeof AdminCmsSettingsRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
   '/admin/articles': typeof AdminArticlesIndexRoute
   '/admin/listings': typeof AdminListingsIndexRoute
+  '/admin/cms/pages/$id': typeof AdminCmsPagesIdRoute
+  '/admin/cms/pages': typeof AdminCmsPagesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -221,15 +269,21 @@ export interface FileRoutesById {
   '/articles/$slug': typeof ArticlesSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
   '/neighborhoods/$slug': typeof NeighborhoodsSlugRoute
+  '/pages/$slug': typeof PagesSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/articles/': typeof ArticlesIndexRoute
   '/listings/': typeof ListingsIndexRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
+  '/admin/cms/homepage': typeof AdminCmsHomepageRoute
+  '/admin/cms/navigation': typeof AdminCmsNavigationRoute
+  '/admin/cms/settings': typeof AdminCmsSettingsRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/listings/': typeof AdminListingsIndexRoute
+  '/admin/cms/pages/$id': typeof AdminCmsPagesIdRoute
+  '/admin/cms/pages/': typeof AdminCmsPagesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -249,15 +303,21 @@ export interface FileRouteTypes {
     | '/articles/$slug'
     | '/listings/$slug'
     | '/neighborhoods/$slug'
+    | '/pages/$slug'
     | '/admin/'
     | '/articles/'
     | '/listings/'
     | '/admin/articles/$id'
     | '/admin/articles/new'
+    | '/admin/cms/homepage'
+    | '/admin/cms/navigation'
+    | '/admin/cms/settings'
     | '/admin/listings/$id'
     | '/admin/listings/new'
     | '/admin/articles/'
     | '/admin/listings/'
+    | '/admin/cms/pages/$id'
+    | '/admin/cms/pages/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -272,15 +332,21 @@ export interface FileRouteTypes {
     | '/articles/$slug'
     | '/listings/$slug'
     | '/neighborhoods/$slug'
+    | '/pages/$slug'
     | '/admin'
     | '/articles'
     | '/listings'
     | '/admin/articles/$id'
     | '/admin/articles/new'
+    | '/admin/cms/homepage'
+    | '/admin/cms/navigation'
+    | '/admin/cms/settings'
     | '/admin/listings/$id'
     | '/admin/listings/new'
     | '/admin/articles'
     | '/admin/listings'
+    | '/admin/cms/pages/$id'
+    | '/admin/cms/pages'
   id:
     | '__root__'
     | '/'
@@ -298,15 +364,21 @@ export interface FileRouteTypes {
     | '/articles/$slug'
     | '/listings/$slug'
     | '/neighborhoods/$slug'
+    | '/pages/$slug'
     | '/admin/'
     | '/articles/'
     | '/listings/'
     | '/admin/articles/$id'
     | '/admin/articles/new'
+    | '/admin/cms/homepage'
+    | '/admin/cms/navigation'
+    | '/admin/cms/settings'
     | '/admin/listings/$id'
     | '/admin/listings/new'
     | '/admin/articles/'
     | '/admin/listings/'
+    | '/admin/cms/pages/$id'
+    | '/admin/cms/pages/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -320,6 +392,7 @@ export interface RootRouteChildren {
   PartnersRoute: typeof PartnersRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  PagesSlugRoute: typeof PagesSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -415,6 +488,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/pages/$slug': {
+      id: '/pages/$slug'
+      path: '/pages/$slug'
+      fullPath: '/pages/$slug'
+      preLoaderRoute: typeof PagesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/neighborhoods/$slug': {
       id: '/neighborhoods/$slug'
       path: '/$slug'
@@ -478,6 +558,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminListingsIdRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/cms/settings': {
+      id: '/admin/cms/settings'
+      path: '/cms/settings'
+      fullPath: '/admin/cms/settings'
+      preLoaderRoute: typeof AdminCmsSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/cms/navigation': {
+      id: '/admin/cms/navigation'
+      path: '/cms/navigation'
+      fullPath: '/admin/cms/navigation'
+      preLoaderRoute: typeof AdminCmsNavigationRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/cms/homepage': {
+      id: '/admin/cms/homepage'
+      path: '/cms/homepage'
+      fullPath: '/admin/cms/homepage'
+      preLoaderRoute: typeof AdminCmsHomepageRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/articles/new': {
       id: '/admin/articles/new'
       path: '/articles/new'
@@ -492,6 +593,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminArticlesIdRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/cms/pages/': {
+      id: '/admin/cms/pages/'
+      path: '/cms/pages'
+      fullPath: '/admin/cms/pages/'
+      preLoaderRoute: typeof AdminCmsPagesIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/cms/pages/$id': {
+      id: '/admin/cms/pages/$id'
+      path: '/cms/pages/$id'
+      fullPath: '/admin/cms/pages/$id'
+      preLoaderRoute: typeof AdminCmsPagesIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
@@ -501,10 +616,15 @@ interface AdminRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
   AdminArticlesIdRoute: typeof AdminArticlesIdRoute
   AdminArticlesNewRoute: typeof AdminArticlesNewRoute
+  AdminCmsHomepageRoute: typeof AdminCmsHomepageRoute
+  AdminCmsNavigationRoute: typeof AdminCmsNavigationRoute
+  AdminCmsSettingsRoute: typeof AdminCmsSettingsRoute
   AdminListingsIdRoute: typeof AdminListingsIdRoute
   AdminListingsNewRoute: typeof AdminListingsNewRoute
   AdminArticlesIndexRoute: typeof AdminArticlesIndexRoute
   AdminListingsIndexRoute: typeof AdminListingsIndexRoute
+  AdminCmsPagesIdRoute: typeof AdminCmsPagesIdRoute
+  AdminCmsPagesIndexRoute: typeof AdminCmsPagesIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -513,10 +633,15 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminIndexRoute: AdminIndexRoute,
   AdminArticlesIdRoute: AdminArticlesIdRoute,
   AdminArticlesNewRoute: AdminArticlesNewRoute,
+  AdminCmsHomepageRoute: AdminCmsHomepageRoute,
+  AdminCmsNavigationRoute: AdminCmsNavigationRoute,
+  AdminCmsSettingsRoute: AdminCmsSettingsRoute,
   AdminListingsIdRoute: AdminListingsIdRoute,
   AdminListingsNewRoute: AdminListingsNewRoute,
   AdminArticlesIndexRoute: AdminArticlesIndexRoute,
   AdminListingsIndexRoute: AdminListingsIndexRoute,
+  AdminCmsPagesIdRoute: AdminCmsPagesIdRoute,
+  AdminCmsPagesIndexRoute: AdminCmsPagesIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
@@ -572,6 +697,7 @@ const rootRouteChildren: RootRouteChildren = {
   PartnersRoute: PartnersRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  PagesSlugRoute: PagesSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

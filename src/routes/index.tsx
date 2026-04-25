@@ -9,6 +9,7 @@ import { ArticleCard, type ArticleCardData } from "@/components/site/ArticleCard
 import { EmailCapture } from "@/components/site/EmailCapture";
 import { listings as mockListings, articles as mockArticles, neighborhoods } from "@/lib/mock-data";
 import { fetchPublishedListings, fetchPublishedArticles } from "@/lib/content-queries";
+import { fetchPublishedHomepageSections, type HomepageSection } from "@/lib/cms";
 import hero from "@/assets/hero-sandiego.jpg";
 
 export const Route = createFileRoute("/")({
@@ -33,23 +34,31 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const [featured, setFeatured] = useState<ListingCardData[]>([]);
   const [posts, setPosts] = useState<ArticleCardData[]>([]);
+  const [cms, setCms] = useState<Record<string, Record<string, unknown>>>({});
 
   useEffect(() => {
     (async () => {
       try {
-        const [l, a] = await Promise.all([
+        const [l, a, sections] = await Promise.all([
           fetchPublishedListings({ limit: 6 }),
           fetchPublishedArticles({ limit: 4 }),
+          fetchPublishedHomepageSections(),
         ]);
         const feat = l.filter((x) => x.tier !== "free").slice(0, 3);
         setFeatured(feat.length ? (feat as ListingCardData[]) : (mockListings.filter((m) => m.tier !== "free").slice(0, 3) as ListingCardData[]));
         setPosts(a.length ? (a as ArticleCardData[]) : (mockArticles as ArticleCardData[]));
+        const map: Record<string, Record<string, unknown>> = {};
+        for (const s of sections as HomepageSection[]) map[s.section_key] = (s.published_content || {}) as Record<string, unknown>;
+        setCms(map);
       } catch {
         setFeatured(mockListings.filter((m) => m.tier !== "free").slice(0, 3) as ListingCardData[]);
         setPosts(mockArticles as ArticleCardData[]);
       }
     })();
   }, []);
+
+  const c = (key: string, field: string, fallback: string): string => (cms[key]?.[field] as string) || fallback;
+  const heroImg = c("hero", "image_url", "") || hero;
 
   const [leadArticle, ...moreArticles] = posts;
 
@@ -61,7 +70,7 @@ function HomePage() {
       <section className="relative">
         <div className="absolute inset-0">
           <img
-            src={hero}
+            src={heroImg}
             alt="San Diego coastline at golden hour"
             width={1920}
             height={1280}
@@ -70,27 +79,26 @@ function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-primary/55 via-primary/35 to-background" />
         </div>
         <div className="relative container-page pt-24 pb-32 md:pt-36 md:pb-48 text-primary-foreground">
-          <span className="eyebrow text-teal-soft">America's Finest City</span>
+          <span className="eyebrow text-teal-soft">{c("hero", "eyebrow", "America's Finest City")}</span>
           <h1 className="mt-4 max-w-3xl font-display text-5xl md:text-7xl font-semibold leading-[1.05]">
-            San Diego, distilled.
+            {c("hero", "heading", "San Diego, distilled.")}
           </h1>
           <p className="mt-5 max-w-xl text-lg text-primary-foreground/85">
-            Handpicked places to stay, eat and explore — alongside the stories that make this city
-            worth crossing the country for.
+            {c("hero", "subheading", "Handpicked places to stay, eat and explore — alongside the stories that make this city worth crossing the country for.")}
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              to="/insider"
+            <a
+              href={c("hero", "primary_cta_to", "/insider")}
               className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground hover:opacity-90 transition"
             >
-              <Sparkles className="h-4 w-4" /> Join Insider — from $19/mo
-            </Link>
-            <Link
-              to="/listings"
+              <Sparkles className="h-4 w-4" /> {c("hero", "primary_cta_label", "Join Insider — from $19/mo")}
+            </a>
+            <a
+              href={c("hero", "secondary_cta_to", "/listings")}
               className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/30 bg-primary-foreground/10 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-primary-foreground/20 transition"
             >
-              Explore San Diego <ArrowRight className="h-4 w-4" />
-            </Link>
+              {c("hero", "secondary_cta_label", "Explore San Diego")} <ArrowRight className="h-4 w-4" />
+            </a>
           </div>
         </div>
       </section>
@@ -100,12 +108,12 @@ function HomePage() {
         <div className="rounded-3xl bg-card border border-border shadow-2xl p-6 md:p-10">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <div className="eyebrow flex items-center gap-2"><TrendingUp className="h-3.5 w-3.5" /> Featured this week</div>
-              <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">Where San Diego is going</h2>
+              <div className="eyebrow flex items-center gap-2"><TrendingUp className="h-3.5 w-3.5" /> {c("featured", "eyebrow", "Featured this week")}</div>
+              <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">{c("featured", "heading", "Where San Diego is going")}</h2>
             </div>
-            <Link to="/listings" className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-accent">
-              View all <ArrowRight className="h-4 w-4" />
-            </Link>
+            <a href={c("featured", "cta_to", "/listings")} className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-accent">
+              {c("featured", "cta_label", "View all")} <ArrowRight className="h-4 w-4" />
+            </a>
           </div>
           <div className="mt-8 grid gap-6 md:grid-cols-3">
             {featured.map((l) => <ListingCard key={l.slug} listing={l} />)}
@@ -117,12 +125,12 @@ function HomePage() {
       <section className="container-page mt-24">
         <div className="flex items-end justify-between">
           <div>
-            <div className="eyebrow">The Magazine</div>
-            <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">Stories from the coast</h2>
+            <div className="eyebrow">{c("editorial", "eyebrow", "The Magazine")}</div>
+            <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">{c("editorial", "heading", "Stories from the coast")}</h2>
           </div>
-          <Link to="/articles" className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-accent">
-            All articles <ArrowRight className="h-4 w-4" />
-          </Link>
+          <a href={c("editorial", "cta_to", "/articles")} className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-accent">
+            {c("editorial", "cta_label", "All articles")} <ArrowRight className="h-4 w-4" />
+          </a>
         </div>
         <div className="mt-10 grid gap-12 lg:grid-cols-5">
           <div className="lg:col-span-3">
@@ -136,8 +144,8 @@ function HomePage() {
 
       {/* Neighborhoods */}
       <section className="container-page mt-24">
-        <div className="eyebrow flex items-center gap-2"><MapPin className="h-3.5 w-3.5" /> Neighborhoods</div>
-        <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">Eight cities in one</h2>
+        <div className="eyebrow flex items-center gap-2"><MapPin className="h-3.5 w-3.5" /> {c("neighborhoods", "eyebrow", "Neighborhoods")}</div>
+        <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">{c("neighborhoods", "heading", "Eight cities in one")}</h2>
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {neighborhoods.map((n) => (
             <Link
@@ -172,20 +180,19 @@ function HomePage() {
       <section className="container-page mt-24">
         <div className="overflow-hidden rounded-3xl bg-primary text-primary-foreground p-10 md:p-16 grid md:grid-cols-2 gap-8 items-center">
           <div>
-            <div className="eyebrow text-teal-soft">For partners</div>
+            <div className="eyebrow text-teal-soft">{c("partner_cta", "eyebrow", "For partners")}</div>
             <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">
-              Reach high-intent travelers — and Insider members ready to book.
+              {c("partner_cta", "heading", "Reach high-intent travelers — and Insider members ready to book.")}
             </h2>
             <p className="mt-3 text-primary-foreground/80 max-w-md">
-              Featured and Premium listings put your business in front of 40K+ active US travelers a
-              quarter. Offer an Insider member discount and we send you bookings, too.
+              {c("partner_cta", "body", "Featured and Premium listings put your business in front of 40K+ active US travelers a quarter. Offer an Insider member discount and we send you bookings, too.")}
             </p>
-            <Link
-              to="/partners"
+            <a
+              href={c("partner_cta", "cta_to", "/partners")}
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground"
             >
-              Become a partner <ArrowRight className="h-4 w-4" />
-            </Link>
+              {c("partner_cta", "cta_label", "Become a partner")} <ArrowRight className="h-4 w-4" />
+            </a>
           </div>
           <div className="grid grid-cols-3 gap-4 text-center">
             {[

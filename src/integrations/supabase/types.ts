@@ -71,6 +71,54 @@ export type Database = {
         }
         Relationships: []
       }
+      content_pages: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          draft_body: Json
+          hero_image: string | null
+          id: string
+          meta_description: string | null
+          meta_title: string | null
+          published_at: string | null
+          published_body: Json | null
+          slug: string
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          draft_body?: Json
+          hero_image?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          published_body?: Json | null
+          slug: string
+          status?: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          draft_body?: Json
+          hero_image?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          published_body?: Json | null
+          slug?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_leads: {
         Row: {
           created_at: string
@@ -104,6 +152,42 @@ export type Database = {
           utm_campaign?: string | null
           utm_medium?: string | null
           utm_source?: string | null
+        }
+        Relationships: []
+      }
+      homepage_sections: {
+        Row: {
+          draft_content: Json
+          enabled: boolean
+          id: string
+          position: number
+          published_at: string | null
+          published_content: Json | null
+          section_key: string
+          section_type: string
+          updated_at: string
+        }
+        Insert: {
+          draft_content?: Json
+          enabled?: boolean
+          id?: string
+          position?: number
+          published_at?: string | null
+          published_content?: Json | null
+          section_key: string
+          section_type: string
+          updated_at?: string
+        }
+        Update: {
+          draft_content?: Json
+          enabled?: boolean
+          id?: string
+          position?: number
+          published_at?: string | null
+          published_content?: Json | null
+          section_key?: string
+          section_type?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -369,6 +453,36 @@ export type Database = {
         }
         Relationships: []
       }
+      nav_menus: {
+        Row: {
+          draft_items: Json
+          id: string
+          label: string
+          location: string
+          published_at: string | null
+          published_items: Json | null
+          updated_at: string
+        }
+        Insert: {
+          draft_items?: Json
+          id?: string
+          label: string
+          location: string
+          published_at?: string | null
+          published_items?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          draft_items?: Json
+          id?: string
+          label?: string
+          location?: string
+          published_at?: string | null
+          published_items?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -411,6 +525,36 @@ export type Database = {
           updated_at?: string
           user_id?: string
           website?: string | null
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          draft_value: Json
+          id: string
+          key: string
+          published_at: string | null
+          published_value: Json | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          draft_value?: Json
+          id?: string
+          key: string
+          published_at?: string | null
+          published_value?: Json | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          draft_value?: Json
+          id?: string
+          key?: string
+          published_at?: string | null
+          published_value?: Json | null
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
