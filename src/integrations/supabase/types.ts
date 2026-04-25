@@ -287,6 +287,7 @@ export type Database = {
           hero_image: string | null
           hours: Json | null
           id: string
+          is_sponsored: boolean
           meta_description: string | null
           meta_title: string | null
           name: string
@@ -298,6 +299,9 @@ export type Database = {
           rating: number | null
           short_description: string | null
           slug: string
+          sponsor_name: string | null
+          sponsor_rank: number
+          sponsor_until: string | null
           status: Database["public"]["Enums"]["content_status"]
           tier: Database["public"]["Enums"]["listing_tier"]
           updated_at: string
@@ -313,6 +317,7 @@ export type Database = {
           hero_image?: string | null
           hours?: Json | null
           id?: string
+          is_sponsored?: boolean
           meta_description?: string | null
           meta_title?: string | null
           name: string
@@ -324,6 +329,9 @@ export type Database = {
           rating?: number | null
           short_description?: string | null
           slug: string
+          sponsor_name?: string | null
+          sponsor_rank?: number
+          sponsor_until?: string | null
           status?: Database["public"]["Enums"]["content_status"]
           tier?: Database["public"]["Enums"]["listing_tier"]
           updated_at?: string
@@ -339,6 +347,7 @@ export type Database = {
           hero_image?: string | null
           hours?: Json | null
           id?: string
+          is_sponsored?: boolean
           meta_description?: string | null
           meta_title?: string | null
           name?: string
@@ -350,6 +359,9 @@ export type Database = {
           rating?: number | null
           short_description?: string | null
           slug?: string
+          sponsor_name?: string | null
+          sponsor_rank?: number
+          sponsor_until?: string | null
           status?: Database["public"]["Enums"]["content_status"]
           tier?: Database["public"]["Enums"]["listing_tier"]
           updated_at?: string
