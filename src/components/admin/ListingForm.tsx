@@ -70,6 +70,10 @@ export function ListingForm({ initial }: { initial?: Partial<ListingFormValues> 
         status: v.status,
         meta_title: v.meta_title || null,
         meta_description: v.meta_description || null,
+        is_sponsored: v.is_sponsored,
+        sponsor_name: v.sponsor_name || null,
+        sponsor_rank: v.sponsor_rank ? parseInt(v.sponsor_rank, 10) || 0 : 0,
+        sponsor_until: v.sponsor_until ? new Date(v.sponsor_until).toISOString() : null,
         published_at: v.status === "published" ? new Date().toISOString() : null,
       };
 
