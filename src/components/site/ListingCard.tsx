@@ -167,6 +167,6 @@ export function ListingCard({ listing }: { listing: ListingCardData }) {
           </span>
         </div>
       </div>
-    </Link>
+    </a>
   );
 }
