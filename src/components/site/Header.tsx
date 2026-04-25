@@ -74,23 +74,23 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
-      <div className="container-page flex h-16 items-center justify-between gap-6">
-        <Link to="/" className="flex items-center gap-2 group" aria-label="sandiego.com home">
+      <div className="container-page flex h-16 items-center justify-between gap-4">
+        <Link to="/" className="flex items-center gap-2 group shrink-0" aria-label="sandiego.com home">
           <img
             src={sandiegoLogo}
             alt="sandiego.com"
-            className="h-10 w-auto"
+            className="h-9 w-auto"
           />
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-1 text-sm font-medium">
+        <nav className="hidden xl:flex items-center gap-0.5 text-sm font-medium">
           {nav.map((section) => (
             <div key={section.label} className="group relative">
               <Link
                 to={section.to}
                 activeProps={{ className: "text-accent" }}
                 activeOptions={{ exact: section.to === "/" }}
-                className="inline-flex items-center gap-1 rounded-full px-3 py-2 text-foreground/80 hover:text-foreground hover:bg-secondary transition-colors"
+                className="inline-flex items-center gap-1 rounded-full px-2.5 py-2 text-foreground/80 hover:text-foreground hover:bg-secondary transition-colors whitespace-nowrap"
               >
                 {section.label}
                 {section.children && <ChevronDown className="h-3.5 w-3.5 opacity-60" />}
