@@ -45,6 +45,9 @@ export function ListingCard({ listing }: { listing: ListingCardData }) {
   const desc = listing.short_description || listing.blurb || "";
   const insight = insightFor(listing.category);
   const price = priceLabel(listing.price_range);
+  const sponsored =
+    !!listing.is_sponsored &&
+    (!listing.sponsor_until || new Date(listing.sponsor_until) > new Date());
   const [saved, setSaved] = useState(false);
 
   const toggleSave = (e: MouseEvent) => {
