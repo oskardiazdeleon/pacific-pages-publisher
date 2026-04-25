@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
-import { neighborhoods } from "@/lib/mock-data";
+import { neighborhoodHubs } from "@/lib/neighborhoods-data";
 
 export const Route = createFileRoute("/neighborhoods")({
   head: () => ({
@@ -38,17 +38,18 @@ function NeighborhoodsPage() {
       </section>
 
       <section className="container-page grid gap-6 md:grid-cols-2">
-        {neighborhoods.map((n, i) => (
+        {neighborhoodHubs.map((n, i) => (
           <Link
             key={n.slug}
-            to="/listings"
+            to="/neighborhoods/$slug"
+            params={{ slug: n.slug }}
             className={`group relative overflow-hidden rounded-3xl ${
               i % 3 === 0 ? "aspect-[4/5]" : "aspect-[5/4]"
             }`}
           >
             <img
               src={n.image}
-              alt={n.name}
+              alt={`${n.name}, San Diego`}
               loading="lazy"
               width={1024}
               height={1280}
