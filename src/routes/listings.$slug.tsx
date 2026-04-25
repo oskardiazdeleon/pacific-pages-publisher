@@ -126,7 +126,8 @@ function ListingDetail() {
 
       <section className="container-page -mt-16 relative">
         <div className="rounded-3xl bg-card border border-border p-8 md:p-12 shadow-xl">
-          <Link to="/listings" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+          <Breadcrumbs items={breadcrumbs} />
+          <Link to="/listings" className="mt-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> All listings
           </Link>
           <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
@@ -181,6 +182,24 @@ function ListingDetail() {
               </a>
             )}
           </div>
+        </div>
+      </section>
+
+      <section className="container-page pb-20 max-w-3xl">
+        <div className="eyebrow">Frequently asked</div>
+        <h2 className="mt-1 font-display text-2xl md:text-3xl font-semibold">
+          About {listing.name}
+        </h2>
+        <div className="mt-5 divide-y divide-border rounded-2xl border border-border bg-card">
+          {faqs.map((f) => (
+            <details key={f.q} className="group p-5">
+              <summary className="cursor-pointer list-none font-medium flex items-center justify-between gap-4">
+                {f.q}
+                <span className="text-accent group-open:rotate-45 transition-transform">+</span>
+              </summary>
+              <p className="mt-3 text-sm text-muted-foreground">{f.a}</p>
+            </details>
+          ))}
         </div>
       </section>
 
