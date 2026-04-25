@@ -19,12 +19,22 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ArticlesRouteImport } from './routes/articles'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ThingsToDoIndexRouteImport } from './routes/things-to-do.index'
+import { Route as ShoppingIndexRouteImport } from './routes/shopping.index'
+import { Route as RestaurantsIndexRouteImport } from './routes/restaurants.index'
+import { Route as NightlifeIndexRouteImport } from './routes/nightlife.index'
 import { Route as ListingsIndexRouteImport } from './routes/listings.index'
+import { Route as HotelsIndexRouteImport } from './routes/hotels.index'
 import { Route as ArticlesIndexRouteImport } from './routes/articles.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as ThingsToDoSlugRouteImport } from './routes/things-to-do.$slug'
+import { Route as ShoppingSlugRouteImport } from './routes/shopping.$slug'
+import { Route as RestaurantsSlugRouteImport } from './routes/restaurants.$slug'
 import { Route as PagesSlugRouteImport } from './routes/pages.$slug'
+import { Route as NightlifeSlugRouteImport } from './routes/nightlife.$slug'
 import { Route as NeighborhoodsSlugRouteImport } from './routes/neighborhoods.$slug'
 import { Route as ListingsSlugRouteImport } from './routes/listings.$slug'
+import { Route as HotelsSlugRouteImport } from './routes/hotels.$slug'
 import { Route as ArticlesSlugRouteImport } from './routes/articles.$slug'
 import { Route as AdminImpressionsRouteImport } from './routes/admin.impressions'
 import { Route as AdminImportRouteImport } from './routes/admin.import'
@@ -90,10 +100,35 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ThingsToDoIndexRoute = ThingsToDoIndexRouteImport.update({
+  id: '/things-to-do/',
+  path: '/things-to-do/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShoppingIndexRoute = ShoppingIndexRouteImport.update({
+  id: '/shopping/',
+  path: '/shopping/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RestaurantsIndexRoute = RestaurantsIndexRouteImport.update({
+  id: '/restaurants/',
+  path: '/restaurants/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NightlifeIndexRoute = NightlifeIndexRouteImport.update({
+  id: '/nightlife/',
+  path: '/nightlife/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ListingsIndexRoute = ListingsIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => ListingsRoute,
+} as any)
+const HotelsIndexRoute = HotelsIndexRouteImport.update({
+  id: '/hotels/',
+  path: '/hotels/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ArticlesIndexRoute = ArticlesIndexRouteImport.update({
   id: '/',
@@ -105,9 +140,29 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const ThingsToDoSlugRoute = ThingsToDoSlugRouteImport.update({
+  id: '/things-to-do/$slug',
+  path: '/things-to-do/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShoppingSlugRoute = ShoppingSlugRouteImport.update({
+  id: '/shopping/$slug',
+  path: '/shopping/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RestaurantsSlugRoute = RestaurantsSlugRouteImport.update({
+  id: '/restaurants/$slug',
+  path: '/restaurants/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PagesSlugRoute = PagesSlugRouteImport.update({
   id: '/pages/$slug',
   path: '/pages/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NightlifeSlugRoute = NightlifeSlugRouteImport.update({
+  id: '/nightlife/$slug',
+  path: '/nightlife/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NeighborhoodsSlugRoute = NeighborhoodsSlugRouteImport.update({
@@ -119,6 +174,11 @@ const ListingsSlugRoute = ListingsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => ListingsRoute,
+} as any)
+const HotelsSlugRoute = HotelsSlugRouteImport.update({
+  id: '/hotels/$slug',
+  path: '/hotels/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ArticlesSlugRoute = ArticlesSlugRouteImport.update({
   id: '/$slug',
@@ -205,12 +265,22 @@ export interface FileRoutesByFullPath {
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/hotels/$slug': typeof HotelsSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
   '/neighborhoods/$slug': typeof NeighborhoodsSlugRoute
+  '/nightlife/$slug': typeof NightlifeSlugRoute
   '/pages/$slug': typeof PagesSlugRoute
+  '/restaurants/$slug': typeof RestaurantsSlugRoute
+  '/shopping/$slug': typeof ShoppingSlugRoute
+  '/things-to-do/$slug': typeof ThingsToDoSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/articles/': typeof ArticlesIndexRoute
+  '/hotels/': typeof HotelsIndexRoute
   '/listings/': typeof ListingsIndexRoute
+  '/nightlife/': typeof NightlifeIndexRoute
+  '/restaurants/': typeof RestaurantsIndexRoute
+  '/shopping/': typeof ShoppingIndexRoute
+  '/things-to-do/': typeof ThingsToDoIndexRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/cms/homepage': typeof AdminCmsHomepageRoute
@@ -234,12 +304,22 @@ export interface FileRoutesByTo {
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/hotels/$slug': typeof HotelsSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
   '/neighborhoods/$slug': typeof NeighborhoodsSlugRoute
+  '/nightlife/$slug': typeof NightlifeSlugRoute
   '/pages/$slug': typeof PagesSlugRoute
+  '/restaurants/$slug': typeof RestaurantsSlugRoute
+  '/shopping/$slug': typeof ShoppingSlugRoute
+  '/things-to-do/$slug': typeof ThingsToDoSlugRoute
   '/admin': typeof AdminIndexRoute
   '/articles': typeof ArticlesIndexRoute
+  '/hotels': typeof HotelsIndexRoute
   '/listings': typeof ListingsIndexRoute
+  '/nightlife': typeof NightlifeIndexRoute
+  '/restaurants': typeof RestaurantsIndexRoute
+  '/shopping': typeof ShoppingIndexRoute
+  '/things-to-do': typeof ThingsToDoIndexRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/cms/homepage': typeof AdminCmsHomepageRoute
@@ -267,12 +347,22 @@ export interface FileRoutesById {
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/hotels/$slug': typeof HotelsSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
   '/neighborhoods/$slug': typeof NeighborhoodsSlugRoute
+  '/nightlife/$slug': typeof NightlifeSlugRoute
   '/pages/$slug': typeof PagesSlugRoute
+  '/restaurants/$slug': typeof RestaurantsSlugRoute
+  '/shopping/$slug': typeof ShoppingSlugRoute
+  '/things-to-do/$slug': typeof ThingsToDoSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/articles/': typeof ArticlesIndexRoute
+  '/hotels/': typeof HotelsIndexRoute
   '/listings/': typeof ListingsIndexRoute
+  '/nightlife/': typeof NightlifeIndexRoute
+  '/restaurants/': typeof RestaurantsIndexRoute
+  '/shopping/': typeof ShoppingIndexRoute
+  '/things-to-do/': typeof ThingsToDoIndexRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/cms/homepage': typeof AdminCmsHomepageRoute
@@ -301,12 +391,22 @@ export interface FileRouteTypes {
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
+    | '/hotels/$slug'
     | '/listings/$slug'
     | '/neighborhoods/$slug'
+    | '/nightlife/$slug'
     | '/pages/$slug'
+    | '/restaurants/$slug'
+    | '/shopping/$slug'
+    | '/things-to-do/$slug'
     | '/admin/'
     | '/articles/'
+    | '/hotels/'
     | '/listings/'
+    | '/nightlife/'
+    | '/restaurants/'
+    | '/shopping/'
+    | '/things-to-do/'
     | '/admin/articles/$id'
     | '/admin/articles/new'
     | '/admin/cms/homepage'
@@ -330,12 +430,22 @@ export interface FileRouteTypes {
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
+    | '/hotels/$slug'
     | '/listings/$slug'
     | '/neighborhoods/$slug'
+    | '/nightlife/$slug'
     | '/pages/$slug'
+    | '/restaurants/$slug'
+    | '/shopping/$slug'
+    | '/things-to-do/$slug'
     | '/admin'
     | '/articles'
+    | '/hotels'
     | '/listings'
+    | '/nightlife'
+    | '/restaurants'
+    | '/shopping'
+    | '/things-to-do'
     | '/admin/articles/$id'
     | '/admin/articles/new'
     | '/admin/cms/homepage'
@@ -362,12 +472,22 @@ export interface FileRouteTypes {
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
+    | '/hotels/$slug'
     | '/listings/$slug'
     | '/neighborhoods/$slug'
+    | '/nightlife/$slug'
     | '/pages/$slug'
+    | '/restaurants/$slug'
+    | '/shopping/$slug'
+    | '/things-to-do/$slug'
     | '/admin/'
     | '/articles/'
+    | '/hotels/'
     | '/listings/'
+    | '/nightlife/'
+    | '/restaurants/'
+    | '/shopping/'
+    | '/things-to-do/'
     | '/admin/articles/$id'
     | '/admin/articles/new'
     | '/admin/cms/homepage'
@@ -392,7 +512,17 @@ export interface RootRouteChildren {
   PartnersRoute: typeof PartnersRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  HotelsSlugRoute: typeof HotelsSlugRoute
+  NightlifeSlugRoute: typeof NightlifeSlugRoute
   PagesSlugRoute: typeof PagesSlugRoute
+  RestaurantsSlugRoute: typeof RestaurantsSlugRoute
+  ShoppingSlugRoute: typeof ShoppingSlugRoute
+  ThingsToDoSlugRoute: typeof ThingsToDoSlugRoute
+  HotelsIndexRoute: typeof HotelsIndexRoute
+  NightlifeIndexRoute: typeof NightlifeIndexRoute
+  RestaurantsIndexRoute: typeof RestaurantsIndexRoute
+  ShoppingIndexRoute: typeof ShoppingIndexRoute
+  ThingsToDoIndexRoute: typeof ThingsToDoIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -467,12 +597,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/things-to-do/': {
+      id: '/things-to-do/'
+      path: '/things-to-do'
+      fullPath: '/things-to-do/'
+      preLoaderRoute: typeof ThingsToDoIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shopping/': {
+      id: '/shopping/'
+      path: '/shopping'
+      fullPath: '/shopping/'
+      preLoaderRoute: typeof ShoppingIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/restaurants/': {
+      id: '/restaurants/'
+      path: '/restaurants'
+      fullPath: '/restaurants/'
+      preLoaderRoute: typeof RestaurantsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nightlife/': {
+      id: '/nightlife/'
+      path: '/nightlife'
+      fullPath: '/nightlife/'
+      preLoaderRoute: typeof NightlifeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/listings/': {
       id: '/listings/'
       path: '/'
       fullPath: '/listings/'
       preLoaderRoute: typeof ListingsIndexRouteImport
       parentRoute: typeof ListingsRoute
+    }
+    '/hotels/': {
+      id: '/hotels/'
+      path: '/hotels'
+      fullPath: '/hotels/'
+      preLoaderRoute: typeof HotelsIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/articles/': {
       id: '/articles/'
@@ -488,11 +653,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/things-to-do/$slug': {
+      id: '/things-to-do/$slug'
+      path: '/things-to-do/$slug'
+      fullPath: '/things-to-do/$slug'
+      preLoaderRoute: typeof ThingsToDoSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shopping/$slug': {
+      id: '/shopping/$slug'
+      path: '/shopping/$slug'
+      fullPath: '/shopping/$slug'
+      preLoaderRoute: typeof ShoppingSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/restaurants/$slug': {
+      id: '/restaurants/$slug'
+      path: '/restaurants/$slug'
+      fullPath: '/restaurants/$slug'
+      preLoaderRoute: typeof RestaurantsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pages/$slug': {
       id: '/pages/$slug'
       path: '/pages/$slug'
       fullPath: '/pages/$slug'
       preLoaderRoute: typeof PagesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nightlife/$slug': {
+      id: '/nightlife/$slug'
+      path: '/nightlife/$slug'
+      fullPath: '/nightlife/$slug'
+      preLoaderRoute: typeof NightlifeSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/neighborhoods/$slug': {
@@ -508,6 +701,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/listings/$slug'
       preLoaderRoute: typeof ListingsSlugRouteImport
       parentRoute: typeof ListingsRoute
+    }
+    '/hotels/$slug': {
+      id: '/hotels/$slug'
+      path: '/hotels/$slug'
+      fullPath: '/hotels/$slug'
+      preLoaderRoute: typeof HotelsSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/articles/$slug': {
       id: '/articles/$slug'
@@ -697,7 +897,17 @@ const rootRouteChildren: RootRouteChildren = {
   PartnersRoute: PartnersRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  HotelsSlugRoute: HotelsSlugRoute,
+  NightlifeSlugRoute: NightlifeSlugRoute,
   PagesSlugRoute: PagesSlugRoute,
+  RestaurantsSlugRoute: RestaurantsSlugRoute,
+  ShoppingSlugRoute: ShoppingSlugRoute,
+  ThingsToDoSlugRoute: ThingsToDoSlugRoute,
+  HotelsIndexRoute: HotelsIndexRoute,
+  NightlifeIndexRoute: NightlifeIndexRoute,
+  RestaurantsIndexRoute: RestaurantsIndexRoute,
+  ShoppingIndexRoute: ShoppingIndexRoute,
+  ThingsToDoIndexRoute: ThingsToDoIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
