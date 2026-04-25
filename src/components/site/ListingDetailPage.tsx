@@ -42,12 +42,8 @@ export function ListingDetailPage({
 
   useEffect(() => {
     if (actualHub && actualHub.slug !== expectedHub.slug) {
-      // Wrong hub URL — send the user (and crawlers, via canonical link below) to the right one.
-      navigate({
-        to: "/$category/$slug" as never,
-        params: { category: actualHub.slug, slug: listing.slug } as never,
-        replace: true,
-      });
+      // Wrong hub URL — send the user (and crawlers, via canonical link) to the right one.
+      window.location.replace(`/${actualHub.slug}/${listing.slug}`);
     }
   }, [actualHub, expectedHub.slug, listing.slug, navigate]);
 
@@ -137,13 +133,12 @@ export function ListingDetailPage({
       <section className="container-page -mt-16 relative">
         <div className="rounded-3xl bg-card border border-border p-8 md:p-12 shadow-xl">
           <Breadcrumbs items={breadcrumbs} />
-          <Link
-            to="/$category" as never
-            params={{ category: hub.slug } as never}
+          <a
+            href={`/${hub.slug}`}
             className="mt-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" /> All {hub.label}
-          </Link>
+          </a>
           <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
             <div>
               <div className="eyebrow">
