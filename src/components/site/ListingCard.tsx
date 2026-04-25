@@ -1,6 +1,6 @@
-import { Link } from "@tanstack/react-router";
 import { Star, Heart, MapPin, Sparkles, ArrowRight } from "lucide-react";
 import { useState, type MouseEvent } from "react";
+import { listingUrl } from "@/lib/listing-categories";
 import listingFallback from "@/assets/listing-restaurant.jpg";
 
 export interface ListingCardData {
@@ -57,9 +57,8 @@ export function ListingCard({ listing }: { listing: ListingCardData }) {
   };
 
   return (
-    <Link
-      to="/listings/$slug"
-      params={{ slug: listing.slug }}
+    <a
+      href={listingUrl(listing)}
       className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-3xl"
     >
       {/* Image frame — Airbnb-style fully rounded, no card border around image */}
@@ -168,6 +167,6 @@ export function ListingCard({ listing }: { listing: ListingCardData }) {
           </span>
         </div>
       </div>
-    </Link>
+    </a>
   );
 }
