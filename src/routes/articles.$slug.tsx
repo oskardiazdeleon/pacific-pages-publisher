@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { Breadcrumbs, breadcrumbJsonLd } from "@/components/site/Breadcrumbs";
 import { fetchArticleBySlug } from "@/lib/content-queries";
 import articleFallback from "@/assets/article-foodie.jpg";
 
@@ -51,24 +52,34 @@ function ArticleDetail() {
   const { article } = Route.useLoaderData();
   const img = article.hero_image || articleFallback;
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: article.title,
-    description: article.excerpt || undefined,
-    image: article.hero_image || undefined,
-    datePublished: article.published_at || undefined,
-    dateModified: article.updated_at || undefined,
-    articleSection: article.category,
-    keywords: article.tags?.join(", "),
-  };
+  const breadcrumbs = [
+    { label: "Home", to: "/" },
+    { label: "Magazine", to: "/articles" },
+    { label: article.title },
+  ];
+
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: article.title,
+      description: article.excerpt || undefined,
+      image: article.hero_image || undefined,
+      datePublished: article.published_at || undefined,
+      dateModified: article.updated_at || undefined,
+      articleSection: article.category,
+      keywords: article.tags?.join(", "),
+    },
+    breadcrumbJsonLd(breadcrumbs),
+  ];
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
       <article className="container-page py-12 max-w-3xl">
-        <Link to="/articles" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+        <Breadcrumbs items={breadcrumbs} />
+        <Link to="/articles" className="mt-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Magazine
         </Link>
         <div className="mt-6 eyebrow">{article.category}</div>

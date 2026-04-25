@@ -22,6 +22,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ListingsIndexRouteImport } from './routes/listings.index'
 import { Route as ArticlesIndexRouteImport } from './routes/articles.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as NeighborhoodsSlugRouteImport } from './routes/neighborhoods.$slug'
 import { Route as ListingsSlugRouteImport } from './routes/listings.$slug'
 import { Route as ArticlesSlugRouteImport } from './routes/articles.$slug'
 import { Route as AdminImpressionsRouteImport } from './routes/admin.impressions'
@@ -98,6 +99,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const NeighborhoodsSlugRoute = NeighborhoodsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => NeighborhoodsRoute,
+} as any)
 const ListingsSlugRoute = ListingsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -156,7 +162,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/insider': typeof InsiderRoute
   '/listings': typeof ListingsRouteWithChildren
-  '/neighborhoods': typeof NeighborhoodsRoute
+  '/neighborhoods': typeof NeighborhoodsRouteWithChildren
   '/partners': typeof PartnersRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -164,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
+  '/neighborhoods/$slug': typeof NeighborhoodsSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/articles/': typeof ArticlesIndexRoute
   '/listings/': typeof ListingsIndexRoute
@@ -178,7 +185,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/insider': typeof InsiderRoute
-  '/neighborhoods': typeof NeighborhoodsRoute
+  '/neighborhoods': typeof NeighborhoodsRouteWithChildren
   '/partners': typeof PartnersRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -186,6 +193,7 @@ export interface FileRoutesByTo {
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
+  '/neighborhoods/$slug': typeof NeighborhoodsSlugRoute
   '/admin': typeof AdminIndexRoute
   '/articles': typeof ArticlesIndexRoute
   '/listings': typeof ListingsIndexRoute
@@ -204,7 +212,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/insider': typeof InsiderRoute
   '/listings': typeof ListingsRouteWithChildren
-  '/neighborhoods': typeof NeighborhoodsRoute
+  '/neighborhoods': typeof NeighborhoodsRouteWithChildren
   '/partners': typeof PartnersRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -212,6 +220,7 @@ export interface FileRoutesById {
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
+  '/neighborhoods/$slug': typeof NeighborhoodsSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/articles/': typeof ArticlesIndexRoute
   '/listings/': typeof ListingsIndexRoute
@@ -239,6 +248,7 @@ export interface FileRouteTypes {
     | '/admin/impressions'
     | '/articles/$slug'
     | '/listings/$slug'
+    | '/neighborhoods/$slug'
     | '/admin/'
     | '/articles/'
     | '/listings/'
@@ -261,6 +271,7 @@ export interface FileRouteTypes {
     | '/admin/impressions'
     | '/articles/$slug'
     | '/listings/$slug'
+    | '/neighborhoods/$slug'
     | '/admin'
     | '/articles'
     | '/listings'
@@ -286,6 +297,7 @@ export interface FileRouteTypes {
     | '/admin/impressions'
     | '/articles/$slug'
     | '/listings/$slug'
+    | '/neighborhoods/$slug'
     | '/admin/'
     | '/articles/'
     | '/listings/'
@@ -304,7 +316,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   InsiderRoute: typeof InsiderRoute
   ListingsRoute: typeof ListingsRouteWithChildren
-  NeighborhoodsRoute: typeof NeighborhoodsRoute
+  NeighborhoodsRoute: typeof NeighborhoodsRouteWithChildren
   PartnersRoute: typeof PartnersRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -402,6 +414,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/neighborhoods/$slug': {
+      id: '/neighborhoods/$slug'
+      path: '/$slug'
+      fullPath: '/neighborhoods/$slug'
+      preLoaderRoute: typeof NeighborhoodsSlugRouteImport
+      parentRoute: typeof NeighborhoodsRoute
     }
     '/listings/$slug': {
       id: '/listings/$slug'
@@ -530,6 +549,18 @@ const ListingsRouteWithChildren = ListingsRoute._addFileChildren(
   ListingsRouteChildren,
 )
 
+interface NeighborhoodsRouteChildren {
+  NeighborhoodsSlugRoute: typeof NeighborhoodsSlugRoute
+}
+
+const NeighborhoodsRouteChildren: NeighborhoodsRouteChildren = {
+  NeighborhoodsSlugRoute: NeighborhoodsSlugRoute,
+}
+
+const NeighborhoodsRouteWithChildren = NeighborhoodsRoute._addFileChildren(
+  NeighborhoodsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
@@ -537,7 +568,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   InsiderRoute: InsiderRoute,
   ListingsRoute: ListingsRouteWithChildren,
-  NeighborhoodsRoute: NeighborhoodsRoute,
+  NeighborhoodsRoute: NeighborhoodsRouteWithChildren,
   PartnersRoute: PartnersRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

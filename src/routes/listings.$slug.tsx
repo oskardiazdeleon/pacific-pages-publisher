@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Globe, Phone, MapPin, Star, ArrowLeft } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { Breadcrumbs, breadcrumbJsonLd } from "@/components/site/Breadcrumbs";
 import { fetchListingBySlug, recordImpression } from "@/lib/content-queries";
 import listingFallback from "@/assets/listing-restaurant.jpg";
 
@@ -49,9 +50,42 @@ function ListingDetail() {
     recordImpression(listing.id, "view");
   }, [listing.id]);
 
-  const jsonLd = {
+  const categoryMap: Record<string, string> = {
+    Restaurant: "LocalBusiness",
+    Hotel: "LodgingBusiness",
+    Attraction: "TouristAttraction",
+    Tour: "TouristAttraction",
+  };
+  const schemaType = categoryMap[listing.category as string] || "LocalBusiness";
+
+  const breadcrumbs = [
+    { label: "Home", to: "/" },
+    { label: "Listings", to: "/listings" },
+    { label: listing.name },
+  ];
+
+  const faqs = [
+    {
+      q: `Where is ${listing.name} located?`,
+      a: listing.address
+        ? `${listing.name} is located at ${listing.address} in ${listing.neighborhood}, San Diego.`
+        : `${listing.name} is located in ${listing.neighborhood}, San Diego.`,
+    },
+    {
+      q: `How do I contact ${listing.name}?`,
+      a: listing.phone
+        ? `You can call ${listing.name} at ${listing.phone}${listing.website ? ` or visit their website.` : "."}`
+        : `Visit the ${listing.name} website for current contact details and hours.`,
+    },
+    {
+      q: `Do sandiego.com Insider members get a discount at ${listing.name}?`,
+      a: `Many of our partner ${listing.category?.toLowerCase() || "businesses"} offer Insider members up to 40% off. Check the Insider perks page for current offers.`,
+    },
+  ];
+
+  const businessJsonLd = {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
+    "@type": schemaType,
     name: listing.name,
     image: listing.hero_image || undefined,
     description: listing.short_description || listing.description || undefined,
@@ -66,6 +100,20 @@ function ListingDetail() {
     priceRange: listing.price_range || undefined,
   };
 
+  const jsonLd = [
+    businessJsonLd,
+    breadcrumbJsonLd(breadcrumbs),
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqs.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -78,7 +126,8 @@ function ListingDetail() {
 
       <section className="container-page -mt-16 relative">
         <div className="rounded-3xl bg-card border border-border p-8 md:p-12 shadow-xl">
-          <Link to="/listings" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+          <Breadcrumbs items={breadcrumbs} />
+          <Link to="/listings" className="mt-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> All listings
           </Link>
           <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
@@ -133,6 +182,24 @@ function ListingDetail() {
               </a>
             )}
           </div>
+        </div>
+      </section>
+
+      <section className="container-page pb-20 max-w-3xl">
+        <div className="eyebrow">Frequently asked</div>
+        <h2 className="mt-1 font-display text-2xl md:text-3xl font-semibold">
+          About {listing.name}
+        </h2>
+        <div className="mt-5 divide-y divide-border rounded-2xl border border-border bg-card">
+          {faqs.map((f) => (
+            <details key={f.q} className="group p-5">
+              <summary className="cursor-pointer list-none font-medium flex items-center justify-between gap-4">
+                {f.q}
+                <span className="text-accent group-open:rotate-45 transition-transform">+</span>
+              </summary>
+              <p className="mt-3 text-sm text-muted-foreground">{f.a}</p>
+            </details>
+          ))}
         </div>
       </section>
 
