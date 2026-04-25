@@ -5,6 +5,7 @@ import { Footer } from "@/components/site/Footer";
 import { ListingCard, type ListingCardData } from "@/components/site/ListingCard";
 import { listings as mockListings } from "@/lib/mock-data";
 import { fetchPublishedListings } from "@/lib/content-queries";
+import listingsHero from "@/assets/listings-hero.jpg";
 
 export const Route = createFileRoute("/listings/")({
   head: () => ({
@@ -64,17 +65,22 @@ function ListingsPage() {
 
       {/* SEO + conversion hero */}
       <section className="relative overflow-hidden border-b border-border">
+        <img
+          src={listingsHero}
+          alt="Aerial view of San Diego coastline at golden hour with the Hotel del Coronado and downtown skyline"
+          width={1920}
+          height={1080}
+          className="absolute inset-0 h-full w-full object-cover"
+          fetchPriority="high"
+        />
+        {/* Left-to-right scrim keeps copy legible while letting the image breathe on the right */}
         <div
           aria-hidden
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1538397506994-7e98c54b8a4d?auto=format&fit=crop&w=2000&q=80')",
-          }}
+          className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/10"
         />
         <div
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-br from-background via-background/85 to-background/40"
+          className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent"
         />
         <div
           aria-hidden
