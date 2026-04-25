@@ -208,6 +208,60 @@ export function ListingForm({ initial }: { initial?: Partial<ListingFormValues> 
         </Field>
       </section>
 
+      <section className="rounded-2xl border border-border bg-card p-6 space-y-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="font-display text-lg font-semibold">Promotion</h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Boost this listing to the top of category and neighborhood feeds. A
+              "Sponsored" badge appears on the card.
+            </p>
+          </div>
+          <label className="inline-flex items-center gap-2 cursor-pointer shrink-0">
+            <input
+              type="checkbox"
+              checked={v.is_sponsored}
+              onChange={(e) => set("is_sponsored", e.target.checked)}
+              className="h-4 w-4 accent-accent"
+            />
+            <span className="text-sm font-medium">Promote</span>
+          </label>
+        </div>
+
+        {v.is_sponsored && (
+          <>
+            <Field label="Sponsor name (optional — shown on the card)">
+              <input
+                className={inputCls}
+                value={v.sponsor_name}
+                placeholder="e.g. Visit Carlsbad"
+                onChange={(e) => set("sponsor_name", e.target.value)}
+              />
+            </Field>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field label="Boost rank (higher = appears first)">
+                <input
+                  className={inputCls}
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={v.sponsor_rank}
+                  onChange={(e) => set("sponsor_rank", e.target.value)}
+                />
+              </Field>
+              <Field label="Promotion ends (optional)">
+                <input
+                  className={inputCls}
+                  type="datetime-local"
+                  value={v.sponsor_until}
+                  onChange={(e) => set("sponsor_until", e.target.value)}
+                />
+              </Field>
+            </div>
+          </>
+        )}
+      </section>
+
       <div className="flex gap-3">
         <button type="submit" disabled={busy}
           className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50">
