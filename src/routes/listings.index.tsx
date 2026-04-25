@@ -9,17 +9,19 @@ import { fetchPublishedListings } from "@/lib/content-queries";
 export const Route = createFileRoute("/listings/")({
   head: () => ({
     meta: [
-      { title: "Listings — The Best of San Diego | sandiego.com" },
+      { title: "Best Things To Do in San Diego — Hotels, Restaurants & Tours | sandiego.com" },
       {
         name: "description",
         content:
-          "Browse handpicked San Diego restaurants, hotels, attractions and tours — filtered by category and neighborhood.",
+          "The definitive San Diego directory: 1,200+ editor-vetted hotels, restaurants, beaches, breweries and tours across 75 neighborhoods. Insider members save up to 40%.",
       },
-      { property: "og:title", content: "San Diego Listings — Restaurants, Hotels & Attractions" },
+      { property: "og:title", content: "The Best of San Diego — Editor-Vetted Hotels, Restaurants & Tours" },
       {
         property: "og:description",
-        content: "Handpicked San Diego listings filtered by category and neighborhood.",
+        content: "1,200+ hand-picked San Diego listings reviewed by locals. Filter by category, save with Insider.",
       },
+      { property: "og:image", content: "https://images.unsplash.com/photo-1538397506994-7e98c54b8a4d?auto=format&fit=crop&w=1600&q=80" },
+      { property: "twitter:image", content: "https://images.unsplash.com/photo-1538397506994-7e98c54b8a4d?auto=format&fit=crop&w=1600&q=80" },
     ],
   }),
   component: ListingsPage,
