@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { neighborhoodHubs } from "@/lib/neighborhoods-data";
+import { CATEGORY_HUBS, hubForCategory } from "@/lib/listing-categories";
 
 const SITE_URL = process.env.SITE_URL || "https://sandiego.com";
 
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         const [{ data: listings }, { data: articles }] = await Promise.all([
           supabaseAdmin
             .from("listings")
-            .select("slug, updated_at")
+            .select("slug, category, updated_at")
             .eq("status", "published"),
           supabaseAdmin
             .from("articles")
@@ -35,14 +36,24 @@ export const Route = createFileRoute("/sitemap.xml")({
             `<url><loc>${SITE_URL}${path}</loc><lastmod>${now}</lastmod><changefreq>daily</changefreq></url>`,
           );
         }
+        // Category hubs — high-priority SEO landing pages.
+        for (const hub of CATEGORY_HUBS) {
+          urls.push(
+            `<url><loc>${SITE_URL}/${hub.slug}</loc><lastmod>${now}</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>`,
+          );
+        }
         for (const n of neighborhoodHubs) {
           urls.push(
             `<url><loc>${SITE_URL}/neighborhoods/${n.slug}</loc><lastmod>${now}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`,
           );
         }
+        // Listing detail pages — emit canonical URL only (/{category}/{slug}).
+        // The legacy /listings/{slug} URLs 301-redirect to canonical, so we omit them.
         for (const l of listings ?? []) {
+          const hub = hubForCategory(l.category);
+          const path = hub ? `/${hub.slug}/${xmlEscape(l.slug)}` : `/listings/${xmlEscape(l.slug)}`;
           urls.push(
-            `<url><loc>${SITE_URL}/listings/${xmlEscape(l.slug)}</loc><lastmod>${l.updated_at}</lastmod></url>`,
+            `<url><loc>${SITE_URL}${path}</loc><lastmod>${l.updated_at}</lastmod><priority>0.7</priority></url>`,
           );
         }
         for (const a of articles ?? []) {
