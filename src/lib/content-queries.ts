@@ -1,18 +1,35 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export async function fetchPublishedListings(opts?: { category?: string; limit?: number }) {
+  const nowIso = new Date().toISOString();
   let q = supabase
     .from("listings")
-    .select("id, slug, name, category, neighborhood, short_description, hero_image, tier, rating, published_at")
+    .select(
+      "id, slug, name, category, neighborhood, short_description, hero_image, tier, rating, price_range, published_at, is_sponsored, sponsor_name, sponsor_rank, sponsor_until",
+    )
     .eq("status", "published");
   if (opts?.category && opts.category !== "All") {
     q = q.eq("category", opts.category as never);
   }
-  q = q.order("tier", { ascending: false }).order("published_at", { ascending: false });
+  // Sponsored listings (with no expiry, or not yet expired) float to the top,
+  // ordered by sponsor_rank desc. Then tier, then recency.
+  q = q
+    .order("is_sponsored", { ascending: false })
+    .order("sponsor_rank", { ascending: false })
+    .order("tier", { ascending: false })
+    .order("published_at", { ascending: false });
   if (opts?.limit) q = q.limit(opts.limit);
   const { data, error } = await q;
   if (error) throw error;
-  return data ?? [];
+  // Filter out expired sponsorships client-side (Postgres can't cleanly mix
+  // "null OR > now" inside the boost ordering above).
+  const filtered = (data ?? []).map((l: any) => {
+    if (l.is_sponsored && l.sponsor_until && new Date(l.sponsor_until) < new Date(nowIso)) {
+      return { ...l, is_sponsored: false };
+    }
+    return l;
+  });
+  return filtered;
 }
 
 export async function fetchListingBySlug(slug: string) {

@@ -15,6 +15,9 @@ export interface ListingCardData {
   tier: "free" | "featured" | "premium";
   rating?: number | null;
   price_range?: string | null;
+  is_sponsored?: boolean | null;
+  sponsor_name?: string | null;
+  sponsor_until?: string | null;
 }
 
 // Lightweight, deterministic "insight" per category to drive engagement
@@ -42,6 +45,9 @@ export function ListingCard({ listing }: { listing: ListingCardData }) {
   const desc = listing.short_description || listing.blurb || "";
   const insight = insightFor(listing.category);
   const price = priceLabel(listing.price_range);
+  const sponsored =
+    !!listing.is_sponsored &&
+    (!listing.sponsor_until || new Date(listing.sponsor_until) > new Date());
   const [saved, setSaved] = useState(false);
 
   const toggleSave = (e: MouseEvent) => {
@@ -73,9 +79,17 @@ export function ListingCard({ listing }: { listing: ListingCardData }) {
           className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-foreground/35 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
         />
 
-        {/* Tier / insight chip — top left */}
-        <div className="absolute left-3 top-3 flex items-center gap-2">
-          {listing.tier !== "free" ? (
+        {/* Sponsored / tier / insight chip — top left */}
+        <div className="absolute left-3 top-3 flex items-center gap-2 max-w-[80%]">
+          {sponsored ? (
+            <span
+              className="inline-flex items-center gap-1 rounded-full bg-foreground/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-background shadow-sm backdrop-blur"
+              title={listing.sponsor_name ? `Promoted by ${listing.sponsor_name}` : "Sponsored placement"}
+            >
+              <Sparkles className="h-3 w-3" />
+              Sponsored{listing.sponsor_name ? ` · ${listing.sponsor_name}` : ""}
+            </span>
+          ) : listing.tier !== "free" ? (
             <span
               className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider shadow-sm backdrop-blur ${
                 listing.tier === "premium"

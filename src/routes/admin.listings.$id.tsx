@@ -38,6 +38,12 @@ function EditListing() {
         status: row.status,
         meta_title: row.meta_title ?? "",
         meta_description: row.meta_description ?? "",
+        is_sponsored: !!row.is_sponsored,
+        sponsor_name: row.sponsor_name ?? "",
+        sponsor_rank: row.sponsor_rank?.toString() ?? "0",
+        sponsor_until: row.sponsor_until
+          ? new Date(row.sponsor_until).toISOString().slice(0, 16)
+          : "",
       });
     };
     load();
