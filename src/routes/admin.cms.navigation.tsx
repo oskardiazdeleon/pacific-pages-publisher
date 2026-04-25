@@ -18,7 +18,7 @@ function NavigationPage() {
 
   const load = async () => {
     const { data } = await supabase.from("nav_menus").select("*").order("location");
-    setMenus((data ?? []) as Menu[]);
+    setMenus((data ?? []) as unknown as Menu[]);
   };
   useEffect(() => { load(); }, []);
 

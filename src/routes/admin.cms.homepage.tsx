@@ -75,12 +75,12 @@ function HomepagePage() {
   };
   const saveDraft = async (s: Section) => {
     setBusy(true); setMsg(null);
-    await supabase.from("homepage_sections").update({ draft_content: s.draft_content }).eq("id", s.id);
+    await supabase.from("homepage_sections").update({ draft_content: s.draft_content as never }).eq("id", s.id);
     setBusy(false); setMsg(`Saved draft: ${s.section_key}`);
   };
   const publish = async (s: Section) => {
     setBusy(true); setMsg(null);
-    await supabase.from("homepage_sections").update({ draft_content: s.draft_content, published_content: s.draft_content, published_at: new Date().toISOString() }).eq("id", s.id);
+    await supabase.from("homepage_sections").update({ draft_content: s.draft_content as never, published_content: s.draft_content as never, published_at: new Date().toISOString() }).eq("id", s.id);
     await load();
     setBusy(false); setMsg(`Published: ${s.section_key}`);
   };
