@@ -1,86 +1,40 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, Menu, Search, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import sandiegoLogo from "@/assets/sandiego-logo.png";
+import { fetchPublishedMenu, fetchPublishedSettings, type NavItem, type SiteSettingsMap } from "@/lib/cms";
 
-/**
- * Top navigation modeled on sandiego.com's information architecture.
- * Each top-level section maps to listing categories (the "listing types"
- * that live underneath it).
- */
-type NavChild = { label: string; to: string; type?: string };
-type NavSection = {
-  label: string;
-  to: string;
-  children?: NavChild[];
-};
-
-const nav: NavSection[] = [
-  {
-    label: "Things To Do",
-    to: "/listings",
-    children: [
-      { label: "Attractions", to: "/listings", type: "attraction" },
-      { label: "Tours & Experiences", to: "/listings", type: "tour" },
-      { label: "Outdoor & Beaches", to: "/listings", type: "outdoor" },
-      { label: "Shopping", to: "/listings", type: "shopping" },
-      { label: "Family Fun", to: "/listings", type: "family" },
-    ],
-  },
-  {
-    label: "Food & Drink",
-    to: "/listings",
-    children: [
-      { label: "Restaurants", to: "/listings", type: "restaurant" },
-      { label: "Breweries", to: "/listings", type: "brewery" },
-      { label: "Wineries", to: "/listings", type: "winery" },
-      { label: "Cafés & Bakeries", to: "/listings", type: "cafe" },
-      { label: "Nightlife & Bars", to: "/listings", type: "nightlife" },
-    ],
-  },
-  {
-    label: "Places To Stay",
-    to: "/listings",
-    children: [
-      { label: "Hotels", to: "/listings", type: "hotel" },
-      { label: "Resorts", to: "/listings", type: "resort" },
-      { label: "Boutique & B&Bs", to: "/listings", type: "boutique" },
-      { label: "Vacation Rentals", to: "/listings", type: "rental" },
-    ],
-  },
-  {
-    label: "Sports & Events",
-    to: "/listings",
-    children: [
-      { label: "Spectator Sports", to: "/listings", type: "spectator" },
-      { label: "Water Sports", to: "/listings", type: "water-sports" },
-      { label: "Golf", to: "/listings", type: "golf" },
-      { label: "Live Events", to: "/listings", type: "event" },
-    ],
-  },
-  {
-    label: "Neighborhoods",
-    to: "/neighborhoods",
-  },
-  {
-    label: "Articles",
-    to: "/articles",
-  },
+const FALLBACK_NAV: NavItem[] = [
+  { label: "Things To Do", to: "/listings" },
+  { label: "Food & Drink", to: "/listings" },
+  { label: "Places To Stay", to: "/listings" },
+  { label: "Sports & Events", to: "/listings" },
+  { label: "Neighborhoods", to: "/neighborhoods" },
+  { label: "Articles", to: "/articles" },
 ];
 
 export function Header() {
   const [open, setOpen] = useState(false);
   const [openSection, setOpenSection] = useState<string | null>(null);
+  const [nav, setNav] = useState<NavItem[]>(FALLBACK_NAV);
+  const [settings, setSettings] = useState<SiteSettingsMap>({});
+
+  useEffect(() => {
+    (async () => {
+      const [items, s] = await Promise.all([fetchPublishedMenu("header"), fetchPublishedSettings()]);
+      if (items.length) setNav(items);
+      setSettings(s);
+    })();
+  }, []);
+
+  const siteName = settings.brand?.site_name || "sandiego.com";
+  const logoUrl = settings.brand?.logo_url || sandiegoLogo;
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
       <div className="container-page flex h-16 items-center justify-between gap-4">
-        <Link to="/" className="flex items-center gap-2 group shrink-0" aria-label="sandiego.com home">
-          <img
-            src={sandiegoLogo}
-            alt="sandiego.com"
-            className="h-9 w-auto"
-          />
+        <Link to="/" className="flex items-center gap-2 group shrink-0" aria-label={`${siteName} home`}>
+          <img src={logoUrl} alt={siteName} className="h-9 w-auto" />
         </Link>
 
         <nav className="hidden xl:flex items-center gap-0.5 text-sm font-medium">
@@ -88,14 +42,12 @@ export function Header() {
             <div key={section.label} className="group relative">
               <Link
                 to={section.to}
-                activeProps={{ className: "text-accent" }}
-                activeOptions={{ exact: section.to === "/" }}
                 className="inline-flex items-center gap-1 rounded-full px-2.5 py-2 text-foreground/80 hover:text-foreground hover:bg-secondary transition-colors whitespace-nowrap"
               >
                 {section.label}
-                {section.children && <ChevronDown className="h-3.5 w-3.5 opacity-60" />}
+                {section.children?.length ? <ChevronDown className="h-3.5 w-3.5 opacity-60" /> : null}
               </Link>
-              {section.children && (
+              {section.children?.length ? (
                 <div className="invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-150 absolute left-0 top-full pt-2 min-w-[220px] z-50">
                   <div className="rounded-xl border border-border bg-popover text-popover-foreground shadow-xl p-2">
                     {section.children.map((child) => (
@@ -109,28 +61,19 @@ export function Header() {
                     ))}
                   </div>
                 </div>
-              )}
+              ) : null}
             </div>
           ))}
         </nav>
 
         <div className="flex items-center gap-2 shrink-0">
-          <button
-            aria-label="Search"
-            className="hidden sm:grid h-9 w-9 place-items-center rounded-full border border-border hover:bg-secondary transition"
-          >
+          <button aria-label="Search" className="hidden sm:grid h-9 w-9 place-items-center rounded-full border border-border hover:bg-secondary transition">
             <Search className="h-4 w-4" />
           </button>
-          <Link
-            to="/partners"
-            className="hidden xl:inline-flex items-center rounded-full border border-border px-3 py-2 text-xs font-semibold text-foreground/75 hover:text-foreground hover:bg-secondary transition whitespace-nowrap"
-          >
+          <Link to="/partners" className="hidden xl:inline-flex items-center rounded-full border border-border px-3 py-2 text-xs font-semibold text-foreground/75 hover:text-foreground hover:bg-secondary transition whitespace-nowrap">
             For Partners
           </Link>
-          <Link
-            to="/insider"
-            className="hidden md:inline-flex items-center rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground hover:opacity-90 transition whitespace-nowrap"
-          >
+          <Link to="/insider" className="hidden md:inline-flex items-center rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground hover:opacity-90 transition whitespace-nowrap">
             Join Insider
           </Link>
           <button
@@ -151,54 +94,31 @@ export function Header() {
               return (
                 <div key={section.label} className="border-b border-border/60 last:border-0">
                   <div className="flex items-center justify-between">
-                    <Link
-                      to={section.to}
-                      onClick={() => setOpen(false)}
-                      className="flex-1 py-3 text-sm font-medium"
-                    >
+                    <Link to={section.to} onClick={() => setOpen(false)} className="flex-1 py-3 text-sm font-medium">
                       {section.label}
                     </Link>
-                    {section.children && (
-                      <button
-                        onClick={() => setOpenSection(isOpen ? null : section.label)}
-                        aria-label={`Toggle ${section.label}`}
-                        className="grid h-9 w-9 place-items-center"
-                      >
-                        <ChevronDown
-                          className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
-                        />
+                    {section.children?.length ? (
+                      <button onClick={() => setOpenSection(isOpen ? null : section.label)} aria-label={`Toggle ${section.label}`} className="grid h-9 w-9 place-items-center">
+                        <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
                       </button>
-                    )}
+                    ) : null}
                   </div>
-                  {section.children && isOpen && (
+                  {section.children?.length && isOpen ? (
                     <div className="pb-3 pl-3">
                       {section.children.map((child) => (
-                        <Link
-                          key={child.label}
-                          to={child.to}
-                          onClick={() => setOpen(false)}
-                          className="block py-2 text-sm text-foreground/75 hover:text-foreground"
-                        >
+                        <Link key={child.label} to={child.to} onClick={() => setOpen(false)} className="block py-2 text-sm text-foreground/75 hover:text-foreground">
                           {child.label}
                         </Link>
                       ))}
                     </div>
-                  )}
+                  ) : null}
                 </div>
               );
             })}
-            <Link
-              to="/insider"
-              onClick={() => setOpen(false)}
-              className="mt-3 inline-flex items-center justify-center rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground"
-            >
+            <Link to="/insider" onClick={() => setOpen(false)} className="mt-3 inline-flex items-center justify-center rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground">
               Join Insider
             </Link>
-            <Link
-              to="/partners"
-              onClick={() => setOpen(false)}
-              className="mt-2 inline-flex items-center justify-center rounded-full border border-border px-4 py-2.5 text-sm font-medium text-foreground/80"
-            >
+            <Link to="/partners" onClick={() => setOpen(false)} className="mt-2 inline-flex items-center justify-center rounded-full border border-border px-4 py-2.5 text-sm font-medium text-foreground/80">
               For Partners
             </Link>
           </nav>
