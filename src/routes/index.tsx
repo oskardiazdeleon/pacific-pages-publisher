@@ -9,6 +9,7 @@ import { ArticleCard, type ArticleCardData } from "@/components/site/ArticleCard
 import { EmailCapture } from "@/components/site/EmailCapture";
 import { listings as mockListings, articles as mockArticles, neighborhoods } from "@/lib/mock-data";
 import { fetchPublishedListings, fetchPublishedArticles } from "@/lib/content-queries";
+import { fetchPublishedHomepageSections, type HomepageSection } from "@/lib/cms";
 import hero from "@/assets/hero-sandiego.jpg";
 
 export const Route = createFileRoute("/")({
@@ -33,23 +34,31 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const [featured, setFeatured] = useState<ListingCardData[]>([]);
   const [posts, setPosts] = useState<ArticleCardData[]>([]);
+  const [cms, setCms] = useState<Record<string, Record<string, unknown>>>({});
 
   useEffect(() => {
     (async () => {
       try {
-        const [l, a] = await Promise.all([
+        const [l, a, sections] = await Promise.all([
           fetchPublishedListings({ limit: 6 }),
           fetchPublishedArticles({ limit: 4 }),
+          fetchPublishedHomepageSections(),
         ]);
         const feat = l.filter((x) => x.tier !== "free").slice(0, 3);
         setFeatured(feat.length ? (feat as ListingCardData[]) : (mockListings.filter((m) => m.tier !== "free").slice(0, 3) as ListingCardData[]));
         setPosts(a.length ? (a as ArticleCardData[]) : (mockArticles as ArticleCardData[]));
+        const map: Record<string, Record<string, unknown>> = {};
+        for (const s of sections as HomepageSection[]) map[s.section_key] = (s.published_content || {}) as Record<string, unknown>;
+        setCms(map);
       } catch {
         setFeatured(mockListings.filter((m) => m.tier !== "free").slice(0, 3) as ListingCardData[]);
         setPosts(mockArticles as ArticleCardData[]);
       }
     })();
   }, []);
+
+  const c = (key: string, field: string, fallback: string): string => (cms[key]?.[field] as string) || fallback;
+  const heroImg = c("hero", "image_url", "") || hero;
 
   const [leadArticle, ...moreArticles] = posts;
 
