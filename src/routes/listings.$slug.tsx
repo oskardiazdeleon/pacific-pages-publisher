@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Globe, Phone, MapPin, Star, ArrowLeft } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { Breadcrumbs, breadcrumbJsonLd } from "@/components/site/Breadcrumbs";
 import { fetchListingBySlug, recordImpression } from "@/lib/content-queries";
 import listingFallback from "@/assets/listing-restaurant.jpg";
 
@@ -49,9 +50,42 @@ function ListingDetail() {
     recordImpression(listing.id, "view");
   }, [listing.id]);
 
-  const jsonLd = {
+  const categoryMap: Record<string, string> = {
+    Restaurant: "LocalBusiness",
+    Hotel: "LodgingBusiness",
+    Attraction: "TouristAttraction",
+    Tour: "TouristAttraction",
+  };
+  const schemaType = categoryMap[listing.category as string] || "LocalBusiness";
+
+  const breadcrumbs = [
+    { label: "Home", to: "/" },
+    { label: "Listings", to: "/listings" },
+    { label: listing.name },
+  ];
+
+  const faqs = [
+    {
+      q: `Where is ${listing.name} located?`,
+      a: listing.address
+        ? `${listing.name} is located at ${listing.address} in ${listing.neighborhood}, San Diego.`
+        : `${listing.name} is located in ${listing.neighborhood}, San Diego.`,
+    },
+    {
+      q: `How do I contact ${listing.name}?`,
+      a: listing.phone
+        ? `You can call ${listing.name} at ${listing.phone}${listing.website ? ` or visit their website.` : "."}`
+        : `Visit the ${listing.name} website for current contact details and hours.`,
+    },
+    {
+      q: `Do sandiego.com Insider members get a discount at ${listing.name}?`,
+      a: `Many of our partner ${listing.category?.toLowerCase() || "businesses"} offer Insider members up to 40% off. Check the Insider perks page for current offers.`,
+    },
+  ];
+
+  const businessJsonLd = {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
+    "@type": schemaType,
     name: listing.name,
     image: listing.hero_image || undefined,
     description: listing.short_description || listing.description || undefined,
@@ -65,6 +99,20 @@ function ListingDetail() {
       : undefined,
     priceRange: listing.price_range || undefined,
   };
+
+  const jsonLd = [
+    businessJsonLd,
+    breadcrumbJsonLd(breadcrumbs),
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqs.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
