@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { Breadcrumbs, breadcrumbJsonLd } from "@/components/site/Breadcrumbs";
 import { fetchArticleBySlug } from "@/lib/content-queries";
 import articleFallback from "@/assets/article-foodie.jpg";
 
