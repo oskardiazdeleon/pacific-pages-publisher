@@ -36,6 +36,25 @@ type Listing = {
   meta_description?: string | null;
 };
 
+function reservationProvider(url: string): string {
+  try {
+    const host = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
+    if (host.includes("opentable")) return "OpenTable";
+    if (host.includes("resy")) return "Resy";
+    if (host.includes("exploretock") || host.includes("tock")) return "Tock";
+    if (host.includes("sevenrooms")) return "SevenRooms";
+    if (host.includes("yelp")) return "Yelp";
+    if (host.includes("booking.com")) return "Booking.com";
+    if (host.includes("expedia")) return "Expedia";
+    if (host.includes("hotels.com")) return "Hotels.com";
+    if (host.includes("getyourguide")) return "GetYourGuide";
+    if (host.includes("viator")) return "Viator";
+    return host.split(".").slice(-2, -1)[0]?.replace(/^\w/, (c) => c.toUpperCase()) || "their site";
+  } catch {
+    return "their site";
+  }
+}
+
 function tagsForListing(l: Listing): string[] {
   const tags: string[] = [];
   if (l.price_range) tags.push(`${l.price_range} price`);
