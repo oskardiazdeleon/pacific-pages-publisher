@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Phone, Globe, Navigation, Heart, Share2, Check } from "lucide-react";
+import { Phone, Globe, Navigation, Heart, Share2, Check, CalendarCheck } from "lucide-react";
 import { recordImpression } from "@/lib/content-queries";
 
 type Props = {
@@ -8,6 +8,7 @@ type Props = {
   phone?: string | null;
   website?: string | null;
   address?: string | null;
+  reservationUrl?: string | null;
   /** When true, render the compact mobile sticky bottom bar; otherwise the desktop chip row. */
   variant?: "inline" | "sticky";
 };
@@ -23,6 +24,7 @@ export function ListingActionBar({
   phone,
   website,
   address,
+  reservationUrl,
   variant = "inline",
 }: Props) {
   const [saved, setSaved] = useState(false);
