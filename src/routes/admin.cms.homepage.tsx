@@ -116,7 +116,25 @@ function HomepagePage() {
             </div>
             <div className="grid gap-4">
               {fields.map((f) => {
-                const val = (s.draft_content?.[f.name] as string) || "";
+                const rawVal = s.draft_content?.[f.name];
+                const val = (rawVal as string) || "";
+                if (f.type === "toggle") {
+                  const checked = rawVal === true || rawVal === "true";
+                  return (
+                    <label key={f.name} className="flex items-start gap-3 rounded-lg border border-border bg-background/50 p-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(e) => updateField(s.id, f.name, e.target.checked)}
+                        className="h-4 w-4 mt-0.5 accent-accent"
+                      />
+                      <span className="text-sm">
+                        <span className="font-medium">{f.label}</span>
+                        {f.help && <span className="block text-xs text-muted-foreground mt-0.5">{f.help}</span>}
+                      </span>
+                    </label>
+                  );
+                }
                 if (f.type === "image") return <CmsImageUpload key={f.name} value={val} onChange={(v) => updateField(s.id, f.name, v)} label={f.label} />;
                 if (f.type === "textarea") return (
                   <div key={f.name}>
