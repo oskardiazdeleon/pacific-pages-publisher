@@ -381,6 +381,7 @@ export type Database = {
           price_range: string | null
           published_at: string | null
           rating: number | null
+          reservation_url: string | null
           short_description: string | null
           slug: string
           sponsor_name: string | null
@@ -411,6 +412,7 @@ export type Database = {
           price_range?: string | null
           published_at?: string | null
           rating?: number | null
+          reservation_url?: string | null
           short_description?: string | null
           slug: string
           sponsor_name?: string | null
@@ -441,6 +443,7 @@ export type Database = {
           price_range?: string | null
           published_at?: string | null
           rating?: number | null
+          reservation_url?: string | null
           short_description?: string | null
           slug?: string
           sponsor_name?: string | null
@@ -602,7 +605,12 @@ export type Database = {
         | "completed"
         | "failed"
         | "cancelled"
-      impression_type: "view" | "click" | "phone_click" | "website_click"
+      impression_type:
+        | "view"
+        | "click"
+        | "phone_click"
+        | "website_click"
+        | "reservation_click"
       insider_tier: "trial" | "explorer" | "premier" | "plus" | "elite"
       listing_category:
         | "Restaurant"
@@ -749,7 +757,13 @@ export const Constants = {
         "failed",
         "cancelled",
       ],
-      impression_type: ["view", "click", "phone_click", "website_click"],
+      impression_type: [
+        "view",
+        "click",
+        "phone_click",
+        "website_click",
+        "reservation_click",
+      ],
       insider_tier: ["trial", "explorer", "premier", "plus", "elite"],
       listing_category: [
         "Restaurant",
