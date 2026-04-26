@@ -28,6 +28,7 @@ import { Route as ListingsIndexRouteImport } from './routes/listings.index'
 import { Route as HotelsIndexRouteImport } from './routes/hotels.index'
 import { Route as ArticlesIndexRouteImport } from './routes/articles.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as ThingsToDoGolfRouteImport } from './routes/things-to-do.golf'
 import { Route as ThingsToDoSlugRouteImport } from './routes/things-to-do.$slug'
 import { Route as ShoppingSlugRouteImport } from './routes/shopping.$slug'
 import { Route as RestaurantsSlugRouteImport } from './routes/restaurants.$slug'
@@ -145,6 +146,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const ThingsToDoGolfRoute = ThingsToDoGolfRouteImport.update({
+  id: '/things-to-do/golf',
+  path: '/things-to-do/golf',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ThingsToDoSlugRoute = ThingsToDoSlugRouteImport.update({
   id: '/things-to-do/$slug',
@@ -280,6 +286,7 @@ export interface FileRoutesByFullPath {
   '/restaurants/$slug': typeof RestaurantsSlugRoute
   '/shopping/$slug': typeof ShoppingSlugRoute
   '/things-to-do/$slug': typeof ThingsToDoSlugRoute
+  '/things-to-do/golf': typeof ThingsToDoGolfRoute
   '/admin/': typeof AdminIndexRoute
   '/articles/': typeof ArticlesIndexRoute
   '/hotels/': typeof HotelsIndexRoute
@@ -320,6 +327,7 @@ export interface FileRoutesByTo {
   '/restaurants/$slug': typeof RestaurantsSlugRoute
   '/shopping/$slug': typeof ShoppingSlugRoute
   '/things-to-do/$slug': typeof ThingsToDoSlugRoute
+  '/things-to-do/golf': typeof ThingsToDoGolfRoute
   '/admin': typeof AdminIndexRoute
   '/articles': typeof ArticlesIndexRoute
   '/hotels': typeof HotelsIndexRoute
@@ -364,6 +372,7 @@ export interface FileRoutesById {
   '/restaurants/$slug': typeof RestaurantsSlugRoute
   '/shopping/$slug': typeof ShoppingSlugRoute
   '/things-to-do/$slug': typeof ThingsToDoSlugRoute
+  '/things-to-do/golf': typeof ThingsToDoGolfRoute
   '/admin/': typeof AdminIndexRoute
   '/articles/': typeof ArticlesIndexRoute
   '/hotels/': typeof HotelsIndexRoute
@@ -409,6 +418,7 @@ export interface FileRouteTypes {
     | '/restaurants/$slug'
     | '/shopping/$slug'
     | '/things-to-do/$slug'
+    | '/things-to-do/golf'
     | '/admin/'
     | '/articles/'
     | '/hotels/'
@@ -449,6 +459,7 @@ export interface FileRouteTypes {
     | '/restaurants/$slug'
     | '/shopping/$slug'
     | '/things-to-do/$slug'
+    | '/things-to-do/golf'
     | '/admin'
     | '/articles'
     | '/hotels'
@@ -492,6 +503,7 @@ export interface FileRouteTypes {
     | '/restaurants/$slug'
     | '/shopping/$slug'
     | '/things-to-do/$slug'
+    | '/things-to-do/golf'
     | '/admin/'
     | '/articles/'
     | '/hotels/'
@@ -531,6 +543,7 @@ export interface RootRouteChildren {
   RestaurantsSlugRoute: typeof RestaurantsSlugRoute
   ShoppingSlugRoute: typeof ShoppingSlugRoute
   ThingsToDoSlugRoute: typeof ThingsToDoSlugRoute
+  ThingsToDoGolfRoute: typeof ThingsToDoGolfRoute
   HotelsIndexRoute: typeof HotelsIndexRoute
   NightlifeIndexRoute: typeof NightlifeIndexRoute
   RestaurantsIndexRoute: typeof RestaurantsIndexRoute
@@ -672,6 +685,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/things-to-do/golf': {
+      id: '/things-to-do/golf'
+      path: '/things-to-do/golf'
+      fullPath: '/things-to-do/golf'
+      preLoaderRoute: typeof ThingsToDoGolfRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/things-to-do/$slug': {
       id: '/things-to-do/$slug'
@@ -924,6 +944,7 @@ const rootRouteChildren: RootRouteChildren = {
   RestaurantsSlugRoute: RestaurantsSlugRoute,
   ShoppingSlugRoute: ShoppingSlugRoute,
   ThingsToDoSlugRoute: ThingsToDoSlugRoute,
+  ThingsToDoGolfRoute: ThingsToDoGolfRoute,
   HotelsIndexRoute: HotelsIndexRoute,
   NightlifeIndexRoute: NightlifeIndexRoute,
   RestaurantsIndexRoute: RestaurantsIndexRoute,
