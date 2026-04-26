@@ -574,3 +574,139 @@ export const deleteImportJob = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ============= Curated (search-driven) import =============
+//
+// Given a category and a Firecrawl search query, find a list of N business
+// names from a "best of" web page, then enqueue each as a curated_listing
+// item. Reuses processImportBatch / retryFailedItems / cancel / delete.
+
+const LISTING_CATEGORIES = ["Restaurant", "Hotel", "Attraction", "Tour", "Shopping", "Nightlife"] as const;
+
+const CuratedEnqueueInput = z.object({
+  query: z.string().min(3).max(200),
+  category: z.enum(LISTING_CATEGORIES),
+  limit: z.number().int().min(1).max(100).default(50),
+  publish: z.boolean().default(true),
+});
+
+async function firecrawlSearchSimple(query: string, limit: number) {
+  const key = process.env.FIRECRAWL_API_KEY;
+  if (!key) throw new Error("FIRECRAWL_API_KEY is not configured");
+  const res = await fetch("https://api.firecrawl.dev/v2/search", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ query, limit }),
+  });
+  if (!res.ok) {
+    const t = await res.text();
+    throw new Error(`Firecrawl search failed [${res.status}]: ${t.slice(0, 400)}`);
+  }
+  const json = (await res.json()) as any;
+  return (json?.data?.web ?? []) as Array<{ url: string; title?: string; description?: string }>;
+}
+
+// Use the AI gateway to extract a list of business names from a "best of" page's markdown
+async function extractNamesFromMarkdown(markdown: string, category: string, limit: number): Promise<string[]> {
+  const apiKey = process.env.LOVABLE_API_KEY;
+  if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
+
+  const schema = {
+    type: "object",
+    properties: {
+      names: {
+        type: "array",
+        items: { type: "string" },
+        description: `Up to ${limit} ${category.toLowerCase()} names mentioned on the page, in order of appearance. Names only — no descriptions, no addresses, no editorial wrapping.`,
+      },
+    },
+    required: ["names"],
+    additionalProperties: false,
+  };
+
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash",
+      messages: [
+        { role: "system", content: `Extract a clean list of San Diego ${category.toLowerCase()} business names from the markdown. Skip generic categories, headings like "Best Italian", author bylines, ad copy, and "Related Posts" sections.` },
+        { role: "user", content: markdown.slice(0, 30000) },
+      ],
+      response_format: { type: "json_schema", json_schema: { name: "name_list", strict: true, schema } },
+    }),
+  });
+  if (!res.ok) {
+    const t = await res.text();
+    throw new Error(`AI name extraction failed [${res.status}]: ${t.slice(0, 400)}`);
+  }
+  const json = (await res.json()) as any;
+  const content = json.choices?.[0]?.message?.content;
+  if (!content) return [];
+  const parsed = JSON.parse(content);
+  return Array.isArray(parsed.names) ? parsed.names.slice(0, limit) : [];
+}
+
+export const enqueueCuratedImport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => CuratedEnqueueInput.parse(d))
+  .handler(async ({ data, context }) => {
+    await ensureAdmin(context.supabase, context.userId);
+
+    // 1. Find candidate "best of" pages via Firecrawl Search
+    const searchHits = await firecrawlSearchSimple(data.query, 5);
+    if (!searchHits.length) throw new Error("No search results for that query");
+
+    // 2. Scrape the top-ranked page and extract business names from it
+    let names: string[] = [];
+    let sourcePage = "";
+    for (const hit of searchHits) {
+      try {
+        const scraped = await firecrawlScrape(hit.url);
+        if (!scraped.markdown) continue;
+        const extracted = await extractNamesFromMarkdown(scraped.markdown, data.category, data.limit);
+        if (extracted.length >= Math.min(10, data.limit)) {
+          names = extracted;
+          sourcePage = hit.url;
+          break;
+        }
+      } catch {
+        // try next hit
+      }
+    }
+    if (!names.length) throw new Error("Could not extract a list of names from the top search results");
+
+    // Dedupe (case-insensitive)
+    const seen = new Set<string>();
+    const uniqueNames = names.filter((n) => {
+      const k = n.toLowerCase().trim();
+      if (!k || seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    }).slice(0, data.limit);
+
+    // 3. Create the import job
+    const { data: job, error: jobErr } = await supabaseAdmin
+      .from("import_jobs")
+      .insert({
+        created_by: context.userId,
+        section_url: `${sourcePage} (curated: ${data.query})`,
+        kind: "curated_listing",
+        search: data.query,
+        publish: data.publish,
+        status: "pending",
+        total: uniqueNames.length,
+      })
+      .select("id").single();
+    if (jobErr) throw new Error(jobErr.message);
+
+    // 4. Enqueue items — encode name + category in a synthetic curated:// URL
+    const rows = uniqueNames.map((name) => ({
+      job_id: job.id,
+      url: `${CURATED_PREFIX}${data.category}/${encodeURIComponent(name)}`,
+    }));
+    const { error: itemsErr } = await supabaseAdmin.from("import_job_items").insert(rows);
+    if (itemsErr) throw new Error(itemsErr.message);
+
+    return { jobId: job.id, total: uniqueNames.length, sourcePage };
+  });
