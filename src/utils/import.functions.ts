@@ -5,6 +5,11 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 type ListingCategory = "Restaurant" | "Hotel" | "Attraction" | "Tour" | "Shopping" | "Nightlife";
 type ContentKind = "listing" | "article";
+// "curated_listing" reuses the import_jobs table but each item is a *restaurant
+// or business name* (stored in the `url` column with a synthetic `curated://`
+// prefix). The batch processor handles it by running Firecrawl Search +
+// structured JSON extraction instead of a direct page scrape.
+type JobKind = ContentKind | "curated_listing";
 
 const NEIGHBORHOODS = [
   "Downtown", "Gaslamp Quarter", "Little Italy", "La Jolla", "Pacific Beach",
