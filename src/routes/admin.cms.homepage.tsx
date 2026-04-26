@@ -19,7 +19,7 @@ type Section = {
   published_content: Record<string, unknown> | null;
 };
 
-const FIELDS_BY_TYPE: Record<string, { name: string; label: string; type?: "text" | "textarea" | "image" }[]> = {
+const FIELDS_BY_TYPE: Record<string, { name: string; label: string; type?: "text" | "textarea" | "image" | "toggle"; help?: string }[]> = {
   hero: [
     { name: "eyebrow", label: "Eyebrow" },
     { name: "heading", label: "Heading" },
@@ -29,6 +29,10 @@ const FIELDS_BY_TYPE: Record<string, { name: string; label: string; type?: "text
     { name: "secondary_cta_label", label: "Secondary CTA label" },
     { name: "secondary_cta_to", label: "Secondary CTA link" },
     { name: "image_url", label: "Background image (optional override)", type: "image" },
+    { name: "sponsor_active", label: "Sponsored takeover — use sponsor content above instead of the default Insider hero", type: "toggle", help: "When ON, the hero displays your custom heading, image, CTA, and a 'Presented by' badge. When OFF, the default Insider-promoting hero is shown." },
+    { name: "sponsor_name", label: "Sponsor name (e.g. Visit Coronado)" },
+    { name: "sponsor_logo_url", label: "Sponsor logo (small, transparent PNG ideal)", type: "image" },
+    { name: "sponsor_link_url", label: "Sponsor click-through URL (where the badge links)" },
   ],
   featured_listings: [
     { name: "eyebrow", label: "Eyebrow" },
