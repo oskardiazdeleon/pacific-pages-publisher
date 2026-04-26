@@ -110,7 +110,7 @@ function NeighborhoodDetail() {
     {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      mainEntity: hub.faqs.map((f) => ({
+      mainEntity: hub.faqs.map((f: any) => ({
         "@type": "Question",
         name: f.q,
         acceptedAnswer: { "@type": "Answer", text: f.a },
@@ -138,7 +138,7 @@ function NeighborhoodDetail() {
           <p className="mt-4 max-w-3xl text-lg text-muted-foreground">{hub.intro}</p>
 
           <div className="mt-6 flex flex-wrap gap-2">
-            {hub.bestFor.map((b) => (
+            {hub.bestFor.map((b: string) => (
               <span
                 key={b}
                 className="rounded-full border border-border bg-secondary/60 px-3 py-1 text-xs font-medium"
@@ -151,7 +151,7 @@ function NeighborhoodDetail() {
       </section>
 
       <section className="container-page py-14 grid gap-8 md:grid-cols-3">
-        {hub.highlights.map((h) => (
+        {hub.highlights.map((h: any) => (
           <div key={h.title} className="rounded-2xl border border-border p-6 bg-card">
             <h3 className="font-display text-xl font-semibold">{h.title}</h3>
             <p className="mt-2 text-sm text-muted-foreground">{h.body}</p>
@@ -184,7 +184,7 @@ function NeighborhoodDetail() {
           Visiting {hub.name}: questions answered
         </h2>
         <div className="mt-6 divide-y divide-border rounded-2xl border border-border bg-card">
-          {hub.faqs.map((f) => (
+          {hub.faqs.map((f: any) => (
             <details key={f.q} className="group p-6">
               <summary className="cursor-pointer list-none font-medium flex items-center justify-between gap-4">
                 {f.q}
