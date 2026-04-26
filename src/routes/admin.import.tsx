@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   importFromUrl,
   enqueueBulkImport,
+  enqueueCuratedImport,
   processImportBatch,
   retryFailedItems,
   cancelImportJob,
@@ -41,11 +42,13 @@ function ImportPage() {
   return (
     <div className="max-w-4xl">
       <div className="eyebrow">Tools</div>
-      <h1 className="mt-2 mb-2 font-display text-4xl font-semibold">Import from sandiego.com</h1>
+      <h1 className="mt-2 mb-2 font-display text-4xl font-semibold">Import content</h1>
       <p className="text-muted-foreground mb-8">
-        Single URL or queued bulk crawl. Failed pages can be retried without restarting.
+        Pull listings from a curated "best of" search, a single page (Yelp, OpenTable,
+        TripAdvisor, the venue's own site), or a queued bulk crawl of a category index.
       </p>
 
+      <CuratedImport />
       <SingleImport />
       <BulkEnqueue />
       <JobsList />
@@ -64,6 +67,112 @@ async function withAuth<T>(fn: () => Promise<T>): Promise<T> {
     return orig(input, { ...init, headers });
   };
   try { return await fn(); } finally { window.fetch = orig; }
+}
+
+function CuratedImport() {
+  const PRESETS: Array<{ label: string; query: string; category: string; limit: number }> = [
+    { label: "Top 50 Restaurants", query: "best restaurants in San Diego", category: "Restaurant", limit: 50 },
+    { label: "Top 25 Hotels", query: "best hotels in San Diego", category: "Hotel", limit: 25 },
+    { label: "Top 30 Things to Do", query: "best things to do in San Diego attractions", category: "Attraction", limit: 30 },
+    { label: "Top 20 Bars & Nightlife", query: "best bars and nightlife in San Diego", category: "Nightlife", limit: 20 },
+    { label: "Top 20 Shopping Spots", query: "best shopping in San Diego boutiques", category: "Shopping", limit: 20 },
+  ];
+  const [query, setQuery] = useState(PRESETS[0].query);
+  const [category, setCategory] = useState(PRESETS[0].category);
+  const [limit, setLimit] = useState(PRESETS[0].limit);
+  const [publish, setPublish] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const enqueue = useServerFn(enqueueCuratedImport);
+
+  const applyPreset = (p: typeof PRESETS[number]) => {
+    setQuery(p.query);
+    setCategory(p.category);
+    setLimit(p.limit);
+  };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      const out = await withAuth(() => enqueue({ data: { query, category: category as any, limit, publish } })) as { jobId: string; total: number };
+      toast.success(`Found ${out.total} candidates. Press "Run batch" or "Auto-run" below to import.`);
+      window.dispatchEvent(new CustomEvent("import-jobs-refresh"));
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to queue curated list");
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <form onSubmit={submit} className="rounded-2xl border border-border bg-card p-6 space-y-4 mb-8">
+      <div>
+        <h2 className="font-display text-lg font-semibold">Curated list import</h2>
+        <p className="text-xs text-muted-foreground mt-1">
+          Searches the web for a "best of" list, extracts the business names, then enriches each
+          one (description, neighborhood, phone, website, hero image) and creates a listing.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {PRESETS.map((p) => (
+          <button
+            key={p.label}
+            type="button"
+            onClick={() => applyPreset(p)}
+            className="text-xs rounded-full border border-border px-3 py-1.5 hover:bg-muted"
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      <label className="block text-xs">
+        <span className="text-muted-foreground">Search query</span>
+        <input
+          className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+          placeholder="best restaurants in San Diego"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          required
+        />
+      </label>
+
+      <div className="grid grid-cols-3 gap-3">
+        <label className="text-xs">
+          <span className="text-muted-foreground">Category</span>
+          <select
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option>Restaurant</option>
+            <option>Hotel</option>
+            <option>Attraction</option>
+            <option>Tour</option>
+            <option>Shopping</option>
+            <option>Nightlife</option>
+          </select>
+        </label>
+        <label className="text-xs">
+          <span className="text-muted-foreground">Max results (1–100)</span>
+          <input
+            type="number" min={1} max={100}
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            value={limit}
+            onChange={(e) => setLimit(parseInt(e.target.value || "25"))}
+          />
+        </label>
+        <label className="text-xs flex items-end gap-2 pb-2">
+          <input type="checkbox" checked={publish} onChange={(e) => setPublish(e.target.checked)} />
+          <span>Publish immediately</span>
+        </label>
+      </div>
+
+      <button type="submit" disabled={busy}
+        className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50">
+        {busy ? "Searching…" : "Find & queue list"}
+      </button>
+    </form>
+  );
 }
 
 function SingleImport() {
@@ -87,9 +196,14 @@ function SingleImport() {
 
   return (
     <form onSubmit={submit} className="rounded-2xl border border-border bg-card p-6 space-y-4 mb-8">
-      <h2 className="font-display text-lg font-semibold">Single URL</h2>
+      <div>
+        <h2 className="font-display text-lg font-semibold">Single URL</h2>
+        <p className="text-xs text-muted-foreground mt-1">
+          Paste any business page — Yelp, OpenTable, TripAdvisor, the venue's own site, or a sandiego.com page.
+        </p>
+      </div>
       <input className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
-        placeholder="https://www.sandiego.com/hotels/hotel-del-coronado"
+        placeholder="https://www.yelp.com/biz/example-restaurant-san-diego"
         value={url} onChange={(e) => setUrl(e.target.value)} required />
       <div className="grid grid-cols-2 gap-3">
         <label className="text-xs">

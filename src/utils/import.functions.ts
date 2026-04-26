@@ -5,6 +5,11 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 type ListingCategory = "Restaurant" | "Hotel" | "Attraction" | "Tour" | "Shopping" | "Nightlife";
 type ContentKind = "listing" | "article";
+// "curated_listing" reuses the import_jobs table but each item is a *restaurant
+// or business name* (stored in the `url` column with a synthetic `curated://`
+// prefix). The batch processor handles it by running Firecrawl Search +
+// structured JSON extraction instead of a direct page scrape.
+type JobKind = ContentKind | "curated_listing";
 
 const NEIGHBORHOODS = [
   "Downtown", "Gaslamp Quarter", "Little Italy", "La Jolla", "Pacific Beach",
@@ -210,6 +215,141 @@ async function processOneUrl(url: string, kind: ContentKind, publish: boolean) {
     : await insertArticle(record, hero, publish);
 }
 
+// ---------- Curated (search-based) listing import ----------
+
+const CURATED_PREFIX = "curated://";
+
+const CURATED_LISTING_SCHEMA = {
+  type: "object",
+  properties: {
+    name: { type: "string" },
+    description: { type: "string", description: "Two-sentence editorial summary of cuisine, vibe, and what makes it notable." },
+    neighborhood: { type: "string", description: "San Diego neighborhood like La Jolla, Little Italy, Gaslamp Quarter, North Park, etc." },
+    address: { type: "string" },
+    phone: { type: "string" },
+    website: { type: "string" },
+    price_range: { type: "string", enum: ["$", "$$", "$$$", "$$$$"] },
+    cuisine: { type: "string" },
+    image_url: { type: "string", description: "A high-quality public image URL of the business or its food/interior." },
+  },
+  required: ["name", "description", "neighborhood"],
+} as const;
+
+async function firecrawlSearchExtract(query: string) {
+  const key = process.env.FIRECRAWL_API_KEY;
+  if (!key) throw new Error("FIRECRAWL_API_KEY is not configured");
+  const res = await fetch("https://api.firecrawl.dev/v2/search", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      query,
+      limit: 3,
+      scrapeOptions: {
+        formats: [{ type: "json", schema: CURATED_LISTING_SCHEMA, prompt: `Extract structured details for the San Diego business mentioned in the query. Use information consistent with the official site or reputable reviews. Do not invent addresses or phone numbers — leave fields blank if not stated on the page.` }],
+        onlyMainContent: true,
+      },
+    }),
+  });
+  if (!res.ok) {
+    const t = await res.text();
+    throw new Error(`Firecrawl search failed [${res.status}]: ${t.slice(0, 400)}`);
+  }
+  const json = (await res.json()) as any;
+  const web: any[] = json?.data?.web ?? [];
+  return web;
+}
+
+function isJunkValue(v: unknown): boolean {
+  if (!v) return true;
+  const s = String(v).trim().toLowerCase();
+  if (!s) return true;
+  return s.startsWith("not specified") || s.startsWith("not available") || s.startsWith("n/a") || s === "unknown" || /\b555-\d{4}\b/.test(s) || /1234\s+culinary|placeholder|example\.com/.test(s);
+}
+
+function mergeCuratedResults(name: string, web: any[]): {
+  name: string;
+  description: string;
+  neighborhood: string;
+  address: string | null;
+  phone: string | null;
+  website: string | null;
+  price_range: "$" | "$$" | "$$$" | "$$$$";
+  cuisine: string | null;
+  image_url: string | null;
+} {
+  const out: any = { name, description: "", neighborhood: "", address: null, phone: null, website: null, price_range: "$$$", cuisine: null, image_url: null };
+  const ogImages: string[] = [];
+  for (const entry of web) {
+    const j = entry?.json ?? {};
+    for (const k of ["name", "description", "neighborhood", "address", "phone", "website", "cuisine", "image_url"]) {
+      const v = j?.[k];
+      if (!out[k] && v && !isJunkValue(v)) out[k] = String(v).trim();
+    }
+    const pr = j?.price_range;
+    if (pr && ["$", "$$", "$$$", "$$$$"].includes(pr)) out.price_range = pr;
+    const meta = entry?.metadata ?? {};
+    const og = meta?.ogImage ?? meta?.["og:image"];
+    if (og && typeof og === "string" && og.startsWith("http")) ogImages.push(og);
+    if (!out.website) {
+      const url: string = entry?.url ?? "";
+      const blocked = ["yelp.com", "tripadvisor", "opentable", "michelin", "reddit", "facebook", "instagram", "google.com/", "wikipedia", "eater.com", "sandiegomagazine", "sdfoodiefan"];
+      if (url && !blocked.some((b) => url.includes(b))) out.website = url;
+    }
+  }
+  if (!out.image_url && ogImages.length) out.image_url = ogImages[0];
+  // Normalize neighborhood
+  if (!out.neighborhood || /^san diego$/i.test(out.neighborhood)) out.neighborhood = "San Diego";
+  return out;
+}
+
+async function processCuratedListing(name: string, category: ListingCategory, publish: boolean) {
+  const query = `${name} ${category.toLowerCase()} San Diego`;
+  const web = await firecrawlSearchExtract(query);
+  if (!web.length) throw new Error("No search results");
+  const rec = mergeCuratedResults(name, web);
+  if (!rec.description) throw new Error("Could not extract a description");
+  const shortDesc = rec.description.split(/(?<=[.!?])\s+/)[0]?.slice(0, 200) ?? null;
+  const payload = {
+    name: rec.name,
+    slug: slugify(rec.name),
+    category,
+    neighborhood: rec.neighborhood,
+    short_description: shortDesc,
+    description: rec.description,
+    address: rec.address,
+    phone: rec.phone,
+    website: rec.website,
+    price_range: rec.price_range,
+    hero_image: rec.image_url,
+    meta_title: `${rec.name} in ${rec.neighborhood} | sandiego.com`.slice(0, 70),
+    meta_description: shortDesc ?? `Discover ${rec.name}, a top ${category.toLowerCase()} in ${rec.neighborhood}, San Diego.`,
+    tier: "free" as const,
+    status: (publish ? "published" : "draft") as "published" | "draft",
+    published_at: publish ? new Date().toISOString() : null,
+  };
+  const { data, error } = await supabaseAdmin
+    .from("listings").upsert(payload, { onConflict: "slug" }).select("id, slug").single();
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+// Decode the curated synthetic URL back into { name, category }
+function decodeCurated(url: string): { name: string; category: ListingCategory } {
+  const raw = url.startsWith(CURATED_PREFIX) ? url.slice(CURATED_PREFIX.length) : url;
+  const [catRaw, ...rest] = raw.split("/");
+  const cat = (catRaw || "Restaurant") as ListingCategory;
+  const name = decodeURIComponent(rest.join("/"));
+  return { name, category: cat };
+}
+
+async function processItemForJob(item: { url: string }, jobKind: JobKind, publish: boolean): Promise<{ slug: string; id: string }> {
+  if (jobKind === "curated_listing") {
+    const { name, category } = decodeCurated(item.url);
+    return processCuratedListing(name, category, publish);
+  }
+  return processOneUrl(item.url, jobKind as ContentKind, publish);
+}
+
 async function ensureAdmin(supabase: any, userId: string) {
   const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
   if (error) throw new Error(error.message);
@@ -350,7 +490,7 @@ export const processImportBatch = createServerFn({ method: "POST" })
     for (const item of items) {
       const attempts = item.attempts + 1;
       try {
-        const r = await processOneUrl(item.url, job.kind as ContentKind, job.publish);
+        const r = await processItemForJob(item, job.kind as JobKind, job.publish);
         await supabaseAdmin.from("import_job_items").update({
           status: "done",
           attempts,
@@ -433,4 +573,140 @@ export const deleteImportJob = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin.from("import_jobs").delete().eq("id", data.jobId);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+// ============= Curated (search-driven) import =============
+//
+// Given a category and a Firecrawl search query, find a list of N business
+// names from a "best of" web page, then enqueue each as a curated_listing
+// item. Reuses processImportBatch / retryFailedItems / cancel / delete.
+
+const LISTING_CATEGORIES = ["Restaurant", "Hotel", "Attraction", "Tour", "Shopping", "Nightlife"] as const;
+
+const CuratedEnqueueInput = z.object({
+  query: z.string().min(3).max(200),
+  category: z.enum(LISTING_CATEGORIES),
+  limit: z.number().int().min(1).max(100).default(50),
+  publish: z.boolean().default(true),
+});
+
+async function firecrawlSearchSimple(query: string, limit: number) {
+  const key = process.env.FIRECRAWL_API_KEY;
+  if (!key) throw new Error("FIRECRAWL_API_KEY is not configured");
+  const res = await fetch("https://api.firecrawl.dev/v2/search", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ query, limit }),
+  });
+  if (!res.ok) {
+    const t = await res.text();
+    throw new Error(`Firecrawl search failed [${res.status}]: ${t.slice(0, 400)}`);
+  }
+  const json = (await res.json()) as any;
+  return (json?.data?.web ?? []) as Array<{ url: string; title?: string; description?: string }>;
+}
+
+// Use the AI gateway to extract a list of business names from a "best of" page's markdown
+async function extractNamesFromMarkdown(markdown: string, category: string, limit: number): Promise<string[]> {
+  const apiKey = process.env.LOVABLE_API_KEY;
+  if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
+
+  const schema = {
+    type: "object",
+    properties: {
+      names: {
+        type: "array",
+        items: { type: "string" },
+        description: `Up to ${limit} ${category.toLowerCase()} names mentioned on the page, in order of appearance. Names only — no descriptions, no addresses, no editorial wrapping.`,
+      },
+    },
+    required: ["names"],
+    additionalProperties: false,
+  };
+
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash",
+      messages: [
+        { role: "system", content: `Extract a clean list of San Diego ${category.toLowerCase()} business names from the markdown. Skip generic categories, headings like "Best Italian", author bylines, ad copy, and "Related Posts" sections.` },
+        { role: "user", content: markdown.slice(0, 30000) },
+      ],
+      response_format: { type: "json_schema", json_schema: { name: "name_list", strict: true, schema } },
+    }),
+  });
+  if (!res.ok) {
+    const t = await res.text();
+    throw new Error(`AI name extraction failed [${res.status}]: ${t.slice(0, 400)}`);
+  }
+  const json = (await res.json()) as any;
+  const content = json.choices?.[0]?.message?.content;
+  if (!content) return [];
+  const parsed = JSON.parse(content);
+  return Array.isArray(parsed.names) ? parsed.names.slice(0, limit) : [];
+}
+
+export const enqueueCuratedImport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => CuratedEnqueueInput.parse(d))
+  .handler(async ({ data, context }) => {
+    await ensureAdmin(context.supabase, context.userId);
+
+    // 1. Find candidate "best of" pages via Firecrawl Search
+    const searchHits = await firecrawlSearchSimple(data.query, 5);
+    if (!searchHits.length) throw new Error("No search results for that query");
+
+    // 2. Scrape the top-ranked page and extract business names from it
+    let names: string[] = [];
+    let sourcePage = "";
+    for (const hit of searchHits) {
+      try {
+        const scraped = await firecrawlScrape(hit.url);
+        if (!scraped.markdown) continue;
+        const extracted = await extractNamesFromMarkdown(scraped.markdown, data.category, data.limit);
+        if (extracted.length >= Math.min(10, data.limit)) {
+          names = extracted;
+          sourcePage = hit.url;
+          break;
+        }
+      } catch {
+        // try next hit
+      }
+    }
+    if (!names.length) throw new Error("Could not extract a list of names from the top search results");
+
+    // Dedupe (case-insensitive)
+    const seen = new Set<string>();
+    const uniqueNames = names.filter((n) => {
+      const k = n.toLowerCase().trim();
+      if (!k || seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    }).slice(0, data.limit);
+
+    // 3. Create the import job
+    const { data: job, error: jobErr } = await supabaseAdmin
+      .from("import_jobs")
+      .insert({
+        created_by: context.userId,
+        section_url: `${sourcePage} (curated: ${data.query})`,
+        kind: "curated_listing",
+        search: data.query,
+        publish: data.publish,
+        status: "pending",
+        total: uniqueNames.length,
+      })
+      .select("id").single();
+    if (jobErr) throw new Error(jobErr.message);
+
+    // 4. Enqueue items — encode name + category in a synthetic curated:// URL
+    const rows = uniqueNames.map((name) => ({
+      job_id: job.id,
+      url: `${CURATED_PREFIX}${data.category}/${encodeURIComponent(name)}`,
+    }));
+    const { error: itemsErr } = await supabaseAdmin.from("import_job_items").insert(rows);
+    if (itemsErr) throw new Error(itemsErr.message);
+
+    return { jobId: job.id, total: uniqueNames.length, sourcePage };
   });
