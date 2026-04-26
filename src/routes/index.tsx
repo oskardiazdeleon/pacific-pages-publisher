@@ -58,7 +58,33 @@ function HomePage() {
   }, []);
 
   const c = (key: string, field: string, fallback: string): string => (cms[key]?.[field] as string) || fallback;
-  const heroImg = c("hero", "image_url", "") || hero;
+  const heroCms = cms["hero"] || {};
+  const sponsorActive = heroCms["sponsor_active"] === true || heroCms["sponsor_active"] === "true";
+  const sponsorName = (heroCms["sponsor_name"] as string) || "";
+  const sponsorLogo = (heroCms["sponsor_logo_url"] as string) || "";
+  const sponsorLink = (heroCms["sponsor_link_url"] as string) || "";
+
+  // Default Insider-promoting hero — used when no sponsor takeover is active.
+  const DEFAULT_HERO = {
+    eyebrow: "America's Finest City",
+    heading: "San Diego, distilled.",
+    subheading:
+      "Handpicked places to stay, eat and explore — alongside the stories that make this city worth crossing the country for.",
+    primary_cta_label: "Join Insider — from $19/mo",
+    primary_cta_to: "/insider",
+    secondary_cta_label: "Explore San Diego",
+    secondary_cta_to: "/listings",
+    image_url: hero,
+  };
+
+  // Pick the active hero values: sponsor overrides win, otherwise defaults.
+  const heroVal = (field: keyof typeof DEFAULT_HERO): string => {
+    if (sponsorActive) {
+      return ((heroCms[field] as string) || "").trim() || (DEFAULT_HERO[field] as string);
+    }
+    return DEFAULT_HERO[field] as string;
+  };
+  const heroImg = heroVal("image_url");
 
   const [leadArticle, ...moreArticles] = posts;
 
@@ -71,7 +97,7 @@ function HomePage() {
         <div className="absolute inset-0">
           <img
             src={heroImg}
-            alt="San Diego coastline at golden hour"
+            alt={sponsorActive && sponsorName ? `Presented by ${sponsorName}` : "San Diego coastline at golden hour"}
             width={1920}
             height={1280}
             className="h-full w-full object-cover"
@@ -79,25 +105,45 @@ function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-primary/55 via-primary/35 to-background" />
         </div>
         <div className="relative container-page pt-24 pb-32 md:pt-36 md:pb-48 text-primary-foreground">
-          <span className="eyebrow text-teal-soft">{c("hero", "eyebrow", "America's Finest City")}</span>
+          {sponsorActive && sponsorName && (
+            <a
+              href={sponsorLink || "#"}
+              target={sponsorLink ? "_blank" : undefined}
+              rel={sponsorLink ? "noreferrer noopener" : undefined}
+              className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/30 bg-primary-foreground/10 backdrop-blur px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-foreground/95 hover:bg-primary-foreground/20 transition mb-5"
+            >
+              <span className="opacity-70">Presented by</span>
+              {sponsorLogo ? (
+                <img
+                  src={sponsorLogo}
+                  alt={sponsorName}
+                  className="h-4 w-auto object-contain"
+                  loading="lazy"
+                />
+              ) : (
+                <span>{sponsorName}</span>
+              )}
+            </a>
+          )}
+          <span className="eyebrow text-teal-soft">{heroVal("eyebrow")}</span>
           <h1 className="mt-4 max-w-3xl font-display text-5xl md:text-7xl font-semibold leading-[1.05]">
-            {c("hero", "heading", "San Diego, distilled.")}
+            {heroVal("heading")}
           </h1>
           <p className="mt-5 max-w-xl text-lg text-primary-foreground/85">
-            {c("hero", "subheading", "Handpicked places to stay, eat and explore — alongside the stories that make this city worth crossing the country for.")}
+            {heroVal("subheading")}
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a
-              href={c("hero", "primary_cta_to", "/insider")}
+              href={heroVal("primary_cta_to")}
               className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground hover:opacity-90 transition"
             >
-              <Sparkles className="h-4 w-4" /> {c("hero", "primary_cta_label", "Join Insider — from $19/mo")}
+              {!sponsorActive && <Sparkles className="h-4 w-4" />} {heroVal("primary_cta_label")}
             </a>
             <a
-              href={c("hero", "secondary_cta_to", "/listings")}
+              href={heroVal("secondary_cta_to")}
               className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/30 bg-primary-foreground/10 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-primary-foreground/20 transition"
             >
-              {c("hero", "secondary_cta_label", "Explore San Diego")} <ArrowRight className="h-4 w-4" />
+              {heroVal("secondary_cta_label")} <ArrowRight className="h-4 w-4" />
             </a>
           </div>
         </div>
