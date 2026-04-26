@@ -403,6 +403,7 @@ export function ListingDetailPage({
           phone={listing.phone}
           website={listing.website}
           address={listing.address}
+          reservationUrl={listing.reservation_url}
         />
       </div>
 
