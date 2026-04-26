@@ -19,7 +19,7 @@ type Section = {
   published_content: Record<string, unknown> | null;
 };
 
-const FIELDS_BY_TYPE: Record<string, { name: string; label: string; type?: "text" | "textarea" | "image" }[]> = {
+const FIELDS_BY_TYPE: Record<string, { name: string; label: string; type?: "text" | "textarea" | "image" | "toggle"; help?: string }[]> = {
   hero: [
     { name: "eyebrow", label: "Eyebrow" },
     { name: "heading", label: "Heading" },
@@ -29,6 +29,10 @@ const FIELDS_BY_TYPE: Record<string, { name: string; label: string; type?: "text
     { name: "secondary_cta_label", label: "Secondary CTA label" },
     { name: "secondary_cta_to", label: "Secondary CTA link" },
     { name: "image_url", label: "Background image (optional override)", type: "image" },
+    { name: "sponsor_active", label: "Sponsored takeover — use sponsor content above instead of the default Insider hero", type: "toggle", help: "When ON, the hero displays your custom heading, image, CTA, and a 'Presented by' badge. When OFF, the default Insider-promoting hero is shown." },
+    { name: "sponsor_name", label: "Sponsor name (e.g. Visit Coronado)" },
+    { name: "sponsor_logo_url", label: "Sponsor logo (small, transparent PNG ideal)", type: "image" },
+    { name: "sponsor_link_url", label: "Sponsor click-through URL (where the badge links)" },
   ],
   featured_listings: [
     { name: "eyebrow", label: "Eyebrow" },
@@ -112,7 +116,25 @@ function HomepagePage() {
             </div>
             <div className="grid gap-4">
               {fields.map((f) => {
-                const val = (s.draft_content?.[f.name] as string) || "";
+                const rawVal = s.draft_content?.[f.name];
+                const val = (rawVal as string) || "";
+                if (f.type === "toggle") {
+                  const checked = rawVal === true || rawVal === "true";
+                  return (
+                    <label key={f.name} className="flex items-start gap-3 rounded-lg border border-border bg-background/50 p-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(e) => updateField(s.id, f.name, e.target.checked)}
+                        className="h-4 w-4 mt-0.5 accent-accent"
+                      />
+                      <span className="text-sm">
+                        <span className="font-medium">{f.label}</span>
+                        {f.help && <span className="block text-xs text-muted-foreground mt-0.5">{f.help}</span>}
+                      </span>
+                    </label>
+                  );
+                }
                 if (f.type === "image") return <CmsImageUpload key={f.name} value={val} onChange={(v) => updateField(s.id, f.name, v)} label={f.label} />;
                 if (f.type === "textarea") return (
                   <div key={f.name}>
