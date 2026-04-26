@@ -37,6 +37,15 @@ const empty: ListingFormValues = {
   is_sponsored: false, sponsor_name: "", sponsor_rank: "0", sponsor_until: "",
 };
 
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <div className="mt-1">{children}</div>
+    </label>
+  );
+}
+
 export function ListingForm({ initial }: { initial?: Partial<ListingFormValues> }) {
   const navigate = useNavigate();
   const [v, setV] = useState<ListingFormValues>({ ...empty, ...initial });
