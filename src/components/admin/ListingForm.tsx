@@ -23,6 +23,7 @@ export interface ListingFormValues {
   status: "draft" | "published" | "archived";
   meta_title: string;
   meta_description: string;
+  reservation_url: string;
   is_sponsored: boolean;
   sponsor_name: string;
   sponsor_rank: string;
@@ -34,6 +35,7 @@ const empty: ListingFormValues = {
   short_description: "", description: "", hero_image: "", address: "",
   phone: "", website: "", email: "", price_range: "", rating: "",
   tier: "free", status: "draft", meta_title: "", meta_description: "",
+  reservation_url: "",
   is_sponsored: false, sponsor_name: "", sponsor_rank: "0", sponsor_until: "",
 };
 
@@ -79,6 +81,7 @@ export function ListingForm({ initial }: { initial?: Partial<ListingFormValues> 
         status: v.status,
         meta_title: v.meta_title || null,
         meta_description: v.meta_description || null,
+        reservation_url: v.reservation_url || null,
         is_sponsored: v.is_sponsored,
         sponsor_name: v.sponsor_name || null,
         sponsor_rank: v.sponsor_rank ? parseInt(v.sponsor_rank, 10) || 0 : 0,
