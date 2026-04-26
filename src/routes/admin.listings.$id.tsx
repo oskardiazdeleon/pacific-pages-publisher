@@ -38,6 +38,7 @@ function EditListing() {
         status: row.status,
         meta_title: row.meta_title ?? "",
         meta_description: row.meta_description ?? "",
+        reservation_url: row.reservation_url ?? "",
         is_sponsored: !!row.is_sponsored,
         sponsor_name: row.sponsor_name ?? "",
         sponsor_rank: row.sponsor_rank?.toString() ?? "0",
