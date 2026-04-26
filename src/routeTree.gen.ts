@@ -26,6 +26,7 @@ import { Route as RestaurantsIndexRouteImport } from './routes/restaurants.index
 import { Route as NightlifeIndexRouteImport } from './routes/nightlife.index'
 import { Route as ListingsIndexRouteImport } from './routes/listings.index'
 import { Route as HotelsIndexRouteImport } from './routes/hotels.index'
+import { Route as CruisesIndexRouteImport } from './routes/cruises.index'
 import { Route as ArticlesIndexRouteImport } from './routes/articles.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ThingsToDoGolfRouteImport } from './routes/things-to-do.golf'
@@ -37,6 +38,7 @@ import { Route as NightlifeSlugRouteImport } from './routes/nightlife.$slug'
 import { Route as NeighborhoodsSlugRouteImport } from './routes/neighborhoods.$slug'
 import { Route as ListingsSlugRouteImport } from './routes/listings.$slug'
 import { Route as HotelsSlugRouteImport } from './routes/hotels.$slug'
+import { Route as CruisesSlugRouteImport } from './routes/cruises.$slug'
 import { Route as ArticlesSlugRouteImport } from './routes/articles.$slug'
 import { Route as AdminImpressionsRouteImport } from './routes/admin.impressions'
 import { Route as AdminImportRouteImport } from './routes/admin.import'
@@ -137,6 +139,11 @@ const HotelsIndexRoute = HotelsIndexRouteImport.update({
   path: '/hotels/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CruisesIndexRoute = CruisesIndexRouteImport.update({
+  id: '/cruises/',
+  path: '/cruises/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ArticlesIndexRoute = ArticlesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -190,6 +197,11 @@ const ListingsSlugRoute = ListingsSlugRouteImport.update({
 const HotelsSlugRoute = HotelsSlugRouteImport.update({
   id: '/hotels/$slug',
   path: '/hotels/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CruisesSlugRoute = CruisesSlugRouteImport.update({
+  id: '/cruises/$slug',
+  path: '/cruises/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArticlesSlugRoute = ArticlesSlugRouteImport.update({
@@ -278,6 +290,7 @@ export interface FileRoutesByFullPath {
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/cruises/$slug': typeof CruisesSlugRoute
   '/hotels/$slug': typeof HotelsSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
   '/neighborhoods/$slug': typeof NeighborhoodsSlugRoute
@@ -289,6 +302,7 @@ export interface FileRoutesByFullPath {
   '/things-to-do/golf': typeof ThingsToDoGolfRoute
   '/admin/': typeof AdminIndexRoute
   '/articles/': typeof ArticlesIndexRoute
+  '/cruises/': typeof CruisesIndexRoute
   '/hotels/': typeof HotelsIndexRoute
   '/listings/': typeof ListingsIndexRoute
   '/nightlife/': typeof NightlifeIndexRoute
@@ -319,6 +333,7 @@ export interface FileRoutesByTo {
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/cruises/$slug': typeof CruisesSlugRoute
   '/hotels/$slug': typeof HotelsSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
   '/neighborhoods/$slug': typeof NeighborhoodsSlugRoute
@@ -330,6 +345,7 @@ export interface FileRoutesByTo {
   '/things-to-do/golf': typeof ThingsToDoGolfRoute
   '/admin': typeof AdminIndexRoute
   '/articles': typeof ArticlesIndexRoute
+  '/cruises': typeof CruisesIndexRoute
   '/hotels': typeof HotelsIndexRoute
   '/listings': typeof ListingsIndexRoute
   '/nightlife': typeof NightlifeIndexRoute
@@ -364,6 +380,7 @@ export interface FileRoutesById {
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/cruises/$slug': typeof CruisesSlugRoute
   '/hotels/$slug': typeof HotelsSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
   '/neighborhoods/$slug': typeof NeighborhoodsSlugRoute
@@ -375,6 +392,7 @@ export interface FileRoutesById {
   '/things-to-do/golf': typeof ThingsToDoGolfRoute
   '/admin/': typeof AdminIndexRoute
   '/articles/': typeof ArticlesIndexRoute
+  '/cruises/': typeof CruisesIndexRoute
   '/hotels/': typeof HotelsIndexRoute
   '/listings/': typeof ListingsIndexRoute
   '/nightlife/': typeof NightlifeIndexRoute
@@ -410,6 +428,7 @@ export interface FileRouteTypes {
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
+    | '/cruises/$slug'
     | '/hotels/$slug'
     | '/listings/$slug'
     | '/neighborhoods/$slug'
@@ -421,6 +440,7 @@ export interface FileRouteTypes {
     | '/things-to-do/golf'
     | '/admin/'
     | '/articles/'
+    | '/cruises/'
     | '/hotels/'
     | '/listings/'
     | '/nightlife/'
@@ -451,6 +471,7 @@ export interface FileRouteTypes {
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
+    | '/cruises/$slug'
     | '/hotels/$slug'
     | '/listings/$slug'
     | '/neighborhoods/$slug'
@@ -462,6 +483,7 @@ export interface FileRouteTypes {
     | '/things-to-do/golf'
     | '/admin'
     | '/articles'
+    | '/cruises'
     | '/hotels'
     | '/listings'
     | '/nightlife'
@@ -495,6 +517,7 @@ export interface FileRouteTypes {
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
+    | '/cruises/$slug'
     | '/hotels/$slug'
     | '/listings/$slug'
     | '/neighborhoods/$slug'
@@ -506,6 +529,7 @@ export interface FileRouteTypes {
     | '/things-to-do/golf'
     | '/admin/'
     | '/articles/'
+    | '/cruises/'
     | '/hotels/'
     | '/listings/'
     | '/nightlife/'
@@ -537,6 +561,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  CruisesSlugRoute: typeof CruisesSlugRoute
   HotelsSlugRoute: typeof HotelsSlugRoute
   NightlifeSlugRoute: typeof NightlifeSlugRoute
   PagesSlugRoute: typeof PagesSlugRoute
@@ -544,6 +569,7 @@ export interface RootRouteChildren {
   ShoppingSlugRoute: typeof ShoppingSlugRoute
   ThingsToDoSlugRoute: typeof ThingsToDoSlugRoute
   ThingsToDoGolfRoute: typeof ThingsToDoGolfRoute
+  CruisesIndexRoute: typeof CruisesIndexRoute
   HotelsIndexRoute: typeof HotelsIndexRoute
   NightlifeIndexRoute: typeof NightlifeIndexRoute
   RestaurantsIndexRoute: typeof RestaurantsIndexRoute
@@ -672,6 +698,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HotelsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cruises/': {
+      id: '/cruises/'
+      path: '/cruises'
+      fullPath: '/cruises/'
+      preLoaderRoute: typeof CruisesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/articles/': {
       id: '/articles/'
       path: '/'
@@ -747,6 +780,13 @@ declare module '@tanstack/react-router' {
       path: '/hotels/$slug'
       fullPath: '/hotels/$slug'
       preLoaderRoute: typeof HotelsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cruises/$slug': {
+      id: '/cruises/$slug'
+      path: '/cruises/$slug'
+      fullPath: '/cruises/$slug'
+      preLoaderRoute: typeof CruisesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/articles/$slug': {
@@ -938,6 +978,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  CruisesSlugRoute: CruisesSlugRoute,
   HotelsSlugRoute: HotelsSlugRoute,
   NightlifeSlugRoute: NightlifeSlugRoute,
   PagesSlugRoute: PagesSlugRoute,
@@ -945,6 +986,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShoppingSlugRoute: ShoppingSlugRoute,
   ThingsToDoSlugRoute: ThingsToDoSlugRoute,
   ThingsToDoGolfRoute: ThingsToDoGolfRoute,
+  CruisesIndexRoute: CruisesIndexRoute,
   HotelsIndexRoute: HotelsIndexRoute,
   NightlifeIndexRoute: NightlifeIndexRoute,
   RestaurantsIndexRoute: RestaurantsIndexRoute,

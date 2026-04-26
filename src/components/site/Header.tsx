@@ -5,10 +5,10 @@ import sandiegoLogo from "@/assets/sandiego-logo.png";
 import { fetchPublishedMenu, fetchPublishedSettings, type NavItem, type SiteSettingsMap } from "@/lib/cms";
 
 const FALLBACK_NAV: NavItem[] = [
-  { label: "Things To Do", to: "/listings" },
-  { label: "Food & Drink", to: "/listings" },
-  { label: "Places To Stay", to: "/listings" },
-  { label: "Sports & Events", to: "/listings" },
+  { label: "Things To Do", to: "/things-to-do" },
+  { label: "Food & Drink", to: "/restaurants" },
+  { label: "Places To Stay", to: "/hotels" },
+  { label: "Cruises", to: "/cruises" },
   { label: "Neighborhoods", to: "/neighborhoods" },
   { label: "Articles", to: "/articles" },
 ];
