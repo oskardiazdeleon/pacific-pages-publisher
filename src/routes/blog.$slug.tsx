@@ -125,7 +125,7 @@ function BlogPostPage() {
 
         {post.tags && post.tags.length > 0 && (
           <div className="mt-12 flex flex-wrap gap-2 border-t border-border pt-8">
-            {post.tags.map((t) => (
+            {post.tags.map((t: string) => (
               <span key={t} className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
                 #{t}
               </span>
