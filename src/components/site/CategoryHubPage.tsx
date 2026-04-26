@@ -115,6 +115,41 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
         </div>
       </section>
 
+      {hub.slug === "things-to-do" && (
+        <section className="container-page pt-10">
+          <Link
+            to="/things-to-do/golf"
+            className="group relative block overflow-hidden rounded-3xl border border-border bg-card"
+          >
+            <div className="grid md:grid-cols-2">
+              <div
+                className="aspect-[16/10] md:aspect-auto bg-cover bg-center"
+                style={{
+                  backgroundImage:
+                    "url('https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=1600&q=80')",
+                }}
+              />
+              <div className="p-8 md:p-10 flex flex-col justify-center">
+                <div className="eyebrow flex items-center gap-2">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
+                  Featured collection
+                </div>
+                <h2 className="mt-3 font-display text-3xl md:text-4xl font-semibold tracking-tight">
+                  San Diego Golf Courses
+                </h2>
+                <p className="mt-3 text-muted-foreground">
+                  Torrey Pines, Aviara, Maderas, Coronado Muni and 8 more — every course worth
+                  your tee time, ranked by locals.
+                </p>
+                <span className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-accent group-hover:gap-2 transition-all">
+                  Browse golf courses →
+                </span>
+              </div>
+            </div>
+          </Link>
+        </section>
+      )}
+
       <section className="container-page py-12">
         {loading ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
