@@ -30,6 +30,43 @@ export const Route = createFileRoute("/cruises/")({
 });
 
 function CruisesHub() {
+  const [cms, setCms] = useState<Record<string, Record<string, unknown>>>({});
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const sections = await fetchPublishedHomepageSections();
+        const map: Record<string, Record<string, unknown>> = {};
+        for (const s of sections as HomepageSection[]) {
+          map[s.section_key] = (s.published_content || {}) as Record<string, unknown>;
+        }
+        setCms(map);
+      } catch {
+        // ignore — fall through to defaults
+      }
+    })();
+  }, []);
+
+  const heroCms = cms["cruises_hero"] || {};
+  const sponsorActive =
+    heroCms["sponsor_active"] === true || heroCms["sponsor_active"] === "true";
+  const sponsorName = (heroCms["sponsor_name"] as string) || "";
+  const sponsorLogo = (heroCms["sponsor_logo_url"] as string) || "";
+  const sponsorLink = (heroCms["sponsor_link_url"] as string) || "";
+
+  const DEFAULT_HERO = {
+    eyebrow: "Set sail from the port",
+    heading: "Cruises from San Diego",
+    subheading:
+      "Seven major cruise lines homeport in San Diego — from 3-night Baja weekenders under $250 to 17-day Panama Canal transits. Here's every line sailing from B Street Pier, and which one fits your trip.",
+  };
+  const heroVal = (field: keyof typeof DEFAULT_HERO): string => {
+    if (sponsorActive) {
+      return ((heroCms[field] as string) || "").trim() || DEFAULT_HERO[field];
+    }
+    return DEFAULT_HERO[field];
+  };
+
   const breadcrumbs = [{ label: "Home", to: "/" }, { label: "Cruises" }];
   const itemListJsonLd = {
     "@context": "https://schema.org",
@@ -58,17 +95,35 @@ function CruisesHub() {
       <section className="border-b border-border">
         <div className="container-page pt-12 md:pt-16 pb-10">
           <Breadcrumbs items={breadcrumbs} />
+          {sponsorActive && sponsorName && (
+            <a
+              href={sponsorLink || "#"}
+              target={sponsorLink ? "_blank" : undefined}
+              rel={sponsorLink ? "noreferrer noopener" : undefined}
+              className="mt-4 inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:bg-secondary/70 transition"
+            >
+              <span className="opacity-70">Presented by</span>
+              {sponsorLogo ? (
+                <img
+                  src={sponsorLogo}
+                  alt={sponsorName}
+                  className="h-4 w-auto object-contain"
+                  loading="lazy"
+                />
+              ) : (
+                <span>{sponsorName}</span>
+              )}
+            </a>
+          )}
           <div className="eyebrow mt-4 flex items-center gap-2">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
-            Set sail from the port
+            {heroVal("eyebrow")}
           </div>
           <h1 className="mt-3 font-display text-4xl md:text-6xl font-semibold tracking-tight leading-[1.05]">
-            Cruises from San Diego
+            {heroVal("heading")}
           </h1>
           <p className="mt-4 max-w-2xl text-base md:text-lg text-muted-foreground">
-            Seven major cruise lines homeport in San Diego — from 3-night Baja weekenders under
-            $250 to 17-day Panama Canal transits. Here's every line sailing from B Street Pier,
-            and which one fits your trip.
+            {heroVal("subheading")}
           </p>
         </div>
       </section>
