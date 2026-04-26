@@ -215,6 +215,141 @@ async function processOneUrl(url: string, kind: ContentKind, publish: boolean) {
     : await insertArticle(record, hero, publish);
 }
 
+// ---------- Curated (search-based) listing import ----------
+
+const CURATED_PREFIX = "curated://";
+
+const CURATED_LISTING_SCHEMA = {
+  type: "object",
+  properties: {
+    name: { type: "string" },
+    description: { type: "string", description: "Two-sentence editorial summary of cuisine, vibe, and what makes it notable." },
+    neighborhood: { type: "string", description: "San Diego neighborhood like La Jolla, Little Italy, Gaslamp Quarter, North Park, etc." },
+    address: { type: "string" },
+    phone: { type: "string" },
+    website: { type: "string" },
+    price_range: { type: "string", enum: ["$", "$$", "$$$", "$$$$"] },
+    cuisine: { type: "string" },
+    image_url: { type: "string", description: "A high-quality public image URL of the business or its food/interior." },
+  },
+  required: ["name", "description", "neighborhood"],
+} as const;
+
+async function firecrawlSearchExtract(query: string) {
+  const key = process.env.FIRECRAWL_API_KEY;
+  if (!key) throw new Error("FIRECRAWL_API_KEY is not configured");
+  const res = await fetch("https://api.firecrawl.dev/v2/search", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      query,
+      limit: 3,
+      scrapeOptions: {
+        formats: [{ type: "json", schema: CURATED_LISTING_SCHEMA, prompt: `Extract structured details for the San Diego business mentioned in the query. Use information consistent with the official site or reputable reviews. Do not invent addresses or phone numbers — leave fields blank if not stated on the page.` }],
+        onlyMainContent: true,
+      },
+    }),
+  });
+  if (!res.ok) {
+    const t = await res.text();
+    throw new Error(`Firecrawl search failed [${res.status}]: ${t.slice(0, 400)}`);
+  }
+  const json = (await res.json()) as any;
+  const web: any[] = json?.data?.web ?? [];
+  return web;
+}
+
+function isJunkValue(v: unknown): boolean {
+  if (!v) return true;
+  const s = String(v).trim().toLowerCase();
+  if (!s) return true;
+  return s.startsWith("not specified") || s.startsWith("not available") || s.startsWith("n/a") || s === "unknown" || /\b555-\d{4}\b/.test(s) || /1234\s+culinary|placeholder|example\.com/.test(s);
+}
+
+function mergeCuratedResults(name: string, web: any[]): {
+  name: string;
+  description: string;
+  neighborhood: string;
+  address: string | null;
+  phone: string | null;
+  website: string | null;
+  price_range: "$" | "$$" | "$$$" | "$$$$";
+  cuisine: string | null;
+  image_url: string | null;
+} {
+  const out: any = { name, description: "", neighborhood: "", address: null, phone: null, website: null, price_range: "$$$", cuisine: null, image_url: null };
+  const ogImages: string[] = [];
+  for (const entry of web) {
+    const j = entry?.json ?? {};
+    for (const k of ["name", "description", "neighborhood", "address", "phone", "website", "cuisine", "image_url"]) {
+      const v = j?.[k];
+      if (!out[k] && v && !isJunkValue(v)) out[k] = String(v).trim();
+    }
+    const pr = j?.price_range;
+    if (pr && ["$", "$$", "$$$", "$$$$"].includes(pr)) out.price_range = pr;
+    const meta = entry?.metadata ?? {};
+    const og = meta?.ogImage ?? meta?.["og:image"];
+    if (og && typeof og === "string" && og.startsWith("http")) ogImages.push(og);
+    if (!out.website) {
+      const url: string = entry?.url ?? "";
+      const blocked = ["yelp.com", "tripadvisor", "opentable", "michelin", "reddit", "facebook", "instagram", "google.com/", "wikipedia", "eater.com", "sandiegomagazine", "sdfoodiefan"];
+      if (url && !blocked.some((b) => url.includes(b))) out.website = url;
+    }
+  }
+  if (!out.image_url && ogImages.length) out.image_url = ogImages[0];
+  // Normalize neighborhood
+  if (!out.neighborhood || /^san diego$/i.test(out.neighborhood)) out.neighborhood = "San Diego";
+  return out;
+}
+
+async function processCuratedListing(name: string, category: ListingCategory, publish: boolean) {
+  const query = `${name} ${category.toLowerCase()} San Diego`;
+  const web = await firecrawlSearchExtract(query);
+  if (!web.length) throw new Error("No search results");
+  const rec = mergeCuratedResults(name, web);
+  if (!rec.description) throw new Error("Could not extract a description");
+  const shortDesc = rec.description.split(/(?<=[.!?])\s+/)[0]?.slice(0, 200) ?? null;
+  const payload = {
+    name: rec.name,
+    slug: slugify(rec.name),
+    category,
+    neighborhood: rec.neighborhood,
+    short_description: shortDesc,
+    description: rec.description,
+    address: rec.address,
+    phone: rec.phone,
+    website: rec.website,
+    price_range: rec.price_range,
+    hero_image: rec.image_url,
+    meta_title: `${rec.name} in ${rec.neighborhood} | sandiego.com`.slice(0, 70),
+    meta_description: shortDesc ?? `Discover ${rec.name}, a top ${category.toLowerCase()} in ${rec.neighborhood}, San Diego.`,
+    tier: "free" as const,
+    status: (publish ? "published" : "draft") as "published" | "draft",
+    published_at: publish ? new Date().toISOString() : null,
+  };
+  const { data, error } = await supabaseAdmin
+    .from("listings").upsert(payload, { onConflict: "slug" }).select("id, slug").single();
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+// Decode the curated synthetic URL back into { name, category }
+function decodeCurated(url: string): { name: string; category: ListingCategory } {
+  const raw = url.startsWith(CURATED_PREFIX) ? url.slice(CURATED_PREFIX.length) : url;
+  const [catRaw, ...rest] = raw.split("/");
+  const cat = (catRaw || "Restaurant") as ListingCategory;
+  const name = decodeURIComponent(rest.join("/"));
+  return { name, category: cat };
+}
+
+async function processItemForJob(item: { url: string }, jobKind: JobKind, publish: boolean): Promise<{ slug: string; id: string }> {
+  if (jobKind === "curated_listing") {
+    const { name, category } = decodeCurated(item.url);
+    return processCuratedListing(name, category, publish);
+  }
+  return processOneUrl(item.url, jobKind as ContentKind, publish);
+}
+
 async function ensureAdmin(supabase: any, userId: string) {
   const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
   if (error) throw new Error(error.message);
