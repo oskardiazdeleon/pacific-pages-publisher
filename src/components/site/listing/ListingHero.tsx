@@ -15,6 +15,7 @@ type Props = {
     phone?: string | null;
     website?: string | null;
     address?: string | null;
+    reservation_url?: string | null;
   };
   openLabel?: string | null;
   openState?: "open" | "closed" | "unknown";
@@ -97,6 +98,7 @@ export function ListingHero({ listing, openLabel, openState }: Props) {
               phone={listing.phone}
               website={listing.website}
               address={listing.address}
+              reservationUrl={listing.reservation_url}
             />
           </div>
         </div>

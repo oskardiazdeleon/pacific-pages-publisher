@@ -158,7 +158,31 @@ function pickHeroImage(html: string, metadata: Record<string, any>, base: string
   return null;
 }
 
-async function insertListing(record: any, hero: string | null, autoPublish: boolean) {
+const RESERVATION_HOSTS = [
+  "opentable.com", "resy.com", "exploretock.com", "tockify.com",
+  "sevenrooms.com", "yelp.com/reservations", "tablein.com",
+  "booking.com", "expedia.com", "hotels.com",
+  "getyourguide.com", "viator.com",
+];
+
+/** Scan scraped page for an OpenTable/Resy/Tock/etc. booking link. */
+function pickReservationUrl(html: string, links: string[] = []): string | null {
+  const candidates: string[] = [...(links ?? [])];
+  // Also scrape <a href="..."> from HTML in case Firecrawl didn't return links.
+  const hrefRe = /<a[^>]+href=["']([^"']+)["']/gi;
+  let m: RegExpExecArray | null;
+  while ((m = hrefRe.exec(html)) !== null) candidates.push(m[1]);
+  for (const raw of candidates) {
+    if (!raw || typeof raw !== "string") continue;
+    const lower = raw.toLowerCase();
+    if (RESERVATION_HOSTS.some((h) => lower.includes(h))) {
+      try { return new URL(raw).toString(); } catch { /* skip */ }
+    }
+  }
+  return null;
+}
+
+async function insertListing(record: any, hero: string | null, autoPublish: boolean, reservationUrl: string | null = null) {
   const slug = slugify(record.name);
   const payload = {
     name: record.name,
@@ -171,6 +195,7 @@ async function insertListing(record: any, hero: string | null, autoPublish: bool
     address: record.address ?? null,
     phone: record.phone ?? null,
     website: record.website ?? null,
+    reservation_url: reservationUrl,
     price_range: record.price_range ?? null,
     meta_title: record.meta_title ?? null,
     meta_description: record.meta_description ?? null,
@@ -210,8 +235,9 @@ async function processOneUrl(url: string, kind: ContentKind, publish: boolean) {
   const scraped = await firecrawlScrape(url);
   const record = await aiNormalize(scraped, kind);
   const hero = pickHeroImage(scraped.html, scraped.metadata, url);
+  const reservation = kind === "listing" ? pickReservationUrl(scraped.html, scraped.links) : null;
   return kind === "listing"
-    ? await insertListing(record, hero, publish)
+    ? await insertListing(record, hero, publish, reservation)
     : await insertArticle(record, hero, publish);
 }
 
