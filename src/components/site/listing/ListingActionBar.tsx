@@ -66,12 +66,24 @@ export function ListingActionBar({
 
   return (
     <div className={base}>
+      {reservationUrl && (
+        <a
+          href={reservationUrl}
+          target="_blank"
+          rel="noreferrer noopener"
+          className={primaryBtn}
+          onClick={() => recordImpression(listingId, "reservation_click")}
+        >
+          <CalendarCheck className={variant === "sticky" ? "h-5 w-5" : "h-4 w-4"} />
+          <span>Reserve</span>
+        </a>
+      )}
       {dirs && (
         <a
           href={dirs}
           target="_blank"
           rel="noreferrer"
-          className={primaryBtn}
+          className={reservationUrl ? btn : primaryBtn}
           onClick={() => recordImpression(listingId, "click")}
         >
           <Navigation className={variant === "sticky" ? "h-5 w-5" : "h-4 w-4"} />
