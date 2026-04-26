@@ -171,6 +171,14 @@ export function ListingForm({ initial }: { initial?: Partial<ListingFormValues> 
           <input className={inputCls} value={v.website}
             onChange={(e) => set("website", e.target.value)} />
         </Field>
+        <Field label="Reservation / booking URL (OpenTable, Resy, Tock, etc.)">
+          <input
+            className={inputCls}
+            value={v.reservation_url}
+            placeholder="https://www.opentable.com/r/..."
+            onChange={(e) => set("reservation_url", e.target.value)}
+          />
+        </Field>
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Price range (e.g. $$)">
             <input className={inputCls} value={v.price_range}
