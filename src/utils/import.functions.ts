@@ -490,7 +490,7 @@ export const processImportBatch = createServerFn({ method: "POST" })
     for (const item of items) {
       const attempts = item.attempts + 1;
       try {
-        const r = await processOneUrl(item.url, job.kind as ContentKind, job.publish);
+        const r = await processItemForJob(item, job.kind as JobKind, job.publish);
         await supabaseAdmin.from("import_job_items").update({
           status: "done",
           attempts,
