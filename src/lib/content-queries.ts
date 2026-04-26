@@ -32,6 +32,22 @@ export async function fetchPublishedListings(opts?: { category?: string; limit?:
   return filtered;
 }
 
+export async function fetchGolfCourses(opts?: { limit?: number }) {
+  let q = supabase
+    .from("listings")
+    .select(
+      "id, slug, name, category, neighborhood, short_description, hero_image, tier, rating, price_range, published_at, is_sponsored, sponsor_name, sponsor_rank, sponsor_until, reservation_url",
+    )
+    .eq("status", "published")
+    .like("slug", "golf-%")
+    .order("tier", { ascending: false })
+    .order("rating", { ascending: false });
+  if (opts?.limit) q = q.limit(opts.limit);
+  const { data, error } = await q;
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function fetchListingBySlug(slug: string) {
   const { data, error } = await supabase
     .from("listings")
