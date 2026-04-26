@@ -66,7 +66,7 @@ export async function fetchArticleBySlug(slug: string) {
   return data;
 }
 
-export async function recordImpression(listingId: string, type: "view" | "click" | "phone_click" | "website_click" = "view") {
+export async function recordImpression(listingId: string, type: "view" | "click" | "phone_click" | "website_click" | "reservation_click" = "view") {
   try {
     await supabase.from("listing_impressions").insert({
       listing_id: listingId,
