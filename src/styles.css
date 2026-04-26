@@ -150,3 +150,75 @@
   text-transform: uppercase;
   color: var(--color-accent);
 }
+
+@utility prose-blog {
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  font-size: 1.125rem;
+  line-height: 1.75;
+  & > * + * { margin-top: 1.5rem; }
+  & h2 {
+    font-family: var(--font-display);
+    font-size: 1.875rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+  }
+  & h3 {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  & p { color: color-mix(in oklab, var(--color-foreground) 92%, transparent); }
+  & a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+  & a:hover { text-decoration-thickness: 2px; }
+  & strong { color: var(--color-foreground); font-weight: 600; }
+  & ul, & ol { padding-left: 1.5rem; }
+  & ul { list-style: disc; }
+  & ol { list-style: decimal; }
+  & li { margin-top: 0.4rem; }
+  & blockquote {
+    border-left: 3px solid var(--color-accent);
+    padding: 0.5rem 0 0.5rem 1.25rem;
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    line-height: 1.4;
+    color: var(--color-foreground);
+    font-style: italic;
+    margin: 2rem 0;
+  }
+  & img {
+    border-radius: 1rem;
+    width: 100%;
+    margin: 2rem 0;
+  }
+  & code {
+    background: var(--color-muted);
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.35rem;
+    font-size: 0.9em;
+  }
+  & pre {
+    background: var(--color-muted);
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    overflow-x: auto;
+    font-size: 0.9rem;
+  }
+  & pre code { background: transparent; padding: 0; }
+  & hr {
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    margin: 3rem auto;
+    width: 4rem;
+  }
+}

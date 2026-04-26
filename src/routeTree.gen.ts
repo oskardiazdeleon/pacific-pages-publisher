@@ -27,6 +27,7 @@ import { Route as NightlifeIndexRouteImport } from './routes/nightlife.index'
 import { Route as ListingsIndexRouteImport } from './routes/listings.index'
 import { Route as HotelsIndexRouteImport } from './routes/hotels.index'
 import { Route as CruisesIndexRouteImport } from './routes/cruises.index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as ArticlesIndexRouteImport } from './routes/articles.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ThingsToDoGolfRouteImport } from './routes/things-to-do.golf'
@@ -39,16 +40,20 @@ import { Route as NeighborhoodsSlugRouteImport } from './routes/neighborhoods.$s
 import { Route as ListingsSlugRouteImport } from './routes/listings.$slug'
 import { Route as HotelsSlugRouteImport } from './routes/hotels.$slug'
 import { Route as CruisesSlugRouteImport } from './routes/cruises.$slug'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ArticlesSlugRouteImport } from './routes/articles.$slug'
 import { Route as AdminImpressionsRouteImport } from './routes/admin.impressions'
 import { Route as AdminImportRouteImport } from './routes/admin.import'
 import { Route as AdminListingsIndexRouteImport } from './routes/admin.listings.index'
+import { Route as AdminBlogIndexRouteImport } from './routes/admin.blog.index'
 import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
 import { Route as AdminListingsNewRouteImport } from './routes/admin.listings.new'
 import { Route as AdminListingsIdRouteImport } from './routes/admin.listings.$id'
 import { Route as AdminCmsSettingsRouteImport } from './routes/admin.cms.settings'
 import { Route as AdminCmsNavigationRouteImport } from './routes/admin.cms.navigation'
 import { Route as AdminCmsHomepageRouteImport } from './routes/admin.cms.homepage'
+import { Route as AdminBlogNewRouteImport } from './routes/admin.blog.new'
+import { Route as AdminBlogIdRouteImport } from './routes/admin.blog.$id'
 import { Route as AdminArticlesNewRouteImport } from './routes/admin.articles.new'
 import { Route as AdminArticlesIdRouteImport } from './routes/admin.articles.$id'
 import { Route as AdminCmsPagesIndexRouteImport } from './routes/admin.cms.pages.index'
@@ -144,6 +149,11 @@ const CruisesIndexRoute = CruisesIndexRouteImport.update({
   path: '/cruises/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ArticlesIndexRoute = ArticlesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -204,6 +214,11 @@ const CruisesSlugRoute = CruisesSlugRouteImport.update({
   path: '/cruises/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ArticlesSlugRoute = ArticlesSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -222,6 +237,11 @@ const AdminImportRoute = AdminImportRouteImport.update({
 const AdminListingsIndexRoute = AdminListingsIndexRouteImport.update({
   id: '/listings/',
   path: '/listings/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBlogIndexRoute = AdminBlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminArticlesIndexRoute = AdminArticlesIndexRouteImport.update({
@@ -252,6 +272,16 @@ const AdminCmsNavigationRoute = AdminCmsNavigationRouteImport.update({
 const AdminCmsHomepageRoute = AdminCmsHomepageRouteImport.update({
   id: '/cms/homepage',
   path: '/cms/homepage',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBlogNewRoute = AdminBlogNewRouteImport.update({
+  id: '/blog/new',
+  path: '/blog/new',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBlogIdRoute = AdminBlogIdRouteImport.update({
+  id: '/blog/$id',
+  path: '/blog/$id',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminArticlesNewRoute = AdminArticlesNewRouteImport.update({
@@ -290,6 +320,7 @@ export interface FileRoutesByFullPath {
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/cruises/$slug': typeof CruisesSlugRoute
   '/hotels/$slug': typeof HotelsSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
@@ -302,6 +333,7 @@ export interface FileRoutesByFullPath {
   '/things-to-do/golf': typeof ThingsToDoGolfRoute
   '/admin/': typeof AdminIndexRoute
   '/articles/': typeof ArticlesIndexRoute
+  '/blog/': typeof BlogIndexRoute
   '/cruises/': typeof CruisesIndexRoute
   '/hotels/': typeof HotelsIndexRoute
   '/listings/': typeof ListingsIndexRoute
@@ -311,12 +343,15 @@ export interface FileRoutesByFullPath {
   '/things-to-do/': typeof ThingsToDoIndexRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
+  '/admin/blog/$id': typeof AdminBlogIdRoute
+  '/admin/blog/new': typeof AdminBlogNewRoute
   '/admin/cms/homepage': typeof AdminCmsHomepageRoute
   '/admin/cms/navigation': typeof AdminCmsNavigationRoute
   '/admin/cms/settings': typeof AdminCmsSettingsRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
+  '/admin/blog/': typeof AdminBlogIndexRoute
   '/admin/listings/': typeof AdminListingsIndexRoute
   '/admin/cms/pages/$id': typeof AdminCmsPagesIdRoute
   '/admin/cms/pages/': typeof AdminCmsPagesIndexRoute
@@ -333,6 +368,7 @@ export interface FileRoutesByTo {
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/cruises/$slug': typeof CruisesSlugRoute
   '/hotels/$slug': typeof HotelsSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
@@ -345,6 +381,7 @@ export interface FileRoutesByTo {
   '/things-to-do/golf': typeof ThingsToDoGolfRoute
   '/admin': typeof AdminIndexRoute
   '/articles': typeof ArticlesIndexRoute
+  '/blog': typeof BlogIndexRoute
   '/cruises': typeof CruisesIndexRoute
   '/hotels': typeof HotelsIndexRoute
   '/listings': typeof ListingsIndexRoute
@@ -354,12 +391,15 @@ export interface FileRoutesByTo {
   '/things-to-do': typeof ThingsToDoIndexRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
+  '/admin/blog/$id': typeof AdminBlogIdRoute
+  '/admin/blog/new': typeof AdminBlogNewRoute
   '/admin/cms/homepage': typeof AdminCmsHomepageRoute
   '/admin/cms/navigation': typeof AdminCmsNavigationRoute
   '/admin/cms/settings': typeof AdminCmsSettingsRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
   '/admin/articles': typeof AdminArticlesIndexRoute
+  '/admin/blog': typeof AdminBlogIndexRoute
   '/admin/listings': typeof AdminListingsIndexRoute
   '/admin/cms/pages/$id': typeof AdminCmsPagesIdRoute
   '/admin/cms/pages': typeof AdminCmsPagesIndexRoute
@@ -380,6 +420,7 @@ export interface FileRoutesById {
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/cruises/$slug': typeof CruisesSlugRoute
   '/hotels/$slug': typeof HotelsSlugRoute
   '/listings/$slug': typeof ListingsSlugRoute
@@ -392,6 +433,7 @@ export interface FileRoutesById {
   '/things-to-do/golf': typeof ThingsToDoGolfRoute
   '/admin/': typeof AdminIndexRoute
   '/articles/': typeof ArticlesIndexRoute
+  '/blog/': typeof BlogIndexRoute
   '/cruises/': typeof CruisesIndexRoute
   '/hotels/': typeof HotelsIndexRoute
   '/listings/': typeof ListingsIndexRoute
@@ -401,12 +443,15 @@ export interface FileRoutesById {
   '/things-to-do/': typeof ThingsToDoIndexRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
+  '/admin/blog/$id': typeof AdminBlogIdRoute
+  '/admin/blog/new': typeof AdminBlogNewRoute
   '/admin/cms/homepage': typeof AdminCmsHomepageRoute
   '/admin/cms/navigation': typeof AdminCmsNavigationRoute
   '/admin/cms/settings': typeof AdminCmsSettingsRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
+  '/admin/blog/': typeof AdminBlogIndexRoute
   '/admin/listings/': typeof AdminListingsIndexRoute
   '/admin/cms/pages/$id': typeof AdminCmsPagesIdRoute
   '/admin/cms/pages/': typeof AdminCmsPagesIndexRoute
@@ -428,6 +473,7 @@ export interface FileRouteTypes {
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
+    | '/blog/$slug'
     | '/cruises/$slug'
     | '/hotels/$slug'
     | '/listings/$slug'
@@ -440,6 +486,7 @@ export interface FileRouteTypes {
     | '/things-to-do/golf'
     | '/admin/'
     | '/articles/'
+    | '/blog/'
     | '/cruises/'
     | '/hotels/'
     | '/listings/'
@@ -449,12 +496,15 @@ export interface FileRouteTypes {
     | '/things-to-do/'
     | '/admin/articles/$id'
     | '/admin/articles/new'
+    | '/admin/blog/$id'
+    | '/admin/blog/new'
     | '/admin/cms/homepage'
     | '/admin/cms/navigation'
     | '/admin/cms/settings'
     | '/admin/listings/$id'
     | '/admin/listings/new'
     | '/admin/articles/'
+    | '/admin/blog/'
     | '/admin/listings/'
     | '/admin/cms/pages/$id'
     | '/admin/cms/pages/'
@@ -471,6 +521,7 @@ export interface FileRouteTypes {
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
+    | '/blog/$slug'
     | '/cruises/$slug'
     | '/hotels/$slug'
     | '/listings/$slug'
@@ -483,6 +534,7 @@ export interface FileRouteTypes {
     | '/things-to-do/golf'
     | '/admin'
     | '/articles'
+    | '/blog'
     | '/cruises'
     | '/hotels'
     | '/listings'
@@ -492,12 +544,15 @@ export interface FileRouteTypes {
     | '/things-to-do'
     | '/admin/articles/$id'
     | '/admin/articles/new'
+    | '/admin/blog/$id'
+    | '/admin/blog/new'
     | '/admin/cms/homepage'
     | '/admin/cms/navigation'
     | '/admin/cms/settings'
     | '/admin/listings/$id'
     | '/admin/listings/new'
     | '/admin/articles'
+    | '/admin/blog'
     | '/admin/listings'
     | '/admin/cms/pages/$id'
     | '/admin/cms/pages'
@@ -517,6 +572,7 @@ export interface FileRouteTypes {
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
+    | '/blog/$slug'
     | '/cruises/$slug'
     | '/hotels/$slug'
     | '/listings/$slug'
@@ -529,6 +585,7 @@ export interface FileRouteTypes {
     | '/things-to-do/golf'
     | '/admin/'
     | '/articles/'
+    | '/blog/'
     | '/cruises/'
     | '/hotels/'
     | '/listings/'
@@ -538,12 +595,15 @@ export interface FileRouteTypes {
     | '/things-to-do/'
     | '/admin/articles/$id'
     | '/admin/articles/new'
+    | '/admin/blog/$id'
+    | '/admin/blog/new'
     | '/admin/cms/homepage'
     | '/admin/cms/navigation'
     | '/admin/cms/settings'
     | '/admin/listings/$id'
     | '/admin/listings/new'
     | '/admin/articles/'
+    | '/admin/blog/'
     | '/admin/listings/'
     | '/admin/cms/pages/$id'
     | '/admin/cms/pages/'
@@ -561,6 +621,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   CruisesSlugRoute: typeof CruisesSlugRoute
   HotelsSlugRoute: typeof HotelsSlugRoute
   NightlifeSlugRoute: typeof NightlifeSlugRoute
@@ -569,6 +630,7 @@ export interface RootRouteChildren {
   ShoppingSlugRoute: typeof ShoppingSlugRoute
   ThingsToDoSlugRoute: typeof ThingsToDoSlugRoute
   ThingsToDoGolfRoute: typeof ThingsToDoGolfRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   CruisesIndexRoute: typeof CruisesIndexRoute
   HotelsIndexRoute: typeof HotelsIndexRoute
   NightlifeIndexRoute: typeof NightlifeIndexRoute
@@ -705,6 +767,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CruisesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/articles/': {
       id: '/articles/'
       path: '/'
@@ -789,6 +858,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CruisesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/articles/$slug': {
       id: '/articles/$slug'
       path: '/$slug'
@@ -815,6 +891,13 @@ declare module '@tanstack/react-router' {
       path: '/listings'
       fullPath: '/admin/listings/'
       preLoaderRoute: typeof AdminListingsIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/blog/': {
+      id: '/admin/blog/'
+      path: '/blog'
+      fullPath: '/admin/blog/'
+      preLoaderRoute: typeof AdminBlogIndexRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/articles/': {
@@ -859,6 +942,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCmsHomepageRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/blog/new': {
+      id: '/admin/blog/new'
+      path: '/blog/new'
+      fullPath: '/admin/blog/new'
+      preLoaderRoute: typeof AdminBlogNewRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/blog/$id': {
+      id: '/admin/blog/$id'
+      path: '/blog/$id'
+      fullPath: '/admin/blog/$id'
+      preLoaderRoute: typeof AdminBlogIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/articles/new': {
       id: '/admin/articles/new'
       path: '/articles/new'
@@ -896,12 +993,15 @@ interface AdminRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
   AdminArticlesIdRoute: typeof AdminArticlesIdRoute
   AdminArticlesNewRoute: typeof AdminArticlesNewRoute
+  AdminBlogIdRoute: typeof AdminBlogIdRoute
+  AdminBlogNewRoute: typeof AdminBlogNewRoute
   AdminCmsHomepageRoute: typeof AdminCmsHomepageRoute
   AdminCmsNavigationRoute: typeof AdminCmsNavigationRoute
   AdminCmsSettingsRoute: typeof AdminCmsSettingsRoute
   AdminListingsIdRoute: typeof AdminListingsIdRoute
   AdminListingsNewRoute: typeof AdminListingsNewRoute
   AdminArticlesIndexRoute: typeof AdminArticlesIndexRoute
+  AdminBlogIndexRoute: typeof AdminBlogIndexRoute
   AdminListingsIndexRoute: typeof AdminListingsIndexRoute
   AdminCmsPagesIdRoute: typeof AdminCmsPagesIdRoute
   AdminCmsPagesIndexRoute: typeof AdminCmsPagesIndexRoute
@@ -913,12 +1013,15 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminIndexRoute: AdminIndexRoute,
   AdminArticlesIdRoute: AdminArticlesIdRoute,
   AdminArticlesNewRoute: AdminArticlesNewRoute,
+  AdminBlogIdRoute: AdminBlogIdRoute,
+  AdminBlogNewRoute: AdminBlogNewRoute,
   AdminCmsHomepageRoute: AdminCmsHomepageRoute,
   AdminCmsNavigationRoute: AdminCmsNavigationRoute,
   AdminCmsSettingsRoute: AdminCmsSettingsRoute,
   AdminListingsIdRoute: AdminListingsIdRoute,
   AdminListingsNewRoute: AdminListingsNewRoute,
   AdminArticlesIndexRoute: AdminArticlesIndexRoute,
+  AdminBlogIndexRoute: AdminBlogIndexRoute,
   AdminListingsIndexRoute: AdminListingsIndexRoute,
   AdminCmsPagesIdRoute: AdminCmsPagesIdRoute,
   AdminCmsPagesIndexRoute: AdminCmsPagesIndexRoute,
@@ -978,6 +1081,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  BlogSlugRoute: BlogSlugRoute,
   CruisesSlugRoute: CruisesSlugRoute,
   HotelsSlugRoute: HotelsSlugRoute,
   NightlifeSlugRoute: NightlifeSlugRoute,
@@ -986,6 +1090,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShoppingSlugRoute: ShoppingSlugRoute,
   ThingsToDoSlugRoute: ThingsToDoSlugRoute,
   ThingsToDoGolfRoute: ThingsToDoGolfRoute,
+  BlogIndexRoute: BlogIndexRoute,
   CruisesIndexRoute: CruisesIndexRoute,
   HotelsIndexRoute: HotelsIndexRoute,
   NightlifeIndexRoute: NightlifeIndexRoute,
@@ -996,12 +1101,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

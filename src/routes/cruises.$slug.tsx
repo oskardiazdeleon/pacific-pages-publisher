@@ -96,7 +96,7 @@ function CruiseLinePage() {
               Typical itineraries
             </h2>
             <ul className="mt-4 space-y-2">
-              {line.typicalItineraries.map((it) => (
+              {line.typicalItineraries.map((it: string) => (
                 <li
                   key={it}
                   className="flex items-start gap-3 rounded-xl border border-border bg-card px-4 py-3"
@@ -113,7 +113,7 @@ function CruiseLinePage() {
               Local insider notes
             </h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-3">
-              {line.highlights.map((h) => (
+              {line.highlights.map((h: any) => (
                 <div key={h.title} className="rounded-2xl border border-border bg-card p-5">
                   <div className="eyebrow text-xs">{h.title}</div>
                   <p className="mt-2 text-sm text-foreground/85">{h.body}</p>
