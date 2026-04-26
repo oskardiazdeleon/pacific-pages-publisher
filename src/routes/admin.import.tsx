@@ -42,11 +42,13 @@ function ImportPage() {
   return (
     <div className="max-w-4xl">
       <div className="eyebrow">Tools</div>
-      <h1 className="mt-2 mb-2 font-display text-4xl font-semibold">Import from sandiego.com</h1>
+      <h1 className="mt-2 mb-2 font-display text-4xl font-semibold">Import content</h1>
       <p className="text-muted-foreground mb-8">
-        Single URL or queued bulk crawl. Failed pages can be retried without restarting.
+        Pull listings from a curated "best of" search, a single page (Yelp, OpenTable,
+        TripAdvisor, the venue's own site), or a queued bulk crawl of a category index.
       </p>
 
+      <CuratedImport />
       <SingleImport />
       <BulkEnqueue />
       <JobsList />
