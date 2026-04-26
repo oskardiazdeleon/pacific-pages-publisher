@@ -196,9 +196,14 @@ function SingleImport() {
 
   return (
     <form onSubmit={submit} className="rounded-2xl border border-border bg-card p-6 space-y-4 mb-8">
-      <h2 className="font-display text-lg font-semibold">Single URL</h2>
+      <div>
+        <h2 className="font-display text-lg font-semibold">Single URL</h2>
+        <p className="text-xs text-muted-foreground mt-1">
+          Paste any business page — Yelp, OpenTable, TripAdvisor, the venue's own site, or a sandiego.com page.
+        </p>
+      </div>
       <input className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
-        placeholder="https://www.sandiego.com/hotels/hotel-del-coronado"
+        placeholder="https://www.yelp.com/biz/example-restaurant-san-diego"
         value={url} onChange={(e) => setUrl(e.target.value)} required />
       <div className="grid grid-cols-2 gap-3">
         <label className="text-xs">
