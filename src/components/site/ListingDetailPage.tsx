@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Phone, Globe, MapPin, ArrowLeft, Sparkles } from "lucide-react";
+import { Phone, Globe, MapPin, ArrowLeft, Sparkles, CalendarCheck } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Breadcrumbs, breadcrumbJsonLd } from "@/components/site/Breadcrumbs";
@@ -29,6 +29,7 @@ type Listing = {
   address?: string | null;
   phone?: string | null;
   website?: string | null;
+  reservation_url?: string | null;
   price_range?: string | null;
   hours?: unknown;
   meta_title?: string | null;
