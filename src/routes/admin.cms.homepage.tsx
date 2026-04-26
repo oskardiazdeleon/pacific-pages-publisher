@@ -34,6 +34,15 @@ const FIELDS_BY_TYPE: Record<string, { name: string; label: string; type?: "text
     { name: "sponsor_logo_url", label: "Sponsor logo (small, transparent PNG ideal)", type: "image" },
     { name: "sponsor_link_url", label: "Sponsor click-through URL (where the badge links)" },
   ],
+  cruises_hero: [
+    { name: "eyebrow", label: "Eyebrow" },
+    { name: "heading", label: "Heading" },
+    { name: "subheading", label: "Subheading", type: "textarea" },
+    { name: "sponsor_active", label: "Sponsored takeover — show sponsor content on the Cruises hub", type: "toggle", help: "When ON, the cruises hero displays your custom heading/subheading and a 'Presented by' badge. When OFF, the default cruises hero is shown." },
+    { name: "sponsor_name", label: "Sponsor name (e.g. Princess Cruises)" },
+    { name: "sponsor_logo_url", label: "Sponsor logo (small, transparent PNG ideal)", type: "image" },
+    { name: "sponsor_link_url", label: "Sponsor click-through URL" },
+  ],
   featured_listings: [
     { name: "eyebrow", label: "Eyebrow" },
     { name: "heading", label: "Heading" },
