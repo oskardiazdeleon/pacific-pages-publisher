@@ -183,6 +183,7 @@ export function ListingForm({
 
   return (
     <form onSubmit={submit} className="max-w-3xl space-y-8">
+      {!partnerMode && (
       <section className="rounded-2xl border border-border bg-card p-6 space-y-4">
         <h2 className="font-display text-lg font-semibold">Basics</h2>
         <Field label="Name">
@@ -224,7 +225,9 @@ export function ListingForm({
           onChange={(url) => set("hero_image", url)}
         />
       </section>
+      )}
 
+      {!partnerMode && (
       <section className="rounded-2xl border border-border bg-card p-6 space-y-4">
         <h2 className="font-display text-lg font-semibold">Contact</h2>
         <Field label="Address">
@@ -264,7 +267,9 @@ export function ListingForm({
           </Field>
         </div>
       </section>
+      )}
 
+      {!partnerMode && (
       <section className="rounded-2xl border border-border bg-card p-6 space-y-4">
         <h2 className="font-display text-lg font-semibold">Visibility & SEO</h2>
         <div className="grid sm:grid-cols-2 gap-4">
@@ -294,7 +299,9 @@ export function ListingForm({
             onChange={(e) => set("meta_description", e.target.value)} />
         </Field>
       </section>
+      )}
 
+      {!partnerMode && (
       <section className="rounded-2xl border border-border bg-card p-6 space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div>
