@@ -22,15 +22,15 @@ export interface ListingCardData {
 
 // Lightweight, deterministic "insight" per category to drive engagement
 // without requiring extra DB fields. Replace with real data when available.
-function insightFor(category: string): string {
+function ctaFor(category: string): string {
   const c = (category || "").toLowerCase();
-  if (c.includes("hotel") || c.includes("resort")) return "Insider rate avail.";
-  if (c.includes("restaurant")) return "Locals' favorite";
-  if (c.includes("tour")) return "Free cancellation";
-  if (c.includes("attraction")) return "Skip-the-line";
-  if (c.includes("nightlife") || c.includes("bar")) return "Trending tonight";
-  if (c.includes("shopping")) return "Editor pick";
-  return "Editor-vetted";
+  if (c.includes("hotel") || c.includes("resort")) return "Book now";
+  if (c.includes("restaurant")) return "Reserve";
+  if (c.includes("tour")) return "Book tour";
+  if (c.includes("attraction")) return "Get tickets";
+  if (c.includes("nightlife") || c.includes("bar")) return "View details";
+  if (c.includes("shopping")) return "Visit";
+  return "View details";
 }
 
 function priceLabel(price?: string | null): string | null {
@@ -43,7 +43,7 @@ function priceLabel(price?: string | null): string | null {
 export function ListingCard({ listing }: { listing: ListingCardData }) {
   const img = listing.hero_image || listing.image || listingFallback;
   const desc = listing.short_description || listing.blurb || "";
-  const insight = insightFor(listing.category);
+  const cta = ctaFor(listing.category);
   const price = priceLabel(listing.price_range);
   const sponsored =
     !!listing.is_sponsored &&
@@ -102,7 +102,7 @@ export function ListingCard({ listing }: { listing: ListingCardData }) {
           ) : (
             <span className="inline-flex items-center gap-1 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-foreground/80 shadow-sm backdrop-blur">
               <Sparkles className="h-3 w-3 text-accent" />
-              {insight}
+              Editor pick
             </span>
           )}
         </div>
@@ -162,8 +162,9 @@ export function ListingCard({ listing }: { listing: ListingCardData }) {
           <span className="font-semibold text-foreground">
             {price ?? <span className="text-accent">Check availability</span>}
           </span>
-          <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
-            {insight}
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow-sm transition-transform group-hover:translate-x-0.5">
+            {cta}
+            <span aria-hidden className="transition-transform group-hover:translate-x-0.5">→</span>
           </span>
         </div>
       </div>
