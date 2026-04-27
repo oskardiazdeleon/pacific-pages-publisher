@@ -273,14 +273,40 @@ export function ListingDetailPage({
               <h2 className="mt-1 font-display text-2xl md:text-3xl font-semibold">
                 About {listing.name}
               </h2>
+
+              <div className="mt-3">
+                <CuratorByline
+                  curatorName={curator?.display_name ?? null}
+                  curatorAvatar={curator?.avatar_url ?? null}
+                  updatedAt={listing.updated_at ?? null}
+                  verifiedVisited={listing.verified_visited ?? false}
+                />
+              </div>
+
+              {listing.editor_note && (
+                <div className="mt-5">
+                  <EditorNoteCallout note={listing.editor_note} />
+                </div>
+              )}
+
+              {listing.why_we_picked_it && listing.why_we_picked_it.length > 0 && (
+                <div className="mt-4">
+                  <WhyWePickedIt reasons={listing.why_we_picked_it} />
+                </div>
+              )}
+
               {showLong ? (
-                <div className="prose prose-neutral mt-4 max-w-none whitespace-pre-line text-foreground">
+                <div className="prose prose-neutral mt-6 max-w-none whitespace-pre-line text-foreground">
                   {longDesc}
                 </div>
               ) : (
-                <p className="mt-4 max-w-2xl text-muted-foreground">
+                <p className="mt-6 max-w-2xl text-muted-foreground">
                   {shortDesc || `${listing.name} is one of our editor-vetted picks in ${listing.neighborhood}.`}
                 </p>
+              )}
+
+              {listing.local_context && (
+                <LocalContextBlock neighborhood={listing.neighborhood} context={listing.local_context} />
               )}
 
               {tags.length > 0 && (
@@ -296,6 +322,13 @@ export function ListingDetailPage({
                 </div>
               )}
             </section>
+
+            {/* Pair this with — companion listings in same neighborhood */}
+            <PairThisWith
+              category={listing.category}
+              neighborhood={listing.neighborhood}
+              excludeId={listing.id}
+            />
 
             {/* Photos */}
             {galleryRaw.length > 0 && (
