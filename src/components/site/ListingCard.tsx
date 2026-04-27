@@ -102,7 +102,7 @@ export function ListingCard({ listing }: { listing: ListingCardData }) {
           ) : (
             <span className="inline-flex items-center gap-1 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-foreground/80 shadow-sm backdrop-blur">
               <Sparkles className="h-3 w-3 text-accent" />
-              {insight}
+              Editor pick
             </span>
           )}
         </div>
