@@ -46,6 +46,8 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiLength, setAiLength] = useState<"short" | "medium" | "long">("medium");
   const [aiBusy, setAiBusy] = useState(false);
+  const [linkBusy, setLinkBusy] = useState(false);
+  const [linkReport, setLinkReport] = useState<{ applied: { anchor: string; url: string }[]; skipped: { anchor: string; url: string; reason: string }[] } | null>(null);
 
   const set = <K extends keyof BlogFormValues>(k: K, val: BlogFormValues[K]) =>
     setV((p) => ({ ...p, [k]: val }));
