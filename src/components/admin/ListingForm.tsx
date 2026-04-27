@@ -71,13 +71,31 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-export function ListingForm({ initial }: { initial?: Partial<ListingFormValues> }) {
+export function ListingForm({
+  initial,
+  partnerMode = false,
+}: {
+  initial?: Partial<ListingFormValues>;
+  /** When true, only the Partner Spotlight section is editable (for /partner dashboard). */
+  partnerMode?: boolean;
+}) {
   const navigate = useNavigate();
-  const [v, setV] = useState<ListingFormValues>({ ...empty, ...initial });
+  const [v, setV] = useState<ListingFormValues>({
+    ...empty,
+    ...initial,
+    partner_spotlight: { ...emptySpotlight, ...(initial?.partner_spotlight ?? {}) },
+  });
   const [busy, setBusy] = useState(false);
 
   const set = <K extends keyof ListingFormValues>(key: K, val: ListingFormValues[K]) =>
     setV((p) => ({ ...p, [key]: val }));
+
+  const setSpot = <K extends keyof PartnerSpotlightValues>(
+    key: K,
+    val: PartnerSpotlightValues[K],
+  ) => setV((p) => ({ ...p, partner_spotlight: { ...p.partner_spotlight, [key]: val } }));
+
+  const tierAllowsSpotlight = v.tier === "featured" || v.tier === "premium";
 
   const slugify = (s: string) =>
     s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -86,6 +104,38 @@ export function ListingForm({ initial }: { initial?: Partial<ListingFormValues> 
     e.preventDefault();
     setBusy(true);
     try {
+      // Build the spotlight payload — only persist when enabled AND tier allows
+      const spotlightPayload =
+        v.partner_spotlight.enabled && tierAllowsSpotlight
+          ? {
+              enabled: true,
+              eyebrow: v.partner_spotlight.eyebrow.trim() || "Partner Spotlight",
+              title: v.partner_spotlight.title.trim(),
+              description: v.partner_spotlight.description.trim(),
+              image_url: v.partner_spotlight.image_url.trim(),
+              cta_label: v.partner_spotlight.cta_label.trim() || "Learn more",
+              cta_url: v.partner_spotlight.cta_url.trim(),
+            }
+          : null;
+
+      // Partner mode: only update the spotlight column (and updated_at via trigger).
+      if (partnerMode) {
+        if (!v.id) {
+          toast.error("Missing listing id");
+          return;
+        }
+        const res = await supabase
+          .from("listings")
+          .update({ partner_spotlight: spotlightPayload })
+          .eq("id", v.id);
+        if (res.error) {
+          toast.error(res.error.message);
+        } else {
+          toast.success("Spotlight saved");
+        }
+        return;
+      }
+
       const payload = {
         name: v.name,
         slug: v.slug || slugify(v.name),
@@ -109,6 +159,7 @@ export function ListingForm({ initial }: { initial?: Partial<ListingFormValues> 
         sponsor_name: v.sponsor_name || null,
         sponsor_rank: v.sponsor_rank ? parseInt(v.sponsor_rank, 10) || 0 : 0,
         sponsor_until: v.sponsor_until ? new Date(v.sponsor_until).toISOString() : null,
+        partner_spotlight: spotlightPayload,
         published_at: v.status === "published" ? new Date().toISOString() : null,
       };
 
@@ -120,7 +171,7 @@ export function ListingForm({ initial }: { initial?: Partial<ListingFormValues> 
         toast.error(res.error.message);
       } else {
         toast.success(v.id ? "Listing updated" : "Listing created");
-        navigate({ to: "/admin/listings" });
+        if (!partnerMode) navigate({ to: "/admin/listings" });
       }
     } finally {
       setBusy(false);
