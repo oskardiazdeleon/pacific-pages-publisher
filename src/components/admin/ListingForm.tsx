@@ -1,8 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { Megaphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+
+export interface PartnerSpotlightValues {
+  enabled: boolean;
+  eyebrow: string;
+  title: string;
+  description: string;
+  image_url: string;
+  cta_label: string;
+  cta_url: string;
+}
 
 export interface ListingFormValues {
   id?: string;
@@ -28,7 +39,18 @@ export interface ListingFormValues {
   sponsor_name: string;
   sponsor_rank: string;
   sponsor_until: string;
+  partner_spotlight: PartnerSpotlightValues;
 }
+
+const emptySpotlight: PartnerSpotlightValues = {
+  enabled: false,
+  eyebrow: "Partner Spotlight",
+  title: "",
+  description: "",
+  image_url: "",
+  cta_label: "Learn more",
+  cta_url: "",
+};
 
 const empty: ListingFormValues = {
   name: "", slug: "", category: "Restaurant", neighborhood: "",
@@ -37,6 +59,7 @@ const empty: ListingFormValues = {
   tier: "free", status: "draft", meta_title: "", meta_description: "",
   reservation_url: "",
   is_sponsored: false, sponsor_name: "", sponsor_rank: "0", sponsor_until: "",
+  partner_spotlight: { ...emptySpotlight },
 };
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
