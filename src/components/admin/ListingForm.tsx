@@ -379,6 +379,58 @@ export function ListingForm({
       </section>
       )}
 
+      {!partnerMode && (
+      <section className="rounded-2xl border border-border bg-card p-6 space-y-4">
+        <div>
+          <h2 className="font-display text-lg font-semibold">Editorial context</h2>
+          <p className="text-xs text-muted-foreground mt-1">
+            Proprietary editorial detail that differentiates this listing from the source. Required for publishing.
+          </p>
+        </div>
+        <Field label="Editor's note (1–2 sentences shown above the description)">
+          <textarea className={inputCls + " min-h-20"} value={v.editor_note}
+            onChange={(e) => set("editor_note", e.target.value)}
+            placeholder="What makes this place worth a visit, in our voice." />
+        </Field>
+        <Field label="Why we picked it (comma-separated, up to 6 chips)">
+          <input className={inputCls} value={v.why_we_picked_it}
+            onChange={(e) => set("why_we_picked_it", e.target.value)}
+            placeholder="ocean view, walk-in friendly, great for groups" />
+        </Field>
+        <Field label="Insider tip">
+          <textarea className={inputCls + " min-h-20"} value={v.insider_tip}
+            onChange={(e) => set("insider_tip", e.target.value)}
+            placeholder="Sit at the bar — same menu, no wait." />
+        </Field>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Field label="Best time to visit">
+            <input className={inputCls} value={v.best_time_to_visit}
+              onChange={(e) => set("best_time_to_visit", e.target.value)}
+              placeholder="Weekday lunch" />
+          </Field>
+          <Field label="Source URL (provenance)">
+            <input className={inputCls} type="url" value={v.source_url}
+              onChange={(e) => set("source_url", e.target.value)}
+              placeholder="https://..." />
+          </Field>
+        </div>
+        <Field label="Local context (1–2 sentences referencing the neighborhood)">
+          <textarea className={inputCls + " min-h-20"} value={v.local_context}
+            onChange={(e) => set("local_context", e.target.value)}
+            placeholder="In Little Italy, this sits two blocks from Piazza della Famiglia…" />
+        </Field>
+        <label className="inline-flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={v.verified_visited}
+            onChange={(e) => set("verified_visited", e.target.checked)}
+            className="h-4 w-4 accent-accent"
+          />
+          <span className="text-sm font-medium">Mark as verified visited</span>
+        </label>
+      </section>
+      )}
+
       {/* Partner Spotlight — featured/premium tier perk */}
       <section className="rounded-2xl border border-accent/30 bg-gradient-to-br from-accent/5 via-card to-card p-6 space-y-4">
         <div className="flex items-start justify-between gap-4">
