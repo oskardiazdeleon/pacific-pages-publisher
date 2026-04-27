@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Megaphone, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -91,6 +92,7 @@ export function ListingForm({
   partnerMode?: boolean;
 }) {
   const navigate = useNavigate();
+  const generateEditorialContextFn = useServerFn(generateEditorialContext);
   const [v, setV] = useState<ListingFormValues>({
     ...empty,
     ...initial,
@@ -119,7 +121,7 @@ export function ListingForm({
     }
     setAiFilling(true);
     try {
-      const result = await generateEditorialContext({
+      const result = await generateEditorialContextFn({
         data: {
           name: v.name.trim(),
           category: v.category,
