@@ -1319,27 +1319,35 @@ Choose 4–${data.maxLinks} anchor phrases from the body and the best matching c
     }
 
     // 3) Apply each suggestion safely. Reject any URL not in the pool.
-    const validUrls = new Set(pool.map((c) => c.url));
+    //    URL matching is case-insensitive and tolerates a trailing slash.
+    const normalizeUrl = (u: string) => u.trim().toLowerCase().replace(/\/+$/, "") || "/";
+    const urlMap = new Map<string, string>(); // normalized -> canonical from pool
+    for (const c of pool) urlMap.set(normalizeUrl(c.url), c.url);
+
     const applied: { anchor: string; url: string; reason?: string }[] = [];
     const skipped: { anchor: string; url: string; reason: string }[] = [];
     const usedUrls = new Set<string>();
     let body = data.body;
 
+    console.log(`[aiInsertInternalLinks] pool=${pool.length} suggestions=${parsed.links.length}`);
+
     for (const link of parsed.links as Array<{ anchor: string; url: string; reason?: string }>) {
       const anchor = String(link.anchor ?? "").trim();
-      const url = String(link.url ?? "").trim();
-      if (!anchor || !url) continue;
-      if (!url.startsWith("/")) { skipped.push({ anchor, url, reason: "external or invalid URL" }); continue; }
-      if (!validUrls.has(url)) { skipped.push({ anchor, url, reason: "URL not in candidate pool" }); continue; }
-      if (usedUrls.has(url)) { skipped.push({ anchor, url, reason: "URL already used" }); continue; }
-      const result = applyInternalLink(body, anchor, url);
-      if (!result.applied) { skipped.push({ anchor, url, reason: "anchor not found or inside link/code/heading" }); continue; }
+      const rawUrl = String(link.url ?? "").trim();
+      if (!anchor || !rawUrl) continue;
+      if (!rawUrl.startsWith("/")) { skipped.push({ anchor, url: rawUrl, reason: "external or invalid URL" }); continue; }
+      const canonical = urlMap.get(normalizeUrl(rawUrl));
+      if (!canonical) { skipped.push({ anchor, url: rawUrl, reason: "URL not in candidate pool" }); continue; }
+      if (usedUrls.has(canonical)) { skipped.push({ anchor, url: canonical, reason: "URL already used" }); continue; }
+      const result = applyInternalLink(body, anchor, canonical);
+      if (!result.applied) { skipped.push({ anchor, url: canonical, reason: "anchor not found verbatim in body (or inside link/code/heading)" }); continue; }
       body = result.body;
-      usedUrls.add(url);
-      applied.push({ anchor, url, reason: link.reason });
+      usedUrls.add(canonical);
+      applied.push({ anchor, url: canonical, reason: link.reason });
       if (applied.length >= data.maxLinks) break;
     }
 
+    console.log(`[aiInsertInternalLinks] applied=${applied.length} skipped=${skipped.length}`);
     return { applied, skipped, body };
    } catch (err) {
     console.error("[aiInsertInternalLinks] handler error:", err);
