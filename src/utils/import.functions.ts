@@ -70,7 +70,74 @@ async function firecrawlMap(url: string, search?: string, limit = 50) {
   return links.map((l: any) => (typeof l === "string" ? l : l.url)).filter(Boolean);
 }
 
-async function aiNormalize(scraped: { markdown: string; metadata: Record<string, any>; sourceUrl: string }, kind: ContentKind) {
+// ---------- Brand voice + per-category prompt rules ----------
+
+const BANNED_PHRASES = [
+  "hidden gem", "must-visit", "must visit", "something for everyone",
+  "nestled", "boasts", "step back in time", "feast for the senses",
+  "world-class", "one-of-a-kind", "off the beaten path", "delight your senses",
+];
+
+const BRAND_VOICE = `VOICE & STYLE RULES (mandatory):
+- Write as a knowledgeable San Diego local talking to a smart traveler. Second person ("you"), present tense.
+- Be specific and concrete. Name dishes, room categories, ride types, eras — not generic adjectives.
+- No marketing fluff. Banned phrases (do not use any form of these): ${BANNED_PHRASES.join(", ")}.
+- NEVER copy any 8+ word run verbatim from the source. Synthesize, don't paraphrase.
+- If a fact isn't in the source, omit it. Don't invent addresses, prices, or hours.`;
+
+const CATEGORY_PROMPTS: Record<ListingCategory, string> = {
+  Restaurant: `Structure the description in this exact order (one short paragraph each, separated by blank lines):
+1. Hook — what kind of place this is in 1 sentence.
+2. Cuisine + vibe — what they cook and the room/feel.
+3. Signature dish or thing to order (be specific — name a dish if the source mentions it).
+4. Who it's for (date night, group, solo at the bar, family, etc.).
+5. Insider tip (best seat, best time, what to skip, reservation strategy).
+Set price_range using $/$$/$$$/$$$$ if signal exists.`,
+  Hotel: `Structure the description in this exact order:
+1. Hook — what kind of stay this is.
+2. Room style + standout amenity (rooftop, spa, beach access).
+3. Best room category to book and why.
+4. On-site dining or notable bar.
+5. Insider tip (best view, what to ask for, neighborhood walking radius).`,
+  Attraction: `Structure the description in this exact order:
+1. Hook — what this is and why it's worth a visit.
+2. What you actually see/do (be specific — exhibit names, animal species, ride types).
+3. Time needed and best path through.
+4. Who it's for.
+5. Insider tip (timing, what to skip, parking).`,
+  Tour: `Structure: 1) hook, 2) what you'll see/do (route, duration), 3) who it's best for, 4) what's included, 5) insider tip on timing or which version of the tour to pick.`,
+  Shopping: `Structure: 1) hook (what kind of shop), 2) what they actually carry (named brands or maker categories), 3) standout item or section, 4) who it's for, 5) insider tip (sale timing, custom orders, parking).`,
+  Nightlife: `Structure: 1) hook (kind of bar/club), 2) drink program + room/sound vibe, 3) signature drink or show, 4) crowd + dress, 5) insider tip (best night, cover policy, secret room).`,
+};
+
+const ORIGINALITY_INSTRUCTION = `\n\nYour previous attempt copied too much from the source. Rewrite from scratch — synthesize the facts, but NEVER reuse 8-word runs from the source text. Vary sentence structure entirely.`;
+
+function tokenize(s: string): string[] {
+  return (s || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(Boolean);
+}
+
+/** Compute share of generated 5-grams that also appear in the source. 0 = fully original, 1 = identical. */
+function originalityOverlap(generated: string, source: string): number {
+  const gen = tokenize(generated);
+  const src = tokenize(source);
+  if (gen.length < 5) return 0;
+  const N = 5;
+  const srcSet = new Set<string>();
+  for (let i = 0; i + N <= src.length; i++) srcSet.add(src.slice(i, i + N).join(" "));
+  if (srcSet.size === 0) return 0;
+  let hits = 0;
+  let total = 0;
+  for (let i = 0; i + N <= gen.length; i++) {
+    total++;
+    if (srcSet.has(gen.slice(i, i + N).join(" "))) hits++;
+  }
+  return total === 0 ? 0 : hits / total;
+}
+
+async function aiNormalize(
+  scraped: { markdown: string; metadata: Record<string, any>; sourceUrl: string },
+  kind: ContentKind,
+): Promise<{ record: any; originality_score: number }> {
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -83,16 +150,21 @@ async function aiNormalize(scraped: { markdown: string; metadata: Record<string,
             name: { type: "string" },
             category: { type: "string", enum: ["Restaurant", "Hotel", "Attraction", "Tour", "Shopping", "Nightlife"] },
             neighborhood: { type: "string" },
-            short_description: { type: "string" },
-            description: { type: "string" },
+            short_description: { type: "string", description: "1 sentence, max 180 chars, no banned phrases." },
+            description: { type: "string", description: "Multi-paragraph editorial description following the per-category structure." },
+            editor_note: { type: "string", description: "1–3 sentences: a local-perspective angle (best patio, best Friday night, etc.) — original commentary not in the source." },
+            why_we_picked_it: { type: "array", items: { type: "string" }, description: "3–5 short reason chips like 'Date night', 'Outdoor seating', 'Walk-ins welcome'." },
+            insider_tip: { type: "string", description: "1 sentence — best seat, what to order, when to go." },
+            best_time_to_visit: { type: "string", description: "Short — e.g. 'Weeknights before 6:30pm' or 'Sunday brunch'." },
+            local_context: { type: "string", description: "1–2 sentences placing the spot in its neighborhood (what's nearby, walking radius)." },
             address: { type: "string" },
             phone: { type: "string" },
             website: { type: "string" },
             price_range: { type: "string" },
-            meta_title: { type: "string" },
-            meta_description: { type: "string" },
+            meta_title: { type: "string", description: "Max 65 chars, includes neighborhood + a signature trait so two listings never share a meta title." },
+            meta_description: { type: "string", description: "Max 155 chars, original sentence — not a copy of short_description." },
           },
-          required: ["kind", "name", "category", "neighborhood", "short_description", "description"],
+          required: ["kind", "name", "category", "neighborhood", "short_description", "description", "editor_note", "why_we_picked_it", "insider_tip", "local_context", "meta_title", "meta_description"],
           additionalProperties: false,
         }
       : {
@@ -112,39 +184,84 @@ async function aiNormalize(scraped: { markdown: string; metadata: Record<string,
           additionalProperties: false,
         };
 
-  const sys =
-    kind === "listing"
-      ? `You convert scraped web content into a clean San Diego listing record. Pick the best matching neighborhood from this list when possible: ${NEIGHBORHOODS.join(", ")}. Write original, concise editorial-quality copy. Detect the listing category accurately.`
-      : `You convert scraped web content into a clean San Diego editorial article. Preserve the structure with semantic HTML. Write original, concise editorial copy. Estimate read time (~200 wpm).`;
+  // Detect category from source for the right per-category prompt
+  let detectedCategory: ListingCategory = "Restaurant";
+  if (kind === "listing") {
+    const blob = `${scraped.metadata?.title ?? ""} ${scraped.metadata?.description ?? ""} ${scraped.markdown.slice(0, 2000)}`.toLowerCase();
+    if (/\bhotel|resort|inn\b/.test(blob)) detectedCategory = "Hotel";
+    else if (/\btour|cruise|excursion\b/.test(blob)) detectedCategory = "Tour";
+    else if (/\bbar|club|lounge|nightlife\b/.test(blob)) detectedCategory = "Nightlife";
+    else if (/\bmuseum|park|zoo|attraction|gallery\b/.test(blob)) detectedCategory = "Attraction";
+    else if (/\bshop|store|boutique|market\b/.test(blob)) detectedCategory = "Shopping";
+  }
 
-  const user = `Source URL: ${scraped.sourceUrl}
+  const baseSys =
+    kind === "listing"
+      ? `You convert scraped web content into a clean San Diego listing record for sandiego.com — an editorial guide, NOT a directory.
+Pick the best matching neighborhood from this list when possible: ${NEIGHBORHOODS.join(", ")}.
+Detect the listing category accurately.
+
+${BRAND_VOICE}
+
+CATEGORY-SPECIFIC STRUCTURE (use the structure that matches the detected category — likely ${detectedCategory}):
+${CATEGORY_PROMPTS[detectedCategory]}
+
+The editor_note, insider_tip, and local_context fields are PROPRIETARY editorial content — invent them from your knowledge of San Diego, do not copy them from the source.`
+      : `You convert scraped web content into a clean San Diego editorial article. Preserve the structure with semantic HTML. ${BRAND_VOICE} Estimate read time (~200 wpm).`;
+
+  const userMsg = `Source URL: ${scraped.sourceUrl}
 Page title: ${scraped.metadata?.title ?? ""}
 Page description: ${scraped.metadata?.description ?? ""}
 
 Scraped content (markdown):
 ${scraped.markdown.slice(0, 15000)}`;
 
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
-      messages: [
-        { role: "system", content: sys },
-        { role: "user", content: user },
-      ],
-      response_format: { type: "json_schema", json_schema: { name: "import_record", strict: true, schema } },
-    }),
-  });
-
-  if (!res.ok) {
-    const t = await res.text();
-    throw new Error(`AI normalization failed [${res.status}]: ${t.slice(0, 400)}`);
+  async function callOnce(extraSys: string) {
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: baseSys + extraSys },
+          { role: "user", content: userMsg },
+        ],
+        response_format: { type: "json_schema", json_schema: { name: "import_record", strict: true, schema } },
+      }),
+    });
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(`AI normalization failed [${res.status}]: ${t.slice(0, 400)}`);
+    }
+    const json = (await res.json()) as any;
+    const content = json.choices?.[0]?.message?.content;
+    if (!content) throw new Error("AI returned empty content");
+    return JSON.parse(content);
   }
-  const json = (await res.json()) as any;
-  const content = json.choices?.[0]?.message?.content;
-  if (!content) throw new Error("AI returned empty content");
-  return JSON.parse(content);
+
+  let record = await callOnce("");
+  let overlap = kind === "listing"
+    ? originalityOverlap(`${record.short_description ?? ""} ${record.description ?? ""}`, scraped.markdown)
+    : originalityOverlap(`${record.excerpt ?? ""} ${record.body ?? ""}`, scraped.markdown);
+
+  // If too much overlap with the source, regenerate once with a stronger instruction.
+  if (overlap > 0.25) {
+    try {
+      const retry = await callOnce(ORIGINALITY_INSTRUCTION);
+      const retryOverlap = kind === "listing"
+        ? originalityOverlap(`${retry.short_description ?? ""} ${retry.description ?? ""}`, scraped.markdown)
+        : originalityOverlap(`${retry.excerpt ?? ""} ${retry.body ?? ""}`, scraped.markdown);
+      if (retryOverlap < overlap) {
+        record = retry;
+        overlap = retryOverlap;
+      }
+    } catch {
+      // keep first attempt
+    }
+  }
+
+  const originality_score = Math.max(0, Math.min(1, 1 - overlap));
+  return { record, originality_score };
 }
 
 function pickHeroImage(html: string, metadata: Record<string, any>, base: string): string | null {
