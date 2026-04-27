@@ -609,7 +609,7 @@ export const enrichExistingListing = createServerFn({ method: "POST" })
     });
     const shouldPublish = data.publish && !blockedReason;
 
-    const update: Record<string, unknown> = {
+    const baseUpdate = {
       short_description: record.short_description ?? null,
       description: record.description ?? null,
       editor_note: record.editor_note ?? null,
@@ -625,10 +625,13 @@ export const enrichExistingListing = createServerFn({ method: "POST" })
       originality_score,
       curator_id: listing.curator_id ?? context.userId,
     };
-    if (data.publish) {
-      update.status = shouldPublish ? "published" : "draft";
-      if (shouldPublish) update.published_at = new Date().toISOString();
-    }
+    const update = data.publish
+      ? {
+          ...baseUpdate,
+          status: (shouldPublish ? "published" : "draft") as "published" | "draft",
+          published_at: shouldPublish ? new Date().toISOString() : null,
+        }
+      : baseUpdate;
 
     const { error: updErr } = await supabaseAdmin
       .from("listings")
