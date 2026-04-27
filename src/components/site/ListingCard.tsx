@@ -22,15 +22,15 @@ export interface ListingCardData {
 
 // Lightweight, deterministic "insight" per category to drive engagement
 // without requiring extra DB fields. Replace with real data when available.
-function insightFor(category: string): string {
+function ctaFor(category: string): string {
   const c = (category || "").toLowerCase();
-  if (c.includes("hotel") || c.includes("resort")) return "Insider rate avail.";
-  if (c.includes("restaurant")) return "Locals' favorite";
-  if (c.includes("tour")) return "Free cancellation";
-  if (c.includes("attraction")) return "Skip-the-line";
-  if (c.includes("nightlife") || c.includes("bar")) return "Trending tonight";
-  if (c.includes("shopping")) return "Editor pick";
-  return "Editor-vetted";
+  if (c.includes("hotel") || c.includes("resort")) return "Book now";
+  if (c.includes("restaurant")) return "Reserve";
+  if (c.includes("tour")) return "Book tour";
+  if (c.includes("attraction")) return "Get tickets";
+  if (c.includes("nightlife") || c.includes("bar")) return "View details";
+  if (c.includes("shopping")) return "Visit";
+  return "View details";
 }
 
 function priceLabel(price?: string | null): string | null {
