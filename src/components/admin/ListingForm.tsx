@@ -97,6 +97,7 @@ export function ListingForm({
     partner_spotlight: { ...emptySpotlight, ...(initial?.partner_spotlight ?? {}) },
   });
   const [busy, setBusy] = useState(false);
+  const [aiFilling, setAiFilling] = useState(false);
 
   const set = <K extends keyof ListingFormValues>(key: K, val: ListingFormValues[K]) =>
     setV((p) => ({ ...p, [key]: val }));
