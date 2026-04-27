@@ -681,17 +681,24 @@ ${data.description ? `Existing description (for context only — do NOT copy): $
 
 Generate the editorial context fields for this listing.`;
 
-    const schema = {
-      type: "object",
-      properties: {
-        editor_note: { type: "string", description: "1–2 sentences in our voice — what makes this place worth a visit." },
-        why_we_picked_it: { type: "array", items: { type: "string" }, description: "3–5 short reason chips like 'Date night', 'Outdoor seating', 'Walk-ins welcome'." },
-        insider_tip: { type: "string", description: "1 sentence — best seat, what to order, when to go." },
-        best_time_to_visit: { type: "string", description: "Short — e.g. 'Weeknights before 6:30pm' or 'Sunday brunch'." },
-        local_context: { type: "string", description: "1–2 sentences placing the spot in its neighborhood." },
+    const tool = {
+      type: "function",
+      function: {
+        name: "set_editorial_context",
+        description: "Set the proprietary editorial context fields for the listing.",
+        parameters: {
+          type: "object",
+          properties: {
+            editor_note: { type: "string", description: "1–2 sentences in our voice — what makes this place worth a visit." },
+            why_we_picked_it: { type: "array", items: { type: "string" }, description: "3–5 short reason chips like 'Date night', 'Outdoor seating', 'Walk-ins welcome'." },
+            insider_tip: { type: "string", description: "1 sentence — best seat, what to order, when to go." },
+            best_time_to_visit: { type: "string", description: "Short — e.g. 'Weeknights before 6:30pm' or 'Sunday brunch'." },
+            local_context: { type: "string", description: "1–2 sentences placing the spot in its neighborhood." },
+          },
+          required: ["editor_note", "why_we_picked_it", "insider_tip", "best_time_to_visit", "local_context"],
+          additionalProperties: false,
+        },
       },
-      required: ["editor_note", "why_we_picked_it", "insider_tip", "best_time_to_visit", "local_context"],
-      additionalProperties: false,
     };
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -703,7 +710,8 @@ Generate the editorial context fields for this listing.`;
           { role: "system", content: sys },
           { role: "user", content: userMsg },
         ],
-        response_format: { type: "json_schema", json_schema: { name: "editorial_context", strict: true, schema } },
+        tools: [tool],
+        tool_choice: { type: "function", function: { name: "set_editorial_context" } },
       }),
     });
     if (res.status === 429) throw new Error("Rate limit hit. Please try again in a moment.");
@@ -713,9 +721,23 @@ Generate the editorial context fields for this listing.`;
       throw new Error(`AI generation failed [${res.status}]: ${t.slice(0, 300)}`);
     }
     const json = (await res.json()) as any;
-    const content = json.choices?.[0]?.message?.content;
-    if (!content) throw new Error("AI returned empty content");
-    const parsed = JSON.parse(content);
+    const msg = json.choices?.[0]?.message;
+    const argsStr = msg?.tool_calls?.[0]?.function?.arguments;
+    let parsed: any = null;
+    if (argsStr) {
+      try { parsed = JSON.parse(argsStr); } catch { parsed = null; }
+    }
+    // Fallback: some models return JSON in content instead of tool_calls
+    if (!parsed && typeof msg?.content === "string" && msg.content.trim()) {
+      try {
+        const cleaned = msg.content.trim().replace(/^```json\s*/i, "").replace(/```$/, "").trim();
+        parsed = JSON.parse(cleaned);
+      } catch { parsed = null; }
+    }
+    if (!parsed) {
+      console.error("[generateEditorialContext] unexpected AI response", JSON.stringify(json).slice(0, 1000));
+      throw new Error("AI returned no structured content");
+    }
     return {
       editor_note: String(parsed.editor_note ?? ""),
       why_we_picked_it: Array.isArray(parsed.why_we_picked_it) ? parsed.why_we_picked_it.slice(0, 6).map(String) : [],
