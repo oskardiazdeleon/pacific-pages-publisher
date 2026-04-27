@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Sparkles, Loader2, Wand2 } from "lucide-react";
+import { Sparkles, Loader2, Wand2, Link2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { aiInsertInternalLinks } from "@/utils/import.functions";
 
 export interface BlogFormValues {
   id?: string;
