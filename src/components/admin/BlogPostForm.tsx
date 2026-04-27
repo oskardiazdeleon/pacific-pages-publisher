@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Sparkles, Loader2, Wand2, Link2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,6 +40,7 @@ const slugify = (s: string) =>
 
 export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> }) {
   const navigate = useNavigate();
+  const aiInsertInternalLinksFn = useServerFn(aiInsertInternalLinks);
   const { user } = useAuth();
   const [v, setV] = useState<BlogFormValues>({ ...empty, ...initial });
   const [busy, setBusy] = useState(false);
@@ -94,7 +96,7 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
     setLinkBusy(true);
     setLinkReport(null);
     try {
-      const result = await aiInsertInternalLinks({
+      const result = await aiInsertInternalLinksFn({
         data: {
           body: v.body,
           title: v.title || null,
