@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Phone, Globe, MapPin, ArrowLeft, Sparkles, CalendarCheck } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Breadcrumbs, breadcrumbJsonLd } from "@/components/site/Breadcrumbs";
 import { recordImpression } from "@/lib/content-queries";
 import { hubForCategory, type CategoryHub } from "@/lib/listing-categories";
+import { supabase } from "@/integrations/supabase/client";
 import { ListingHero } from "./listing/ListingHero";
 import { ListingActionBar } from "./listing/ListingActionBar";
 import { ListingHoursPanel, useListingHours } from "./listing/ListingHours";
@@ -16,6 +17,14 @@ import {
   isSpotlightVisible,
   type PartnerSpotlightData,
 } from "./listing/PartnerSpotlight";
+import {
+  EditorNoteCallout,
+  WhyWePickedIt,
+  InsiderTipCard,
+  LocalContextBlock,
+  CuratorByline,
+} from "./listing/EditorialContext";
+import { PairThisWith } from "./listing/PairThisWith";
 import { toSchemaOpeningHours } from "@/lib/hours";
 
 const SITE_URL = "https://sandiego.com";
@@ -41,6 +50,14 @@ type Listing = {
   meta_description?: string | null;
   tier?: string | null;
   partner_spotlight?: unknown;
+  editor_note?: string | null;
+  why_we_picked_it?: string[] | null;
+  insider_tip?: string | null;
+  best_time_to_visit?: string | null;
+  local_context?: string | null;
+  curator_id?: string | null;
+  verified_visited?: boolean | null;
+  updated_at?: string | null;
 };
 
 function reservationProvider(url: string): string {
@@ -95,6 +112,22 @@ export function ListingDetailPage({
   useEffect(() => {
     recordImpression(listing.id, "view");
   }, [listing.id]);
+
+  // Fetch curator profile for byline
+  const [curator, setCurator] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
+  useEffect(() => {
+    if (!listing.curator_id) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("display_name, avatar_url")
+        .eq("user_id", listing.curator_id!)
+        .maybeSingle();
+      if (!cancelled && data) setCurator(data);
+    })();
+    return () => { cancelled = true; };
+  }, [listing.curator_id]);
 
   const hub = actualHub ?? expectedHub;
   const hours = useListingHours(listing.hours);
@@ -181,6 +214,10 @@ export function ListingDetailPage({
     priceRange: listing.price_range || undefined,
     openingHoursSpecification: toSchemaOpeningHours(hours.days),
     areaServed: { "@type": "City", name: "San Diego" },
+    dateModified: listing.updated_at || undefined,
+    ...(curator?.display_name
+      ? { author: { "@type": "Person", name: curator.display_name } }
+      : {}),
   };
 
   const jsonLd = [
@@ -236,14 +273,40 @@ export function ListingDetailPage({
               <h2 className="mt-1 font-display text-2xl md:text-3xl font-semibold">
                 About {listing.name}
               </h2>
+
+              <div className="mt-3">
+                <CuratorByline
+                  curatorName={curator?.display_name ?? null}
+                  curatorAvatar={curator?.avatar_url ?? null}
+                  updatedAt={listing.updated_at ?? null}
+                  verifiedVisited={listing.verified_visited ?? false}
+                />
+              </div>
+
+              {listing.editor_note && (
+                <div className="mt-5">
+                  <EditorNoteCallout note={listing.editor_note} />
+                </div>
+              )}
+
+              {listing.why_we_picked_it && listing.why_we_picked_it.length > 0 && (
+                <div className="mt-4">
+                  <WhyWePickedIt reasons={listing.why_we_picked_it} />
+                </div>
+              )}
+
               {showLong ? (
-                <div className="prose prose-neutral mt-4 max-w-none whitespace-pre-line text-foreground">
+                <div className="prose prose-neutral mt-6 max-w-none whitespace-pre-line text-foreground">
                   {longDesc}
                 </div>
               ) : (
-                <p className="mt-4 max-w-2xl text-muted-foreground">
+                <p className="mt-6 max-w-2xl text-muted-foreground">
                   {shortDesc || `${listing.name} is one of our editor-vetted picks in ${listing.neighborhood}.`}
                 </p>
+              )}
+
+              {listing.local_context && (
+                <LocalContextBlock neighborhood={listing.neighborhood} context={listing.local_context} />
               )}
 
               {tags.length > 0 && (
@@ -259,6 +322,13 @@ export function ListingDetailPage({
                 </div>
               )}
             </section>
+
+            {/* Pair this with — companion listings in same neighborhood */}
+            <PairThisWith
+              category={listing.category}
+              neighborhood={listing.neighborhood}
+              excludeId={listing.id}
+            />
 
             {/* Photos */}
             {galleryRaw.length > 0 && (
@@ -314,6 +384,7 @@ export function ListingDetailPage({
                 />
               </div>
             )}
+            <InsiderTipCard tip={listing.insider_tip} bestTime={listing.best_time_to_visit} />
             {listing.reservation_url && (
               <div className="rounded-3xl border border-accent/40 bg-gradient-to-br from-accent/15 via-card to-card p-5 shadow-sm">
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-accent/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent">

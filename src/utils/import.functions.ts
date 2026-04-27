@@ -70,7 +70,74 @@ async function firecrawlMap(url: string, search?: string, limit = 50) {
   return links.map((l: any) => (typeof l === "string" ? l : l.url)).filter(Boolean);
 }
 
-async function aiNormalize(scraped: { markdown: string; metadata: Record<string, any>; sourceUrl: string }, kind: ContentKind) {
+// ---------- Brand voice + per-category prompt rules ----------
+
+const BANNED_PHRASES = [
+  "hidden gem", "must-visit", "must visit", "something for everyone",
+  "nestled", "boasts", "step back in time", "feast for the senses",
+  "world-class", "one-of-a-kind", "off the beaten path", "delight your senses",
+];
+
+const BRAND_VOICE = `VOICE & STYLE RULES (mandatory):
+- Write as a knowledgeable San Diego local talking to a smart traveler. Second person ("you"), present tense.
+- Be specific and concrete. Name dishes, room categories, ride types, eras — not generic adjectives.
+- No marketing fluff. Banned phrases (do not use any form of these): ${BANNED_PHRASES.join(", ")}.
+- NEVER copy any 8+ word run verbatim from the source. Synthesize, don't paraphrase.
+- If a fact isn't in the source, omit it. Don't invent addresses, prices, or hours.`;
+
+const CATEGORY_PROMPTS: Record<ListingCategory, string> = {
+  Restaurant: `Structure the description in this exact order (one short paragraph each, separated by blank lines):
+1. Hook — what kind of place this is in 1 sentence.
+2. Cuisine + vibe — what they cook and the room/feel.
+3. Signature dish or thing to order (be specific — name a dish if the source mentions it).
+4. Who it's for (date night, group, solo at the bar, family, etc.).
+5. Insider tip (best seat, best time, what to skip, reservation strategy).
+Set price_range using $/$$/$$$/$$$$ if signal exists.`,
+  Hotel: `Structure the description in this exact order:
+1. Hook — what kind of stay this is.
+2. Room style + standout amenity (rooftop, spa, beach access).
+3. Best room category to book and why.
+4. On-site dining or notable bar.
+5. Insider tip (best view, what to ask for, neighborhood walking radius).`,
+  Attraction: `Structure the description in this exact order:
+1. Hook — what this is and why it's worth a visit.
+2. What you actually see/do (be specific — exhibit names, animal species, ride types).
+3. Time needed and best path through.
+4. Who it's for.
+5. Insider tip (timing, what to skip, parking).`,
+  Tour: `Structure: 1) hook, 2) what you'll see/do (route, duration), 3) who it's best for, 4) what's included, 5) insider tip on timing or which version of the tour to pick.`,
+  Shopping: `Structure: 1) hook (what kind of shop), 2) what they actually carry (named brands or maker categories), 3) standout item or section, 4) who it's for, 5) insider tip (sale timing, custom orders, parking).`,
+  Nightlife: `Structure: 1) hook (kind of bar/club), 2) drink program + room/sound vibe, 3) signature drink or show, 4) crowd + dress, 5) insider tip (best night, cover policy, secret room).`,
+};
+
+const ORIGINALITY_INSTRUCTION = `\n\nYour previous attempt copied too much from the source. Rewrite from scratch — synthesize the facts, but NEVER reuse 8-word runs from the source text. Vary sentence structure entirely.`;
+
+function tokenize(s: string): string[] {
+  return (s || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(Boolean);
+}
+
+/** Compute share of generated 5-grams that also appear in the source. 0 = fully original, 1 = identical. */
+function originalityOverlap(generated: string, source: string): number {
+  const gen = tokenize(generated);
+  const src = tokenize(source);
+  if (gen.length < 5) return 0;
+  const N = 5;
+  const srcSet = new Set<string>();
+  for (let i = 0; i + N <= src.length; i++) srcSet.add(src.slice(i, i + N).join(" "));
+  if (srcSet.size === 0) return 0;
+  let hits = 0;
+  let total = 0;
+  for (let i = 0; i + N <= gen.length; i++) {
+    total++;
+    if (srcSet.has(gen.slice(i, i + N).join(" "))) hits++;
+  }
+  return total === 0 ? 0 : hits / total;
+}
+
+async function aiNormalize(
+  scraped: { markdown: string; metadata: Record<string, any>; sourceUrl: string },
+  kind: ContentKind,
+): Promise<{ record: any; originality_score: number }> {
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -83,16 +150,21 @@ async function aiNormalize(scraped: { markdown: string; metadata: Record<string,
             name: { type: "string" },
             category: { type: "string", enum: ["Restaurant", "Hotel", "Attraction", "Tour", "Shopping", "Nightlife"] },
             neighborhood: { type: "string" },
-            short_description: { type: "string" },
-            description: { type: "string" },
+            short_description: { type: "string", description: "1 sentence, max 180 chars, no banned phrases." },
+            description: { type: "string", description: "Multi-paragraph editorial description following the per-category structure." },
+            editor_note: { type: "string", description: "1–3 sentences: a local-perspective angle (best patio, best Friday night, etc.) — original commentary not in the source." },
+            why_we_picked_it: { type: "array", items: { type: "string" }, description: "3–5 short reason chips like 'Date night', 'Outdoor seating', 'Walk-ins welcome'." },
+            insider_tip: { type: "string", description: "1 sentence — best seat, what to order, when to go." },
+            best_time_to_visit: { type: "string", description: "Short — e.g. 'Weeknights before 6:30pm' or 'Sunday brunch'." },
+            local_context: { type: "string", description: "1–2 sentences placing the spot in its neighborhood (what's nearby, walking radius)." },
             address: { type: "string" },
             phone: { type: "string" },
             website: { type: "string" },
             price_range: { type: "string" },
-            meta_title: { type: "string" },
-            meta_description: { type: "string" },
+            meta_title: { type: "string", description: "Max 65 chars, includes neighborhood + a signature trait so two listings never share a meta title." },
+            meta_description: { type: "string", description: "Max 155 chars, original sentence — not a copy of short_description." },
           },
-          required: ["kind", "name", "category", "neighborhood", "short_description", "description"],
+          required: ["kind", "name", "category", "neighborhood", "short_description", "description", "editor_note", "why_we_picked_it", "insider_tip", "local_context", "meta_title", "meta_description"],
           additionalProperties: false,
         }
       : {
@@ -112,39 +184,84 @@ async function aiNormalize(scraped: { markdown: string; metadata: Record<string,
           additionalProperties: false,
         };
 
-  const sys =
-    kind === "listing"
-      ? `You convert scraped web content into a clean San Diego listing record. Pick the best matching neighborhood from this list when possible: ${NEIGHBORHOODS.join(", ")}. Write original, concise editorial-quality copy. Detect the listing category accurately.`
-      : `You convert scraped web content into a clean San Diego editorial article. Preserve the structure with semantic HTML. Write original, concise editorial copy. Estimate read time (~200 wpm).`;
+  // Detect category from source for the right per-category prompt
+  let detectedCategory: ListingCategory = "Restaurant";
+  if (kind === "listing") {
+    const blob = `${scraped.metadata?.title ?? ""} ${scraped.metadata?.description ?? ""} ${scraped.markdown.slice(0, 2000)}`.toLowerCase();
+    if (/\bhotel|resort|inn\b/.test(blob)) detectedCategory = "Hotel";
+    else if (/\btour|cruise|excursion\b/.test(blob)) detectedCategory = "Tour";
+    else if (/\bbar|club|lounge|nightlife\b/.test(blob)) detectedCategory = "Nightlife";
+    else if (/\bmuseum|park|zoo|attraction|gallery\b/.test(blob)) detectedCategory = "Attraction";
+    else if (/\bshop|store|boutique|market\b/.test(blob)) detectedCategory = "Shopping";
+  }
 
-  const user = `Source URL: ${scraped.sourceUrl}
+  const baseSys =
+    kind === "listing"
+      ? `You convert scraped web content into a clean San Diego listing record for sandiego.com — an editorial guide, NOT a directory.
+Pick the best matching neighborhood from this list when possible: ${NEIGHBORHOODS.join(", ")}.
+Detect the listing category accurately.
+
+${BRAND_VOICE}
+
+CATEGORY-SPECIFIC STRUCTURE (use the structure that matches the detected category — likely ${detectedCategory}):
+${CATEGORY_PROMPTS[detectedCategory]}
+
+The editor_note, insider_tip, and local_context fields are PROPRIETARY editorial content — invent them from your knowledge of San Diego, do not copy them from the source.`
+      : `You convert scraped web content into a clean San Diego editorial article. Preserve the structure with semantic HTML. ${BRAND_VOICE} Estimate read time (~200 wpm).`;
+
+  const userMsg = `Source URL: ${scraped.sourceUrl}
 Page title: ${scraped.metadata?.title ?? ""}
 Page description: ${scraped.metadata?.description ?? ""}
 
 Scraped content (markdown):
 ${scraped.markdown.slice(0, 15000)}`;
 
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
-      messages: [
-        { role: "system", content: sys },
-        { role: "user", content: user },
-      ],
-      response_format: { type: "json_schema", json_schema: { name: "import_record", strict: true, schema } },
-    }),
-  });
-
-  if (!res.ok) {
-    const t = await res.text();
-    throw new Error(`AI normalization failed [${res.status}]: ${t.slice(0, 400)}`);
+  async function callOnce(extraSys: string) {
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: baseSys + extraSys },
+          { role: "user", content: userMsg },
+        ],
+        response_format: { type: "json_schema", json_schema: { name: "import_record", strict: true, schema } },
+      }),
+    });
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(`AI normalization failed [${res.status}]: ${t.slice(0, 400)}`);
+    }
+    const json = (await res.json()) as any;
+    const content = json.choices?.[0]?.message?.content;
+    if (!content) throw new Error("AI returned empty content");
+    return JSON.parse(content);
   }
-  const json = (await res.json()) as any;
-  const content = json.choices?.[0]?.message?.content;
-  if (!content) throw new Error("AI returned empty content");
-  return JSON.parse(content);
+
+  let record = await callOnce("");
+  let overlap = kind === "listing"
+    ? originalityOverlap(`${record.short_description ?? ""} ${record.description ?? ""}`, scraped.markdown)
+    : originalityOverlap(`${record.excerpt ?? ""} ${record.body ?? ""}`, scraped.markdown);
+
+  // If too much overlap with the source, regenerate once with a stronger instruction.
+  if (overlap > 0.25) {
+    try {
+      const retry = await callOnce(ORIGINALITY_INSTRUCTION);
+      const retryOverlap = kind === "listing"
+        ? originalityOverlap(`${retry.short_description ?? ""} ${retry.description ?? ""}`, scraped.markdown)
+        : originalityOverlap(`${retry.excerpt ?? ""} ${retry.body ?? ""}`, scraped.markdown);
+      if (retryOverlap < overlap) {
+        record = retry;
+        overlap = retryOverlap;
+      }
+    } catch {
+      // keep first attempt
+    }
+  }
+
+  const originality_score = Math.max(0, Math.min(1, 1 - overlap));
+  return { record, originality_score };
 }
 
 function pickHeroImage(html: string, metadata: Record<string, any>, base: string): string | null {
@@ -182,15 +299,50 @@ function pickReservationUrl(html: string, links: string[] = []): string | null {
   return null;
 }
 
-async function insertListing(record: any, hero: string | null, autoPublish: boolean, reservationUrl: string | null = null) {
+/** Quality gate: returns the reason a listing should NOT auto-publish, or null if OK. */
+function listingPublishBlock(payload: {
+  description: string | null;
+  editor_note: string | null;
+  hero_image: string | null;
+  originality_score: number | null;
+}): string | null {
+  if (!payload.description || payload.description.trim().length < 300) return "description shorter than 300 chars";
+  if (!payload.editor_note || !payload.editor_note.trim()) return "missing editor_note";
+  if (!payload.hero_image) return "missing hero image";
+  if ((payload.originality_score ?? 0) < 0.6) return `originality score below threshold (${(payload.originality_score ?? 0).toFixed(2)})`;
+  return null;
+}
+
+async function insertListing(
+  record: any,
+  hero: string | null,
+  autoPublish: boolean,
+  reservationUrl: string | null = null,
+  ctx: { sourceUrl?: string | null; originalityScore?: number | null; curatorId?: string | null } = {},
+): Promise<{ id: string; slug: string; status: "published" | "draft"; blockedReason: string | null }> {
   const slug = slugify(record.name);
+  const description = record.description ?? null;
+  const editorNote = record.editor_note ?? null;
+  const blockedReason = listingPublishBlock({
+    description,
+    editor_note: editorNote,
+    hero_image: hero,
+    originality_score: ctx.originalityScore ?? null,
+  });
+  const shouldPublish = autoPublish && !blockedReason;
+
   const payload = {
     name: record.name,
     slug,
     category: record.category as ListingCategory,
     neighborhood: record.neighborhood || "San Diego",
     short_description: record.short_description ?? null,
-    description: record.description ?? null,
+    description,
+    editor_note: editorNote,
+    why_we_picked_it: Array.isArray(record.why_we_picked_it) ? record.why_we_picked_it.slice(0, 6) : [],
+    insider_tip: record.insider_tip ?? null,
+    best_time_to_visit: record.best_time_to_visit ?? null,
+    local_context: record.local_context ?? null,
     hero_image: hero,
     address: record.address ?? null,
     phone: record.phone ?? null,
@@ -199,14 +351,17 @@ async function insertListing(record: any, hero: string | null, autoPublish: bool
     price_range: record.price_range ?? null,
     meta_title: record.meta_title ?? null,
     meta_description: record.meta_description ?? null,
+    source_url: ctx.sourceUrl ?? null,
+    originality_score: ctx.originalityScore ?? null,
+    curator_id: ctx.curatorId ?? null,
     tier: "free" as const,
-    status: (autoPublish ? "published" : "draft") as "published" | "draft",
-    published_at: autoPublish ? new Date().toISOString() : null,
+    status: (shouldPublish ? "published" : "draft") as "published" | "draft",
+    published_at: shouldPublish ? new Date().toISOString() : null,
   };
   const { data, error } = await supabaseAdmin
     .from("listings").upsert(payload, { onConflict: "slug" }).select("id, slug").single();
   if (error) throw new Error(error.message);
-  return data;
+  return { id: data.id, slug: data.slug, status: payload.status, blockedReason };
 }
 
 async function insertArticle(record: any, hero: string | null, autoPublish: boolean) {
@@ -228,16 +383,21 @@ async function insertArticle(record: any, hero: string | null, autoPublish: bool
   const { data, error } = await supabaseAdmin
     .from("articles").upsert(payload, { onConflict: "slug" }).select("id, slug").single();
   if (error) throw new Error(error.message);
-  return data;
+  return { id: data.id, slug: data.slug, status: payload.status, blockedReason: null as string | null };
 }
 
-async function processOneUrl(url: string, kind: ContentKind, publish: boolean) {
+async function processOneUrl(
+  url: string,
+  kind: ContentKind,
+  publish: boolean,
+  curatorId: string | null = null,
+) {
   const scraped = await firecrawlScrape(url);
-  const record = await aiNormalize(scraped, kind);
+  const { record, originality_score } = await aiNormalize(scraped, kind);
   const hero = pickHeroImage(scraped.html, scraped.metadata, url);
   const reservation = kind === "listing" ? pickReservationUrl(scraped.html, scraped.links) : null;
   return kind === "listing"
-    ? await insertListing(record, hero, publish, reservation)
+    ? await insertListing(record, hero, publish, reservation, { sourceUrl: url, originalityScore: originality_score, curatorId })
     : await insertArticle(record, hero, publish);
 }
 
@@ -403,8 +563,83 @@ export const importFromUrl = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
     const kind: ContentKind = data.kind === "auto" ? guessKind(data.url) : data.kind;
-    const result = await processOneUrl(data.url, kind, data.publish);
-    return { kind, slug: result.slug, id: result.id };
+    const result = await processOneUrl(data.url, kind, data.publish, context.userId);
+    return {
+      kind,
+      slug: result.slug,
+      id: result.id,
+      status: result.status,
+      blockedReason: result.blockedReason,
+    };
+  });
+
+// ============= Re-enrich an existing listing with the new editorial pipeline =============
+
+const EnrichInput = z.object({
+  listingId: z.string().uuid(),
+  publish: z.boolean().default(false),
+});
+
+export const enrichExistingListing = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => EnrichInput.parse(d))
+  .handler(async ({ data, context }) => {
+    await ensureAdmin(context.supabase, context.userId);
+
+    const { data: listing, error: fetchErr } = await supabaseAdmin
+      .from("listings")
+      .select("id, slug, name, source_url, website, hero_image, curator_id")
+      .eq("id", data.listingId)
+      .single();
+    if (fetchErr || !listing) throw new Error(fetchErr?.message ?? "Listing not found");
+
+    const sourceUrl = listing.source_url || listing.website;
+    if (!sourceUrl) throw new Error("This listing has no source_url or website to re-enrich from.");
+
+    const scraped = await firecrawlScrape(sourceUrl);
+    const { record, originality_score } = await aiNormalize(scraped, "listing");
+    const hero = listing.hero_image || pickHeroImage(scraped.html, scraped.metadata, sourceUrl);
+    const reservation = pickReservationUrl(scraped.html, scraped.links);
+
+    const blockedReason = listingPublishBlock({
+      description: record.description ?? null,
+      editor_note: record.editor_note ?? null,
+      hero_image: hero,
+      originality_score,
+    });
+    const shouldPublish = data.publish && !blockedReason;
+
+    const baseUpdate = {
+      short_description: record.short_description ?? null,
+      description: record.description ?? null,
+      editor_note: record.editor_note ?? null,
+      why_we_picked_it: Array.isArray(record.why_we_picked_it) ? record.why_we_picked_it.slice(0, 6) : [],
+      insider_tip: record.insider_tip ?? null,
+      best_time_to_visit: record.best_time_to_visit ?? null,
+      local_context: record.local_context ?? null,
+      meta_title: record.meta_title ?? null,
+      meta_description: record.meta_description ?? null,
+      reservation_url: reservation,
+      hero_image: hero,
+      source_url: sourceUrl,
+      originality_score,
+      curator_id: listing.curator_id ?? context.userId,
+    };
+    const update = data.publish
+      ? {
+          ...baseUpdate,
+          status: (shouldPublish ? "published" : "draft") as "published" | "draft",
+          published_at: shouldPublish ? new Date().toISOString() : null,
+        }
+      : baseUpdate;
+
+    const { error: updErr } = await supabaseAdmin
+      .from("listings")
+      .update(update)
+      .eq("id", listing.id);
+    if (updErr) throw new Error(updErr.message);
+
+    return { id: listing.id, slug: listing.slug, originality_score, blockedReason };
   });
 
 // ============= Queued bulk import =============
