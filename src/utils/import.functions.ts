@@ -563,8 +563,80 @@ export const importFromUrl = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
     const kind: ContentKind = data.kind === "auto" ? guessKind(data.url) : data.kind;
-    const result = await processOneUrl(data.url, kind, data.publish);
-    return { kind, slug: result.slug, id: result.id };
+    const result = await processOneUrl(data.url, kind, data.publish, context.userId);
+    return {
+      kind,
+      slug: result.slug,
+      id: result.id,
+      status: result.status,
+      blockedReason: result.blockedReason,
+    };
+  });
+
+// ============= Re-enrich an existing listing with the new editorial pipeline =============
+
+const EnrichInput = z.object({
+  listingId: z.string().uuid(),
+  publish: z.boolean().default(false),
+});
+
+export const enrichExistingListing = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => EnrichInput.parse(d))
+  .handler(async ({ data, context }) => {
+    await ensureAdmin(context.supabase, context.userId);
+
+    const { data: listing, error: fetchErr } = await supabaseAdmin
+      .from("listings")
+      .select("id, slug, name, source_url, website, hero_image, curator_id")
+      .eq("id", data.listingId)
+      .single();
+    if (fetchErr || !listing) throw new Error(fetchErr?.message ?? "Listing not found");
+
+    const sourceUrl = listing.source_url || listing.website;
+    if (!sourceUrl) throw new Error("This listing has no source_url or website to re-enrich from.");
+
+    const scraped = await firecrawlScrape(sourceUrl);
+    const { record, originality_score } = await aiNormalize(scraped, "listing");
+    const hero = listing.hero_image || pickHeroImage(scraped.html, scraped.metadata, sourceUrl);
+    const reservation = pickReservationUrl(scraped.html, scraped.links);
+
+    const blockedReason = listingPublishBlock({
+      description: record.description ?? null,
+      editor_note: record.editor_note ?? null,
+      hero_image: hero,
+      originality_score,
+    });
+    const shouldPublish = data.publish && !blockedReason;
+
+    const update: Record<string, unknown> = {
+      short_description: record.short_description ?? null,
+      description: record.description ?? null,
+      editor_note: record.editor_note ?? null,
+      why_we_picked_it: Array.isArray(record.why_we_picked_it) ? record.why_we_picked_it.slice(0, 6) : [],
+      insider_tip: record.insider_tip ?? null,
+      best_time_to_visit: record.best_time_to_visit ?? null,
+      local_context: record.local_context ?? null,
+      meta_title: record.meta_title ?? null,
+      meta_description: record.meta_description ?? null,
+      reservation_url: reservation,
+      hero_image: hero,
+      source_url: sourceUrl,
+      originality_score,
+      curator_id: listing.curator_id ?? context.userId,
+    };
+    if (data.publish) {
+      update.status = shouldPublish ? "published" : "draft";
+      if (shouldPublish) update.published_at = new Date().toISOString();
+    }
+
+    const { error: updErr } = await supabaseAdmin
+      .from("listings")
+      .update(update)
+      .eq("id", listing.id);
+    if (updErr) throw new Error(updErr.message);
+
+    return { id: listing.id, slug: listing.slug, originality_score, blockedReason };
   });
 
 // ============= Queued bulk import =============
