@@ -297,7 +297,7 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
                   </div>
                 )}
                 {linkReport.skipped.length > 0 && (
-                  <details className="mt-2">
+                  <details className="mt-2" open={linkReport.applied.length === 0}>
                     <summary className="cursor-pointer text-muted-foreground">Skipped ({linkReport.skipped.length})</summary>
                     <ul className="mt-1 space-y-0.5">
                       {linkReport.skipped.map((l, i) => (
@@ -307,6 +307,11 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
                       ))}
                     </ul>
                   </details>
+                )}
+                {linkReport.applied.length === 0 && linkReport.skipped.length === 0 && (
+                  <div className="mt-2 text-muted-foreground">
+                    The AI didn't suggest any links for this post. Try adding more specific place / restaurant / neighborhood names to the body and run it again.
+                  </div>
                 )}
               </div>
             )}
