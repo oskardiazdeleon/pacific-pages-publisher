@@ -98,6 +98,9 @@ export function ListingDetailPage({
 
   const hub = actualHub ?? expectedHub;
   const hours = useListingHours(listing.hours);
+  const spotlight = listing.partner_spotlight as PartnerSpotlightData | null | undefined;
+  const tierAllowsSpotlight = listing.tier === "featured" || listing.tier === "premium";
+  const showSpotlight = tierAllowsSpotlight && isSpotlightVisible(spotlight);
 
   // De-duplicate description: if the long description starts with the short one, only show one.
   const longDesc = (listing.description ?? "").trim();
