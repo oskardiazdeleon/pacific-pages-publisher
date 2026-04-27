@@ -210,8 +210,8 @@ function HomepagePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl font-semibold">Homepage</h1>
-        <p className="text-sm text-muted-foreground mt-1">Pick a section on the left to edit. Disabled sections won't render.</p>
+        <h1 className="font-display text-3xl font-semibold">Page sections</h1>
+        <p className="text-sm text-muted-foreground mt-1">Sections are grouped by where they appear on the site. Disabled sections won't render.</p>
       </div>
 
       {msg && <div className="rounded-md bg-accent/10 text-accent text-sm px-3 py-2">{msg}</div>}
