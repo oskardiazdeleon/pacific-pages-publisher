@@ -432,19 +432,25 @@ export type Database = {
       listings: {
         Row: {
           address: string | null
+          best_time_to_visit: string | null
           category: Database["public"]["Enums"]["listing_category"]
           created_at: string
+          curator_id: string | null
           description: string | null
+          editor_note: string | null
           email: string | null
           gallery: string[] | null
           hero_image: string | null
           hours: Json | null
           id: string
+          insider_tip: string | null
           is_sponsored: boolean
+          local_context: string | null
           meta_description: string | null
           meta_title: string | null
           name: string
           neighborhood: string
+          originality_score: number | null
           partner_id: string | null
           partner_spotlight: Json | null
           phone: string | null
@@ -454,29 +460,39 @@ export type Database = {
           reservation_url: string | null
           short_description: string | null
           slug: string
+          source_url: string | null
           sponsor_name: string | null
           sponsor_rank: number
           sponsor_until: string | null
           status: Database["public"]["Enums"]["content_status"]
           tier: Database["public"]["Enums"]["listing_tier"]
           updated_at: string
+          verified_at: string | null
+          verified_visited: boolean
           website: string | null
+          why_we_picked_it: string[]
         }
         Insert: {
           address?: string | null
+          best_time_to_visit?: string | null
           category: Database["public"]["Enums"]["listing_category"]
           created_at?: string
+          curator_id?: string | null
           description?: string | null
+          editor_note?: string | null
           email?: string | null
           gallery?: string[] | null
           hero_image?: string | null
           hours?: Json | null
           id?: string
+          insider_tip?: string | null
           is_sponsored?: boolean
+          local_context?: string | null
           meta_description?: string | null
           meta_title?: string | null
           name: string
           neighborhood: string
+          originality_score?: number | null
           partner_id?: string | null
           partner_spotlight?: Json | null
           phone?: string | null
@@ -486,29 +502,39 @@ export type Database = {
           reservation_url?: string | null
           short_description?: string | null
           slug: string
+          source_url?: string | null
           sponsor_name?: string | null
           sponsor_rank?: number
           sponsor_until?: string | null
           status?: Database["public"]["Enums"]["content_status"]
           tier?: Database["public"]["Enums"]["listing_tier"]
           updated_at?: string
+          verified_at?: string | null
+          verified_visited?: boolean
           website?: string | null
+          why_we_picked_it?: string[]
         }
         Update: {
           address?: string | null
+          best_time_to_visit?: string | null
           category?: Database["public"]["Enums"]["listing_category"]
           created_at?: string
+          curator_id?: string | null
           description?: string | null
+          editor_note?: string | null
           email?: string | null
           gallery?: string[] | null
           hero_image?: string | null
           hours?: Json | null
           id?: string
+          insider_tip?: string | null
           is_sponsored?: boolean
+          local_context?: string | null
           meta_description?: string | null
           meta_title?: string | null
           name?: string
           neighborhood?: string
+          originality_score?: number | null
           partner_id?: string | null
           partner_spotlight?: Json | null
           phone?: string | null
@@ -518,13 +544,17 @@ export type Database = {
           reservation_url?: string | null
           short_description?: string | null
           slug?: string
+          source_url?: string | null
           sponsor_name?: string | null
           sponsor_rank?: number
           sponsor_until?: string | null
           status?: Database["public"]["Enums"]["content_status"]
           tier?: Database["public"]["Enums"]["listing_tier"]
           updated_at?: string
+          verified_at?: string | null
+          verified_visited?: boolean
           website?: string | null
+          why_we_picked_it?: string[]
         }
         Relationships: []
       }
