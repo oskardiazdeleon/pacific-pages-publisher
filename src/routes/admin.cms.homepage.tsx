@@ -89,6 +89,23 @@ function prettyKey(key: string) {
   return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+// Where each section renders on the public site. Used to group the sidebar
+// and to show a contextual hint in the editor header.
+type LocationKey = "homepage" | "cruises" | "themed_hubs";
+const LOCATIONS: Record<LocationKey, { label: string; hint: string; path: string }> = {
+  homepage: { label: "Homepage", hint: "Renders on the homepage ( / )", path: "/" },
+  cruises: { label: "Cruises hub", hint: "Renders on the Cruises category page", path: "/cruises" },
+  themed_hubs: { label: "Themed hubs", hint: "Renders on themed category hubs (e.g. Wineries, Golf)", path: "/wineries" },
+};
+
+function locationForSection(s: { section_key: string; section_type: string }): LocationKey {
+  const k = s.section_key.toLowerCase();
+  const t = s.section_type.toLowerCase();
+  if (t === "cruises_hero" || k.includes("cruise")) return "cruises";
+  if (t === "themed_hub_hero" || k.includes("wineries") || k.includes("themed") || k.includes("hub")) return "themed_hubs";
+  return "homepage";
+}
+
 function HomepagePage() {
   const [sections, setSections] = useState<Section[]>([]);
   const [busy, setBusy] = useState(false);
