@@ -1076,3 +1076,268 @@ export const enqueueCuratedImport = createServerFn({ method: "POST" })
 
     return { jobId: job.id, total: uniqueNames.length, sourcePage };
   });
+
+// ============= AI Internal Linking for blog/article body =============
+// Strategy: pull candidate internal URLs from the database (listings, blog
+// posts, articles) + static hubs/neighborhoods, hand them to the AI, and ask
+// it to pick the best 3-8 anchor phrases already present in the body. We
+// then deterministically replace the FIRST occurrence of each phrase with a
+// markdown link — never replacing inside existing links, headings, code, or
+// images. This keeps output safe and avoids hallucinated URLs.
+
+const InternalLinkInput = z.object({
+  body: z.string().min(20),
+  title: z.string().optional().nullable(),
+  category: z.string().optional().nullable(),
+  excludeUrls: z.array(z.string()).optional().default([]),
+  maxLinks: z.number().int().min(1).max(12).default(6),
+});
+
+type LinkCandidate = { url: string; title: string; type: string; description?: string };
+
+const STATIC_HUBS: LinkCandidate[] = [
+  { url: "/restaurants", title: "San Diego restaurants", type: "hub", description: "Editor-picked restaurants across San Diego" },
+  { url: "/hotels", title: "San Diego hotels", type: "hub", description: "Hand-picked hotels and resorts" },
+  { url: "/things-to-do", title: "things to do in San Diego", type: "hub", description: "Attractions, tours, and activities" },
+  { url: "/shopping", title: "San Diego shopping", type: "hub", description: "Boutiques, markets, and shopping districts" },
+  { url: "/nightlife", title: "San Diego nightlife", type: "hub", description: "Bars, clubs, and live music venues" },
+  { url: "/neighborhoods", title: "San Diego neighborhoods", type: "hub", description: "Neighborhood guides" },
+  { url: "/insider", title: "Insider membership", type: "hub", description: "Member savings and perks" },
+];
+
+function categoryHubSlug(c: string | null | undefined): string | null {
+  switch (c) {
+    case "Restaurant": return "restaurants";
+    case "Hotel": return "hotels";
+    case "Attraction":
+    case "Tour": return "things-to-do";
+    case "Shopping": return "shopping";
+    case "Nightlife": return "nightlife";
+    default: return null;
+  }
+}
+
+/**
+ * Apply an anchor-phrase → URL link to the body.
+ * - Case-insensitive whole-phrase match
+ * - Replaces only the FIRST occurrence
+ * - Skips matches that are already inside a markdown link [..](..), image
+ *   ![..](..), inline code `..`, fenced code block, or markdown heading line.
+ */
+function applyInternalLink(body: string, phrase: string, url: string): { body: string; applied: boolean } {
+  if (!phrase || !url) return { body, applied: false };
+  const trimmed = phrase.trim();
+  if (trimmed.length < 3 || trimmed.length > 80) return { body, applied: false };
+
+  // Build line-by-line so we can safely skip headings / fenced code blocks.
+  const lines = body.split("\n");
+  let inFence = false;
+  const escaped = trimmed.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // \b doesn't always work for phrases with spaces/punctuation; use simple
+  // word-boundary lookarounds where possible.
+  const re = new RegExp(`(?<![\\w\\[\\(])(${escaped})(?![\\w\\)])`, "i");
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/^\s*```/.test(line)) { inFence = !inFence; continue; }
+    if (inFence) continue;
+    if (/^\s{0,3}#{1,6}\s/.test(line)) continue; // headings
+
+    const m = line.match(re);
+    if (!m || m.index === undefined) continue;
+
+    // Reject if inside an existing markdown link or image: scan the line up
+    // to the match index and check unbalanced [ or ]( bracketing.
+    const before = line.slice(0, m.index);
+    const lastOpen = before.lastIndexOf("[");
+    const lastClose = before.lastIndexOf("](");
+    const lastEnd = before.lastIndexOf(")");
+    if (lastOpen > lastEnd && lastOpen > -1) continue; // inside [...]
+    if (lastClose > lastEnd) continue;                  // inside ](url)
+
+    // Reject if inside a backtick code span on this line.
+    const beforeTicks = (before.match(/`/g) ?? []).length;
+    if (beforeTicks % 2 === 1) continue;
+
+    const matchedText = m[1];
+    const replaced = line.slice(0, m.index) + `[${matchedText}](${url})` + line.slice(m.index + matchedText.length);
+    lines[i] = replaced;
+    return { body: lines.join("\n"), applied: true };
+  }
+  return { body, applied: false };
+}
+
+export const aiInsertInternalLinks = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => InternalLinkInput.parse(d))
+  .handler(async ({ data, context }) => {
+    await ensureAdmin(context.supabase, context.userId);
+
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
+
+    // 1) Build candidate pool from the database.
+    const supabase = supabaseAdmin;
+    const [listingsRes, blogRes, articlesRes] = await Promise.all([
+      supabase
+        .from("listings")
+        .select("name,slug,category,neighborhood,short_description")
+        .eq("status", "published")
+        .limit(300),
+      supabase
+        .from("blog_posts")
+        .select("title,slug,category,excerpt")
+        .eq("status", "published")
+        .limit(200),
+      supabase
+        .from("articles")
+        .select("title,slug,excerpt")
+        .eq("status", "published")
+        .limit(200),
+    ]);
+
+    const candidates: LinkCandidate[] = [];
+
+    for (const l of listingsRes.data ?? []) {
+      const hub = categoryHubSlug(l.category);
+      if (!hub) continue;
+      candidates.push({
+        url: `/${hub}/${l.slug}`,
+        title: l.name,
+        type: "listing",
+        description: [l.neighborhood, l.short_description].filter(Boolean).join(" — "),
+      });
+    }
+    for (const b of blogRes.data ?? []) {
+      candidates.push({ url: `/blog/${b.slug}`, title: b.title, type: "blog", description: b.excerpt ?? undefined });
+    }
+    for (const a of articlesRes.data ?? []) {
+      candidates.push({ url: `/articles/${a.slug}`, title: a.title, type: "article", description: a.excerpt ?? undefined });
+    }
+    candidates.push(...STATIC_HUBS);
+
+    const exclude = new Set((data.excludeUrls ?? []).map((u) => u.toLowerCase()));
+    const pool = candidates.filter((c) => !exclude.has(c.url.toLowerCase()));
+
+    if (!pool.length) return { applied: [], skipped: [], body: data.body, message: "No internal link candidates available" };
+
+    // 2) Ask the AI to pick anchor phrases that ALREADY appear in the body
+    // and the best matching URL from the pool.
+    const sys = `You are an SEO editor inserting internal links into a blog post for sandiego.com (a San Diego travel + dining guide).
+
+RULES (strict):
+- Pick anchor phrases that ALREADY appear verbatim in the BODY text. Do not invent or paraphrase.
+- Each anchor must be 2–7 words, descriptive (not "click here", "this", "read more").
+- Each chosen URL MUST come from the provided CANDIDATES list. Never invent URLs or use external domains.
+- Prefer linking proper nouns (restaurant/hotel/neighborhood names) to their detail page when present in candidates.
+- Only fall back to category hubs (e.g. /restaurants) when no specific listing fits.
+- Never link the same URL twice. Never link inside headings or code blocks (the system will skip those).
+- Aim for 4–${data.maxLinks} high-quality links. Fewer is better than forced.
+- Return only links that genuinely help the reader.`;
+
+    const candidateList = pool
+      .slice(0, 250)
+      .map((c, i) => `${i + 1}. [${c.type}] ${c.title} → ${c.url}${c.description ? ` (${c.description.slice(0, 120)})` : ""}`)
+      .join("\n");
+
+    const userMsg = `BLOG POST TITLE: ${data.title ?? "(untitled)"}
+CATEGORY: ${data.category ?? "(none)"}
+
+BODY (markdown):
+"""
+${data.body.slice(0, 12000)}
+"""
+
+CANDIDATE INTERNAL URLS:
+${candidateList}
+
+Choose 4–${data.maxLinks} anchor phrases from the body and the best matching candidate URL for each.`;
+
+    const tool = {
+      type: "function",
+      function: {
+        name: "propose_internal_links",
+        description: "Return the chosen anchor phrases and their internal URLs.",
+        parameters: {
+          type: "object",
+          properties: {
+            links: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  anchor: { type: "string", description: "Exact phrase from the body to turn into a link." },
+                  url: { type: "string", description: "Internal path from the candidates list (must start with /)." },
+                  reason: { type: "string", description: "Brief justification (max 140 chars)." },
+                },
+                required: ["anchor", "url"],
+                additionalProperties: false,
+              },
+            },
+          },
+          required: ["links"],
+          additionalProperties: false,
+        },
+      },
+    };
+
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: sys },
+          { role: "user", content: userMsg },
+        ],
+        tools: [tool],
+        tool_choice: { type: "function", function: { name: "propose_internal_links" } },
+      }),
+    });
+    if (res.status === 429) throw new Error("Rate limit hit. Please try again in a moment.");
+    if (res.status === 402) throw new Error("AI credits exhausted. Add credits in Workspace settings.");
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(`AI internal-link generation failed [${res.status}]: ${t.slice(0, 300)}`);
+    }
+
+    const json = (await res.json()) as any;
+    const msg = json.choices?.[0]?.message;
+    const argsStr = msg?.tool_calls?.[0]?.function?.arguments;
+    let parsed: any = null;
+    if (argsStr) { try { parsed = JSON.parse(argsStr); } catch { /* fall through */ } }
+    if (!parsed && typeof msg?.content === "string") {
+      try {
+        const cleaned = msg.content.trim().replace(/^```json\s*/i, "").replace(/```$/, "").trim();
+        parsed = JSON.parse(cleaned);
+      } catch { /* ignore */ }
+    }
+    if (!parsed || !Array.isArray(parsed.links)) {
+      console.error("[aiInsertInternalLinks] unexpected AI response", JSON.stringify(json).slice(0, 800));
+      throw new Error("AI returned no link suggestions");
+    }
+
+    // 3) Apply each suggestion safely. Reject any URL not in the pool.
+    const validUrls = new Set(pool.map((c) => c.url));
+    const applied: { anchor: string; url: string; reason?: string }[] = [];
+    const skipped: { anchor: string; url: string; reason: string }[] = [];
+    const usedUrls = new Set<string>();
+    let body = data.body;
+
+    for (const link of parsed.links as Array<{ anchor: string; url: string; reason?: string }>) {
+      const anchor = String(link.anchor ?? "").trim();
+      const url = String(link.url ?? "").trim();
+      if (!anchor || !url) continue;
+      if (!url.startsWith("/")) { skipped.push({ anchor, url, reason: "external or invalid URL" }); continue; }
+      if (!validUrls.has(url)) { skipped.push({ anchor, url, reason: "URL not in candidate pool" }); continue; }
+      if (usedUrls.has(url)) { skipped.push({ anchor, url, reason: "URL already used" }); continue; }
+      const result = applyInternalLink(body, anchor, url);
+      if (!result.applied) { skipped.push({ anchor, url, reason: "anchor not found or inside link/code/heading" }); continue; }
+      body = result.body;
+      usedUrls.add(url);
+      applied.push({ anchor, url, reason: link.reason });
+      if (applied.length >= data.maxLinks) break;
+    }
+
+    return { applied, skipped, body };
+  });
