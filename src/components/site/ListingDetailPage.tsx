@@ -11,6 +11,11 @@ import { ListingHoursPanel, useListingHours } from "./listing/ListingHours";
 import { ListingGallery } from "./listing/ListingGallery";
 import { ListingMap } from "./listing/ListingMap";
 import { RelatedListings } from "./listing/RelatedListings";
+import {
+  PartnerSpotlight,
+  isSpotlightVisible,
+  type PartnerSpotlightData,
+} from "./listing/PartnerSpotlight";
 import { toSchemaOpeningHours } from "@/lib/hours";
 
 const SITE_URL = "https://sandiego.com";
@@ -34,6 +39,8 @@ type Listing = {
   hours?: unknown;
   meta_title?: string | null;
   meta_description?: string | null;
+  tier?: string | null;
+  partner_spotlight?: unknown;
 };
 
 function reservationProvider(url: string): string {
@@ -91,6 +98,9 @@ export function ListingDetailPage({
 
   const hub = actualHub ?? expectedHub;
   const hours = useListingHours(listing.hours);
+  const spotlight = listing.partner_spotlight as PartnerSpotlightData | null | undefined;
+  const tierAllowsSpotlight = listing.tier === "featured" || listing.tier === "premium";
+  const showSpotlight = tierAllowsSpotlight && isSpotlightVisible(spotlight);
 
   // De-duplicate description: if the long description starts with the short one, only show one.
   const longDesc = (listing.description ?? "").trim();
@@ -209,6 +219,17 @@ export function ListingDetailPage({
         <div className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px]">
           {/* Main content column */}
           <div className="space-y-12">
+            {/* Mobile-only spotlight (sidebar version shown on desktop) */}
+            {showSpotlight && spotlight && (
+              <div className="lg:hidden">
+                <PartnerSpotlight
+                  spotlight={spotlight}
+                  listingId={listing.id}
+                  listingName={listing.name}
+                  variant="sidebar"
+                />
+              </div>
+            )}
             {/* Overview */}
             <section>
               <div className="eyebrow">The vibe</div>
@@ -283,6 +304,16 @@ export function ListingDetailPage({
 
           {/* Sidebar */}
           <aside className="lg:sticky lg:top-24 lg:self-start space-y-4">
+            {showSpotlight && spotlight && (
+              <div className="hidden lg:block">
+                <PartnerSpotlight
+                  spotlight={spotlight}
+                  listingId={listing.id}
+                  listingName={listing.name}
+                  variant="sidebar"
+                />
+              </div>
+            )}
             {listing.reservation_url && (
               <div className="rounded-3xl border border-accent/40 bg-gradient-to-br from-accent/15 via-card to-card p-5 shadow-sm">
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-accent/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent">
