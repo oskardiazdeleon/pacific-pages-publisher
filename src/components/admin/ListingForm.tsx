@@ -134,21 +134,22 @@ export function ListingForm({
       const safeChips = Array.isArray(result?.why_we_picked_it)
         ? result.why_we_picked_it.filter((s: unknown): s is string => typeof s === "string")
         : [];
+      const asStr = (x: unknown) => (typeof x === "string" ? x : x == null ? "" : String(x));
       setV((prev) => ({
         ...prev,
         editor_note:
-          mode === "overwrite" || !prev.editor_note ? (result?.editor_note ?? "") : prev.editor_note,
+          mode === "overwrite" || !prev.editor_note ? asStr(result?.editor_note) : prev.editor_note,
         why_we_picked_it:
           mode === "overwrite" || !prev.why_we_picked_it ? safeChips.join(", ") : prev.why_we_picked_it,
         insider_tip:
-          mode === "overwrite" || !prev.insider_tip ? (result?.insider_tip ?? "") : prev.insider_tip,
+          mode === "overwrite" || !prev.insider_tip ? asStr(result?.insider_tip) : prev.insider_tip,
         best_time_to_visit:
           mode === "overwrite" || !prev.best_time_to_visit
-            ? (result?.best_time_to_visit ?? "")
+            ? asStr(result?.best_time_to_visit)
             : prev.best_time_to_visit,
         local_context:
           mode === "overwrite" || !prev.local_context
-            ? (result?.local_context ?? "")
+            ? asStr(result?.local_context)
             : prev.local_context,
       }));
       toast.success(mode === "overwrite" ? "Editorial context regenerated" : "Empty fields filled");
