@@ -70,7 +70,7 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
         tags: Array.isArray(d.tags) ? d.tags.join(", ") : p.tags,
         meta_title: d.meta_title ?? p.meta_title,
         meta_description: d.meta_description ?? p.meta_description,
-        read_time_minutes: d.read_time_minutes ? String(d.read_time_minutes) : p.read_time_minutes,
+        read_time_minutes: d.read_time_minutes ? String(Math.max(1, Math.round(Number(d.read_time_minutes)))) : p.read_time_minutes,
         ai_generated: true,
         ai_prompt: aiPrompt,
       }));
@@ -100,7 +100,7 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
         category: v.category || null,
         tags,
         status,
-        read_time_minutes: v.read_time_minutes ? Number(v.read_time_minutes) : null,
+        read_time_minutes: v.read_time_minutes ? Math.max(1, Math.round(Number(v.read_time_minutes))) : null,
         meta_title: v.meta_title || null,
         meta_description: v.meta_description || null,
         author_id: user?.id ?? null,

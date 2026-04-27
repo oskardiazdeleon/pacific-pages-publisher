@@ -86,7 +86,7 @@ Return a JSON object via the provided tool. Generate compelling, specific San Di
                     read_time_minutes: { type: "number" },
                   },
                   required: [
-                    "title", "excerpt", "body_markdown", "suggested_slug",
+                    "title", "subtitle", "excerpt", "body_markdown", "suggested_slug",
                     "tags", "category", "meta_title", "meta_description", "read_time_minutes",
                   ],
                   additionalProperties: false,
