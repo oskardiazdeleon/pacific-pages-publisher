@@ -20,6 +20,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ArticlesRouteImport } from './routes/articles'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WineriesIndexRouteImport } from './routes/wineries.index'
 import { Route as ThingsToDoIndexRouteImport } from './routes/things-to-do.index'
 import { Route as ShoppingIndexRouteImport } from './routes/shopping.index'
 import { Route as RestaurantsIndexRouteImport } from './routes/restaurants.index'
@@ -30,6 +31,7 @@ import { Route as CruisesIndexRouteImport } from './routes/cruises.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as ArticlesIndexRouteImport } from './routes/articles.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as WineriesSlugRouteImport } from './routes/wineries.$slug'
 import { Route as ThingsToDoGolfRouteImport } from './routes/things-to-do.golf'
 import { Route as ThingsToDoSlugRouteImport } from './routes/things-to-do.$slug'
 import { Route as ShoppingSlugRouteImport } from './routes/shopping.$slug'
@@ -114,6 +116,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WineriesIndexRoute = WineriesIndexRouteImport.update({
+  id: '/wineries/',
+  path: '/wineries/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ThingsToDoIndexRoute = ThingsToDoIndexRouteImport.update({
   id: '/things-to-do/',
   path: '/things-to-do/',
@@ -163,6 +170,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const WineriesSlugRoute = WineriesSlugRouteImport.update({
+  id: '/wineries/$slug',
+  path: '/wineries/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ThingsToDoGolfRoute = ThingsToDoGolfRouteImport.update({
   id: '/things-to-do/golf',
@@ -331,6 +343,7 @@ export interface FileRoutesByFullPath {
   '/shopping/$slug': typeof ShoppingSlugRoute
   '/things-to-do/$slug': typeof ThingsToDoSlugRoute
   '/things-to-do/golf': typeof ThingsToDoGolfRoute
+  '/wineries/$slug': typeof WineriesSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/articles/': typeof ArticlesIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -341,6 +354,7 @@ export interface FileRoutesByFullPath {
   '/restaurants/': typeof RestaurantsIndexRoute
   '/shopping/': typeof ShoppingIndexRoute
   '/things-to-do/': typeof ThingsToDoIndexRoute
+  '/wineries/': typeof WineriesIndexRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
@@ -379,6 +393,7 @@ export interface FileRoutesByTo {
   '/shopping/$slug': typeof ShoppingSlugRoute
   '/things-to-do/$slug': typeof ThingsToDoSlugRoute
   '/things-to-do/golf': typeof ThingsToDoGolfRoute
+  '/wineries/$slug': typeof WineriesSlugRoute
   '/admin': typeof AdminIndexRoute
   '/articles': typeof ArticlesIndexRoute
   '/blog': typeof BlogIndexRoute
@@ -389,6 +404,7 @@ export interface FileRoutesByTo {
   '/restaurants': typeof RestaurantsIndexRoute
   '/shopping': typeof ShoppingIndexRoute
   '/things-to-do': typeof ThingsToDoIndexRoute
+  '/wineries': typeof WineriesIndexRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
@@ -431,6 +447,7 @@ export interface FileRoutesById {
   '/shopping/$slug': typeof ShoppingSlugRoute
   '/things-to-do/$slug': typeof ThingsToDoSlugRoute
   '/things-to-do/golf': typeof ThingsToDoGolfRoute
+  '/wineries/$slug': typeof WineriesSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/articles/': typeof ArticlesIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -441,6 +458,7 @@ export interface FileRoutesById {
   '/restaurants/': typeof RestaurantsIndexRoute
   '/shopping/': typeof ShoppingIndexRoute
   '/things-to-do/': typeof ThingsToDoIndexRoute
+  '/wineries/': typeof WineriesIndexRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
@@ -484,6 +502,7 @@ export interface FileRouteTypes {
     | '/shopping/$slug'
     | '/things-to-do/$slug'
     | '/things-to-do/golf'
+    | '/wineries/$slug'
     | '/admin/'
     | '/articles/'
     | '/blog/'
@@ -494,6 +513,7 @@ export interface FileRouteTypes {
     | '/restaurants/'
     | '/shopping/'
     | '/things-to-do/'
+    | '/wineries/'
     | '/admin/articles/$id'
     | '/admin/articles/new'
     | '/admin/blog/$id'
@@ -532,6 +552,7 @@ export interface FileRouteTypes {
     | '/shopping/$slug'
     | '/things-to-do/$slug'
     | '/things-to-do/golf'
+    | '/wineries/$slug'
     | '/admin'
     | '/articles'
     | '/blog'
@@ -542,6 +563,7 @@ export interface FileRouteTypes {
     | '/restaurants'
     | '/shopping'
     | '/things-to-do'
+    | '/wineries'
     | '/admin/articles/$id'
     | '/admin/articles/new'
     | '/admin/blog/$id'
@@ -583,6 +605,7 @@ export interface FileRouteTypes {
     | '/shopping/$slug'
     | '/things-to-do/$slug'
     | '/things-to-do/golf'
+    | '/wineries/$slug'
     | '/admin/'
     | '/articles/'
     | '/blog/'
@@ -593,6 +616,7 @@ export interface FileRouteTypes {
     | '/restaurants/'
     | '/shopping/'
     | '/things-to-do/'
+    | '/wineries/'
     | '/admin/articles/$id'
     | '/admin/articles/new'
     | '/admin/blog/$id'
@@ -630,6 +654,7 @@ export interface RootRouteChildren {
   ShoppingSlugRoute: typeof ShoppingSlugRoute
   ThingsToDoSlugRoute: typeof ThingsToDoSlugRoute
   ThingsToDoGolfRoute: typeof ThingsToDoGolfRoute
+  WineriesSlugRoute: typeof WineriesSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
   CruisesIndexRoute: typeof CruisesIndexRoute
   HotelsIndexRoute: typeof HotelsIndexRoute
@@ -637,6 +662,7 @@ export interface RootRouteChildren {
   RestaurantsIndexRoute: typeof RestaurantsIndexRoute
   ShoppingIndexRoute: typeof ShoppingIndexRoute
   ThingsToDoIndexRoute: typeof ThingsToDoIndexRoute
+  WineriesIndexRoute: typeof WineriesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -718,6 +744,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/wineries/': {
+      id: '/wineries/'
+      path: '/wineries'
+      fullPath: '/wineries/'
+      preLoaderRoute: typeof WineriesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/things-to-do/': {
       id: '/things-to-do/'
       path: '/things-to-do'
@@ -787,6 +820,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/wineries/$slug': {
+      id: '/wineries/$slug'
+      path: '/wineries/$slug'
+      fullPath: '/wineries/$slug'
+      preLoaderRoute: typeof WineriesSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/things-to-do/golf': {
       id: '/things-to-do/golf'
@@ -1090,6 +1130,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShoppingSlugRoute: ShoppingSlugRoute,
   ThingsToDoSlugRoute: ThingsToDoSlugRoute,
   ThingsToDoGolfRoute: ThingsToDoGolfRoute,
+  WineriesSlugRoute: WineriesSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
   CruisesIndexRoute: CruisesIndexRoute,
   HotelsIndexRoute: HotelsIndexRoute,
@@ -1097,6 +1138,7 @@ const rootRouteChildren: RootRouteChildren = {
   RestaurantsIndexRoute: RestaurantsIndexRoute,
   ShoppingIndexRoute: ShoppingIndexRoute,
   ThingsToDoIndexRoute: ThingsToDoIndexRoute,
+  WineriesIndexRoute: WineriesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
