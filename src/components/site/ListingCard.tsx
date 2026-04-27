@@ -162,8 +162,9 @@ export function ListingCard({ listing }: { listing: ListingCardData }) {
           <span className="font-semibold text-foreground">
             {price ?? <span className="text-accent">Check availability</span>}
           </span>
-          <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
-            {insight}
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow-sm transition-transform group-hover:translate-x-0.5">
+            {cta}
+            <span aria-hidden className="transition-transform group-hover:translate-x-0.5">→</span>
           </span>
         </div>
       </div>
