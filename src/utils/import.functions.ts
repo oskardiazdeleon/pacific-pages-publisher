@@ -1171,6 +1171,7 @@ export const aiInsertInternalLinks = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => InternalLinkInput.parse(d))
   .handler(async ({ data, context }) => {
+   try {
     await ensureAdmin(context.supabase, context.userId);
 
     const apiKey = process.env.LOVABLE_API_KEY;
@@ -1340,4 +1341,8 @@ Choose 4–${data.maxLinks} anchor phrases from the body and the best matching c
     }
 
     return { applied, skipped, body };
+   } catch (err) {
+    console.error("[aiInsertInternalLinks] handler error:", err);
+    throw err instanceof Error ? err : new Error(String(err));
+   }
   });
