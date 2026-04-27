@@ -86,6 +86,36 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
     }
   };
 
+  const handleInsertLinks = async () => {
+    if (!v.body.trim() || v.body.trim().length < 100) {
+      toast.error("Write the post body first (at least ~100 chars)");
+      return;
+    }
+    setLinkBusy(true);
+    setLinkReport(null);
+    try {
+      const result = await aiInsertInternalLinks({
+        data: {
+          body: v.body,
+          title: v.title || null,
+          category: v.category || null,
+          maxLinks: 6,
+        },
+      });
+      setV((p) => ({ ...p, body: result.body }));
+      setLinkReport({ applied: result.applied, skipped: result.skipped });
+      if (result.applied.length === 0) {
+        toast.warning("No internal links could be inserted — see report below");
+      } else {
+        toast.success(`Inserted ${result.applied.length} internal link${result.applied.length === 1 ? "" : "s"}`);
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Internal link generation failed");
+    } finally {
+      setLinkBusy(false);
+    }
+  };
+
   const submit = async (publish: boolean) => {
     if (!v.title.trim()) { toast.error("Title is required"); return; }
     setBusy(true);
