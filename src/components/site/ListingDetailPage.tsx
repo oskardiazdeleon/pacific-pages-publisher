@@ -113,6 +113,22 @@ export function ListingDetailPage({
     recordImpression(listing.id, "view");
   }, [listing.id]);
 
+  // Fetch curator profile for byline
+  const [curator, setCurator] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
+  useEffect(() => {
+    if (!listing.curator_id) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("display_name, avatar_url")
+        .eq("user_id", listing.curator_id!)
+        .maybeSingle();
+      if (!cancelled && data) setCurator(data);
+    })();
+    return () => { cancelled = true; };
+  }, [listing.curator_id]);
+
   const hub = actualHub ?? expectedHub;
   const hours = useListingHours(listing.hours);
   const spotlight = listing.partner_spotlight as PartnerSpotlightData | null | undefined;
