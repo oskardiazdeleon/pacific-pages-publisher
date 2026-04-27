@@ -214,6 +214,10 @@ export function ListingDetailPage({
     priceRange: listing.price_range || undefined,
     openingHoursSpecification: toSchemaOpeningHours(hours.days),
     areaServed: { "@type": "City", name: "San Diego" },
+    dateModified: listing.updated_at || undefined,
+    ...(curator?.display_name
+      ? { author: { "@type": "Person", name: curator.display_name } }
+      : {}),
   };
 
   const jsonLd = [
