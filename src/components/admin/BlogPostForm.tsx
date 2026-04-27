@@ -104,14 +104,18 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
           maxLinks: 6,
         },
       });
-      setV((p) => ({ ...p, body: result.body }));
-      setLinkReport({ applied: result.applied, skipped: result.skipped });
-      if (result.applied.length === 0) {
-        toast.warning("No internal links could be inserted — see report below");
+      const applied = Array.isArray(result?.applied) ? result.applied : [];
+      const skipped = Array.isArray(result?.skipped) ? result.skipped : [];
+      const newBody = typeof result?.body === "string" ? result.body : v.body;
+      setV((p) => ({ ...p, body: newBody }));
+      setLinkReport({ applied, skipped });
+      if (applied.length === 0) {
+        toast.warning(result?.message ?? "No internal links could be inserted — see report below");
       } else {
-        toast.success(`Inserted ${result.applied.length} internal link${result.applied.length === 1 ? "" : "s"}`);
+        toast.success(`Inserted ${applied.length} internal link${applied.length === 1 ? "" : "s"}`);
       }
     } catch (e) {
+      console.error("[AI internal links] failed:", e);
       toast.error(e instanceof Error ? e.message : "Internal link generation failed");
     } finally {
       setLinkBusy(false);
