@@ -446,6 +446,7 @@ export type Database = {
           name: string
           neighborhood: string
           partner_id: string | null
+          partner_spotlight: Json | null
           phone: string | null
           price_range: string | null
           published_at: string | null
@@ -477,6 +478,7 @@ export type Database = {
           name: string
           neighborhood: string
           partner_id?: string | null
+          partner_spotlight?: Json | null
           phone?: string | null
           price_range?: string | null
           published_at?: string | null
@@ -508,6 +510,7 @@ export type Database = {
           name?: string
           neighborhood?: string
           partner_id?: string | null
+          partner_spotlight?: Json | null
           phone?: string | null
           price_range?: string | null
           published_at?: string | null
