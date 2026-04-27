@@ -9,6 +9,7 @@ const FALLBACK_NAV: NavItem[] = [
   { label: "Food & Drink", to: "/restaurants" },
   { label: "Places To Stay", to: "/hotels" },
   { label: "Cruises", to: "/cruises" },
+  { label: "Wineries", to: "/wineries" },
   { label: "Neighborhoods", to: "/neighborhoods" },
   { label: "Articles", to: "/articles" },
   { label: "Blog", to: "/blog" },
