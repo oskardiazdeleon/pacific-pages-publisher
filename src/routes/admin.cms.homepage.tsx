@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Save, Send, Eye, EyeOff } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Save, Send, Eye, EyeOff, ChevronDown, Search, Megaphone, Sparkles, Settings2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CmsImageUpload } from "@/components/admin/CmsImageUpload";
 
@@ -19,74 +19,99 @@ type Section = {
   published_content: Record<string, unknown> | null;
 };
 
-const FIELDS_BY_TYPE: Record<string, { name: string; label: string; type?: "text" | "textarea" | "image" | "toggle"; help?: string }[]> = {
+type FieldDef = {
+  name: string;
+  label: string;
+  type?: "text" | "textarea" | "image" | "toggle";
+  help?: string;
+  group?: "content" | "sponsor" | "advanced";
+};
+
+const FIELDS_BY_TYPE: Record<string, FieldDef[]> = {
   hero: [
-    { name: "eyebrow", label: "Eyebrow" },
-    { name: "heading", label: "Heading" },
-    { name: "subheading", label: "Subheading", type: "textarea" },
-    { name: "primary_cta_label", label: "Primary CTA label" },
-    { name: "primary_cta_to", label: "Primary CTA link" },
-    { name: "secondary_cta_label", label: "Secondary CTA label" },
-    { name: "secondary_cta_to", label: "Secondary CTA link" },
-    { name: "image_url", label: "Background image (optional override)", type: "image" },
-    { name: "sponsor_active", label: "Sponsored takeover — use sponsor content above instead of the default Insider hero", type: "toggle", help: "When ON, the hero displays your custom heading, image, CTA, and a 'Presented by' badge. When OFF, the default Insider-promoting hero is shown." },
-    { name: "sponsor_name", label: "Sponsor name (e.g. Visit Coronado)" },
-    { name: "sponsor_logo_url", label: "Sponsor logo (small, transparent PNG ideal)", type: "image" },
-    { name: "sponsor_link_url", label: "Sponsor click-through URL (where the badge links)" },
+    { name: "eyebrow", label: "Eyebrow", group: "content" },
+    { name: "heading", label: "Heading", group: "content" },
+    { name: "subheading", label: "Subheading", type: "textarea", group: "content" },
+    { name: "primary_cta_label", label: "Primary CTA label", group: "content" },
+    { name: "primary_cta_to", label: "Primary CTA link", group: "content" },
+    { name: "secondary_cta_label", label: "Secondary CTA label", group: "advanced" },
+    { name: "secondary_cta_to", label: "Secondary CTA link", group: "advanced" },
+    { name: "image_url", label: "Background image (optional override)", type: "image", group: "advanced" },
+    { name: "sponsor_active", label: "Enable sponsored takeover", type: "toggle", group: "sponsor", help: "When ON, the hero shows your custom heading, image, CTA, and a 'Presented by' badge instead of the default Insider hero." },
+    { name: "sponsor_name", label: "Sponsor name", group: "sponsor" },
+    { name: "sponsor_logo_url", label: "Sponsor logo (transparent PNG)", type: "image", group: "sponsor" },
+    { name: "sponsor_link_url", label: "Sponsor click-through URL", group: "sponsor" },
   ],
   cruises_hero: [
-    { name: "eyebrow", label: "Eyebrow" },
-    { name: "heading", label: "Heading" },
-    { name: "subheading", label: "Subheading", type: "textarea" },
-    { name: "sponsor_active", label: "Sponsored takeover — show sponsor content on the Cruises hub", type: "toggle", help: "When ON, the cruises hero displays your custom heading/subheading and a 'Presented by' badge. When OFF, the default cruises hero is shown." },
-    { name: "sponsor_name", label: "Sponsor name (e.g. Princess Cruises)" },
-    { name: "sponsor_logo_url", label: "Sponsor logo (small, transparent PNG ideal)", type: "image" },
-    { name: "sponsor_link_url", label: "Sponsor click-through URL" },
+    { name: "eyebrow", label: "Eyebrow", group: "content" },
+    { name: "heading", label: "Heading", group: "content" },
+    { name: "subheading", label: "Subheading", type: "textarea", group: "content" },
+    { name: "sponsor_active", label: "Enable sponsored takeover", type: "toggle", group: "sponsor", help: "When ON, shows your custom hero copy and a 'Presented by' badge." },
+    { name: "sponsor_name", label: "Sponsor name", group: "sponsor" },
+    { name: "sponsor_logo_url", label: "Sponsor logo (transparent PNG)", type: "image", group: "sponsor" },
+    { name: "sponsor_link_url", label: "Sponsor click-through URL", group: "sponsor" },
   ],
   themed_hub_hero: [
-    { name: "eyebrow", label: "Eyebrow" },
-    { name: "heading", label: "Heading" },
-    { name: "subheading", label: "Subheading", type: "textarea" },
-    { name: "sponsor_active", label: "Sponsored takeover — show sponsor content on this hub", type: "toggle", help: "When ON, the hub hero displays your custom heading/subheading and a 'Presented by' badge. When OFF, the default hub hero from code is shown." },
-    { name: "sponsor_name", label: "Sponsor name (e.g. Callaway Vineyards)" },
-    { name: "sponsor_logo_url", label: "Sponsor logo (small, transparent PNG ideal)", type: "image" },
-    { name: "sponsor_link_url", label: "Sponsor click-through URL" },
+    { name: "eyebrow", label: "Eyebrow", group: "content" },
+    { name: "heading", label: "Heading", group: "content" },
+    { name: "subheading", label: "Subheading", type: "textarea", group: "content" },
+    { name: "sponsor_active", label: "Enable sponsored takeover", type: "toggle", group: "sponsor", help: "When ON, shows your custom hub hero and a 'Presented by' badge." },
+    { name: "sponsor_name", label: "Sponsor name", group: "sponsor" },
+    { name: "sponsor_logo_url", label: "Sponsor logo (transparent PNG)", type: "image", group: "sponsor" },
+    { name: "sponsor_link_url", label: "Sponsor click-through URL", group: "sponsor" },
   ],
   featured_listings: [
-    { name: "eyebrow", label: "Eyebrow" },
-    { name: "heading", label: "Heading" },
-    { name: "cta_label", label: "CTA label" },
-    { name: "cta_to", label: "CTA link" },
+    { name: "eyebrow", label: "Eyebrow", group: "content" },
+    { name: "heading", label: "Heading", group: "content" },
+    { name: "cta_label", label: "CTA label", group: "content" },
+    { name: "cta_to", label: "CTA link", group: "content" },
   ],
   editorial: [
-    { name: "eyebrow", label: "Eyebrow" },
-    { name: "heading", label: "Heading" },
-    { name: "cta_label", label: "CTA label" },
-    { name: "cta_to", label: "CTA link" },
+    { name: "eyebrow", label: "Eyebrow", group: "content" },
+    { name: "heading", label: "Heading", group: "content" },
+    { name: "cta_label", label: "CTA label", group: "content" },
+    { name: "cta_to", label: "CTA link", group: "content" },
   ],
   neighborhoods: [
-    { name: "eyebrow", label: "Eyebrow" },
-    { name: "heading", label: "Heading" },
+    { name: "eyebrow", label: "Eyebrow", group: "content" },
+    { name: "heading", label: "Heading", group: "content" },
   ],
   partner_cta: [
-    { name: "eyebrow", label: "Eyebrow" },
-    { name: "heading", label: "Heading" },
-    { name: "body", label: "Body", type: "textarea" },
-    { name: "cta_label", label: "CTA label" },
-    { name: "cta_to", label: "CTA link" },
+    { name: "eyebrow", label: "Eyebrow", group: "content" },
+    { name: "heading", label: "Heading", group: "content" },
+    { name: "body", label: "Body", type: "textarea", group: "content" },
+    { name: "cta_label", label: "CTA label", group: "content" },
+    { name: "cta_to", label: "CTA link", group: "content" },
   ],
 };
+
+function prettyKey(key: string) {
+  return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 function HomepagePage() {
   const [sections, setSections] = useState<Section[]>([]);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ sponsor: false, advanced: false });
 
   const load = async () => {
     const { data } = await supabase.from("homepage_sections").select("*").order("position");
-    setSections((data ?? []) as Section[]);
+    const list = (data ?? []) as Section[];
+    setSections(list);
+    if (list.length && !activeId) setActiveId(list[0].id);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return sections;
+    return sections.filter((s) => s.section_key.toLowerCase().includes(q) || s.section_type.toLowerCase().includes(q));
+  }, [sections, query]);
+
+  const active = sections.find((s) => s.id === activeId) || null;
 
   const updateField = (id: string, name: string, value: unknown) => {
     setSections((p) => p.map((s) => (s.id === id ? { ...s, draft_content: { ...s.draft_content, [name]: value } } : s)));
@@ -98,87 +123,178 @@ function HomepagePage() {
   const saveDraft = async (s: Section) => {
     setBusy(true); setMsg(null);
     await supabase.from("homepage_sections").update({ draft_content: s.draft_content as never }).eq("id", s.id);
-    setBusy(false); setMsg(`Saved draft: ${s.section_key}`);
+    setBusy(false); setMsg(`Saved draft: ${prettyKey(s.section_key)}`);
   };
   const publish = async (s: Section) => {
     setBusy(true); setMsg(null);
     await supabase.from("homepage_sections").update({ draft_content: s.draft_content as never, published_content: s.draft_content as never, published_at: new Date().toISOString() }).eq("id", s.id);
     await load();
-    setBusy(false); setMsg(`Published: ${s.section_key}`);
+    setBusy(false); setMsg(`Published: ${prettyKey(s.section_key)}`);
+  };
+
+  const renderField = (s: Section, f: FieldDef) => {
+    const rawVal = s.draft_content?.[f.name];
+    const val = (rawVal as string) || "";
+    if (f.type === "toggle") {
+      const checked = rawVal === true || rawVal === "true";
+      return (
+        <label key={f.name} className="flex items-start gap-3 rounded-lg border border-border bg-background/50 p-3 cursor-pointer">
+          <input type="checkbox" checked={checked} onChange={(e) => updateField(s.id, f.name, e.target.checked)} className="h-4 w-4 mt-0.5 accent-accent" />
+          <span className="text-sm">
+            <span className="font-medium">{f.label}</span>
+            {f.help && <span className="block text-xs text-muted-foreground mt-0.5">{f.help}</span>}
+          </span>
+        </label>
+      );
+    }
+    if (f.type === "image") return <CmsImageUpload key={f.name} value={val} onChange={(v) => updateField(s.id, f.name, v)} label={f.label} />;
+    if (f.type === "textarea") return (
+      <div key={f.name}>
+        <label className="text-xs font-medium text-foreground/70">{f.label}</label>
+        <textarea value={val} onChange={(e) => updateField(s.id, f.name, e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
+      </div>
+    );
+    return (
+      <div key={f.name}>
+        <label className="text-xs font-medium text-foreground/70">{f.label}</label>
+        <input value={val} onChange={(e) => updateField(s.id, f.name, e.target.value)} className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
+      </div>
+    );
+  };
+
+  const renderGroup = (s: Section, key: "sponsor" | "advanced", title: string, Icon: typeof Megaphone, fields: FieldDef[]) => {
+    if (!fields.length) return null;
+    const open = openGroups[key];
+    const filledCount = fields.filter((f) => {
+      const v = s.draft_content?.[f.name];
+      return v !== undefined && v !== "" && v !== false;
+    }).length;
+    return (
+      <div className="rounded-lg border border-border overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setOpenGroups((p) => ({ ...p, [key]: !p[key] }))}
+          className="w-full flex items-center justify-between gap-3 px-4 py-3 bg-secondary/40 hover:bg-secondary/60 transition text-left"
+        >
+          <div className="flex items-center gap-2.5">
+            <Icon className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-semibold">{title}</span>
+            {filledCount > 0 && (
+              <span className="text-[10px] font-semibold rounded-full bg-accent/15 text-accent px-2 py-0.5">{filledCount} set</span>
+            )}
+          </div>
+          <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+        </button>
+        {open && <div className="p-4 grid gap-4 bg-card">{fields.map((f) => renderField(s, f))}</div>}
+      </div>
+    );
   };
 
   return (
-    <div className="space-y-8 max-w-3xl">
+    <div className="space-y-6">
       <div>
         <h1 className="font-display text-3xl font-semibold">Homepage</h1>
-        <p className="text-sm text-muted-foreground mt-1">Edit each section of the homepage. Disabled sections won't render.</p>
+        <p className="text-sm text-muted-foreground mt-1">Pick a section on the left to edit. Disabled sections won't render.</p>
       </div>
+
       {msg && <div className="rounded-md bg-accent/10 text-accent text-sm px-3 py-2">{msg}</div>}
-      {sections.map((s) => {
-        const fields = FIELDS_BY_TYPE[s.section_type] || [];
-        const dirty = JSON.stringify(s.draft_content) !== JSON.stringify(s.published_content || {});
-        return (
-          <section key={s.id} className="rounded-xl border border-border bg-card p-6 space-y-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <h2 className="font-semibold text-lg capitalize">{s.section_key.replace(/_/g, " ")}</h2>
-                <p className="text-xs text-muted-foreground">Type: {s.section_type}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                {dirty && <span className="text-[10px] uppercase tracking-wider rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 px-2 py-0.5 font-semibold">Unpublished</span>}
-                <button onClick={() => toggleEnabled(s)} className={`inline-flex items-center gap-1 rounded-full text-xs font-semibold px-2.5 py-1 ${s.enabled ? "bg-green-500/10 text-green-700 dark:text-green-400" : "bg-muted text-muted-foreground"}`}>
-                  {s.enabled ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
-                  {s.enabled ? "Enabled" : "Hidden"}
-                </button>
-              </div>
+
+      <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
+        {/* Sidebar list */}
+        <aside className="rounded-xl border border-border bg-card overflow-hidden h-fit lg:sticky lg:top-6">
+          <div className="p-3 border-b border-border">
+            <div className="relative">
+              <Search className="h-3.5 w-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search sections…"
+                className="w-full rounded-md border border-border bg-background pl-7 pr-2 py-1.5 text-xs"
+              />
             </div>
-            <div className="grid gap-4">
-              {fields.map((f) => {
-                const rawVal = s.draft_content?.[f.name];
-                const val = (rawVal as string) || "";
-                if (f.type === "toggle") {
-                  const checked = rawVal === true || rawVal === "true";
-                  return (
-                    <label key={f.name} className="flex items-start gap-3 rounded-lg border border-border bg-background/50 p-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={(e) => updateField(s.id, f.name, e.target.checked)}
-                        className="h-4 w-4 mt-0.5 accent-accent"
-                      />
-                      <span className="text-sm">
-                        <span className="font-medium">{f.label}</span>
-                        {f.help && <span className="block text-xs text-muted-foreground mt-0.5">{f.help}</span>}
-                      </span>
-                    </label>
-                  );
-                }
-                if (f.type === "image") return <CmsImageUpload key={f.name} value={val} onChange={(v) => updateField(s.id, f.name, v)} label={f.label} />;
-                if (f.type === "textarea") return (
-                  <div key={f.name}>
-                    <label className="text-xs font-medium text-foreground/70">{f.label}</label>
-                    <textarea value={val} onChange={(e) => updateField(s.id, f.name, e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
+          </div>
+          <ul className="max-h-[70vh] overflow-y-auto">
+            {filtered.map((s) => {
+              const dirty = JSON.stringify(s.draft_content) !== JSON.stringify(s.published_content || {});
+              const isActive = s.id === activeId;
+              return (
+                <li key={s.id}>
+                  <button
+                    onClick={() => setActiveId(s.id)}
+                    className={`w-full text-left px-3 py-2.5 border-l-2 transition flex items-center justify-between gap-2 ${isActive ? "border-accent bg-accent/5" : "border-transparent hover:bg-secondary/40"}`}
+                  >
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium truncate">{prettyKey(s.section_key)}</div>
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">{s.section_type}</div>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {dirty && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" title="Unpublished changes" />}
+                      {s.enabled ? <Eye className="h-3 w-3 text-green-600" /> : <EyeOff className="h-3 w-3 text-muted-foreground" />}
+                    </div>
+                  </button>
+                </li>
+              );
+            })}
+            {filtered.length === 0 && <li className="px-3 py-6 text-xs text-muted-foreground text-center">No matches</li>}
+          </ul>
+        </aside>
+
+        {/* Editor pane */}
+        <div className="min-w-0">
+          {!active && <div className="rounded-xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">Select a section to edit.</div>}
+          {active && (() => {
+            const fields = FIELDS_BY_TYPE[active.section_type] || [];
+            const dirty = JSON.stringify(active.draft_content) !== JSON.stringify(active.published_content || {});
+            const contentFields = fields.filter((f) => (f.group ?? "content") === "content");
+            const sponsorFields = fields.filter((f) => f.group === "sponsor");
+            const advancedFields = fields.filter((f) => f.group === "advanced");
+            return (
+              <section className="rounded-xl border border-border bg-card">
+                {/* Sticky header */}
+                <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-6 py-4 border-b border-border bg-card/95 backdrop-blur rounded-t-xl">
+                  <div className="min-w-0">
+                    <h2 className="font-display text-xl font-semibold truncate">{prettyKey(active.section_key)}</h2>
+                    <p className="text-xs text-muted-foreground mt-0.5">Type: {active.section_type}</p>
                   </div>
-                );
-                return (
-                  <div key={f.name}>
-                    <label className="text-xs font-medium text-foreground/70">{f.label}</label>
-                    <input value={val} onChange={(e) => updateField(s.id, f.name, e.target.value)} className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
+                  <div className="flex items-center gap-2 shrink-0">
+                    {dirty && <span className="text-[10px] uppercase tracking-wider rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 px-2 py-0.5 font-semibold">Unpublished</span>}
+                    <button onClick={() => toggleEnabled(active)} className={`inline-flex items-center gap-1 rounded-full text-xs font-semibold px-2.5 py-1 ${active.enabled ? "bg-green-500/10 text-green-700 dark:text-green-400" : "bg-muted text-muted-foreground"}`}>
+                      {active.enabled ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                      {active.enabled ? "Enabled" : "Hidden"}
+                    </button>
                   </div>
-                );
-              })}
-            </div>
-            <div className="flex gap-2 pt-2 border-t border-border">
-              <button onClick={() => saveDraft(s)} disabled={busy} className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-xs font-semibold hover:bg-secondary">
-                <Save className="h-3.5 w-3.5" /> Save draft
-              </button>
-              <button onClick={() => publish(s)} disabled={busy} className="inline-flex items-center gap-2 rounded-md bg-accent text-accent-foreground px-3 py-2 text-xs font-semibold hover:opacity-90">
-                <Send className="h-3.5 w-3.5" /> Publish
-              </button>
-            </div>
-          </section>
-        );
-      })}
+                </div>
+
+                <div className="p-6 space-y-5">
+                  {/* Primary content */}
+                  {contentFields.length > 0 && (
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        <Sparkles className="h-3.5 w-3.5" /> Content
+                      </div>
+                      <div className="grid gap-4 pt-2">{contentFields.map((f) => renderField(active, f))}</div>
+                    </div>
+                  )}
+
+                  {/* Collapsible groups */}
+                  {sponsorFields.length > 0 && renderGroup(active, "sponsor", "Sponsored takeover", Megaphone, sponsorFields)}
+                  {advancedFields.length > 0 && renderGroup(active, "advanced", "Advanced", Settings2, advancedFields)}
+                </div>
+
+                {/* Sticky action bar */}
+                <div className="sticky bottom-0 flex items-center justify-end gap-2 px-6 py-3 border-t border-border bg-card/95 backdrop-blur rounded-b-xl">
+                  <button onClick={() => saveDraft(active)} disabled={busy} className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-xs font-semibold hover:bg-secondary disabled:opacity-50">
+                    <Save className="h-3.5 w-3.5" /> Save draft
+                  </button>
+                  <button onClick={() => publish(active)} disabled={busy} className="inline-flex items-center gap-2 rounded-md bg-accent text-accent-foreground px-3 py-2 text-xs font-semibold hover:opacity-90 disabled:opacity-50">
+                    <Send className="h-3.5 w-3.5" /> Publish
+                  </button>
+                </div>
+              </section>
+            );
+          })()}
+        </div>
+      </div>
     </div>
   );
 }
