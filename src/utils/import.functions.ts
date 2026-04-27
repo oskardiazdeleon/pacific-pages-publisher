@@ -299,15 +299,50 @@ function pickReservationUrl(html: string, links: string[] = []): string | null {
   return null;
 }
 
-async function insertListing(record: any, hero: string | null, autoPublish: boolean, reservationUrl: string | null = null) {
+/** Quality gate: returns the reason a listing should NOT auto-publish, or null if OK. */
+function listingPublishBlock(payload: {
+  description: string | null;
+  editor_note: string | null;
+  hero_image: string | null;
+  originality_score: number | null;
+}): string | null {
+  if (!payload.description || payload.description.trim().length < 300) return "description shorter than 300 chars";
+  if (!payload.editor_note || !payload.editor_note.trim()) return "missing editor_note";
+  if (!payload.hero_image) return "missing hero image";
+  if ((payload.originality_score ?? 0) < 0.6) return `originality score below threshold (${(payload.originality_score ?? 0).toFixed(2)})`;
+  return null;
+}
+
+async function insertListing(
+  record: any,
+  hero: string | null,
+  autoPublish: boolean,
+  reservationUrl: string | null = null,
+  ctx: { sourceUrl?: string | null; originalityScore?: number | null; curatorId?: string | null } = {},
+): Promise<{ id: string; slug: string; status: "published" | "draft"; blockedReason: string | null }> {
   const slug = slugify(record.name);
+  const description = record.description ?? null;
+  const editorNote = record.editor_note ?? null;
+  const blockedReason = listingPublishBlock({
+    description,
+    editor_note: editorNote,
+    hero_image: hero,
+    originality_score: ctx.originalityScore ?? null,
+  });
+  const shouldPublish = autoPublish && !blockedReason;
+
   const payload = {
     name: record.name,
     slug,
     category: record.category as ListingCategory,
     neighborhood: record.neighborhood || "San Diego",
     short_description: record.short_description ?? null,
-    description: record.description ?? null,
+    description,
+    editor_note: editorNote,
+    why_we_picked_it: Array.isArray(record.why_we_picked_it) ? record.why_we_picked_it.slice(0, 6) : [],
+    insider_tip: record.insider_tip ?? null,
+    best_time_to_visit: record.best_time_to_visit ?? null,
+    local_context: record.local_context ?? null,
     hero_image: hero,
     address: record.address ?? null,
     phone: record.phone ?? null,
@@ -316,14 +351,17 @@ async function insertListing(record: any, hero: string | null, autoPublish: bool
     price_range: record.price_range ?? null,
     meta_title: record.meta_title ?? null,
     meta_description: record.meta_description ?? null,
+    source_url: ctx.sourceUrl ?? null,
+    originality_score: ctx.originalityScore ?? null,
+    curator_id: ctx.curatorId ?? null,
     tier: "free" as const,
-    status: (autoPublish ? "published" : "draft") as "published" | "draft",
-    published_at: autoPublish ? new Date().toISOString() : null,
+    status: (shouldPublish ? "published" : "draft") as "published" | "draft",
+    published_at: shouldPublish ? new Date().toISOString() : null,
   };
   const { data, error } = await supabaseAdmin
     .from("listings").upsert(payload, { onConflict: "slug" }).select("id, slug").single();
   if (error) throw new Error(error.message);
-  return data;
+  return { id: data.id, slug: data.slug, status: payload.status, blockedReason };
 }
 
 async function insertArticle(record: any, hero: string | null, autoPublish: boolean) {
@@ -345,16 +383,21 @@ async function insertArticle(record: any, hero: string | null, autoPublish: bool
   const { data, error } = await supabaseAdmin
     .from("articles").upsert(payload, { onConflict: "slug" }).select("id, slug").single();
   if (error) throw new Error(error.message);
-  return data;
+  return { id: data.id, slug: data.slug, status: payload.status, blockedReason: null as string | null };
 }
 
-async function processOneUrl(url: string, kind: ContentKind, publish: boolean) {
+async function processOneUrl(
+  url: string,
+  kind: ContentKind,
+  publish: boolean,
+  curatorId: string | null = null,
+) {
   const scraped = await firecrawlScrape(url);
-  const record = await aiNormalize(scraped, kind);
+  const { record, originality_score } = await aiNormalize(scraped, kind);
   const hero = pickHeroImage(scraped.html, scraped.metadata, url);
   const reservation = kind === "listing" ? pickReservationUrl(scraped.html, scraped.links) : null;
   return kind === "listing"
-    ? await insertListing(record, hero, publish, reservation)
+    ? await insertListing(record, hero, publish, reservation, { sourceUrl: url, originalityScore: originality_score, curatorId })
     : await insertArticle(record, hero, publish);
 }
 
