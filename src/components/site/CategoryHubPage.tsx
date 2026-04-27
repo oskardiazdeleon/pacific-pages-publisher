@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { Search, Sparkles } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Breadcrumbs, breadcrumbJsonLd } from "@/components/site/Breadcrumbs";
 import { ListingCard, type ListingCardData } from "@/components/site/ListingCard";
 import { listings as mockListings } from "@/lib/mock-data";
 import { fetchPublishedListings } from "@/lib/content-queries";
+import { fetchPublishedHomepageSections, type HomepageSection } from "@/lib/cms";
 import type { CategoryHub } from "@/lib/listing-categories";
 
 const SITE_URL = "https://sandiego.com";
@@ -13,6 +15,24 @@ const SITE_URL = "https://sandiego.com";
 export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
   const [items, setItems] = useState<ListingCardData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [cms, setCms] = useState<Record<string, unknown>>({});
+
+  // CMS hero override (sponsor takeover)
+  useEffect(() => {
+    (async () => {
+      try {
+        const sections = await fetchPublishedHomepageSections();
+        const map: Record<string, Record<string, unknown>> = {};
+        for (const s of sections as HomepageSection[]) {
+          map[s.section_key] = (s.published_content || {}) as Record<string, unknown>;
+        }
+        setCms(map[`${hub.slug}_hero`] || {});
+      } catch {
+        // ignore
+      }
+    })();
+  }, [hub.slug]);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,16 +66,41 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
     };
   }, [hub.slug]);
 
-  const breadcrumbs = [
-    { label: "Home", to: "/" },
-    { label: hub.label },
-  ];
+  const sponsorActive =
+    cms["sponsor_active"] === true || cms["sponsor_active"] === "true";
+  const sponsorName = (cms["sponsor_name"] as string) || "";
+  const sponsorLogo = (cms["sponsor_logo_url"] as string) || "";
+  const sponsorLink = (cms["sponsor_link_url"] as string) || "";
+
+  const heroVal = (field: "eyebrow" | "heading" | "subheading"): string => {
+    if (sponsorActive) {
+      return ((cms[field] as string) || "").trim() || hub[field];
+    }
+    return hub[field];
+  };
+
+  const visibleItems = useMemo(() => {
+    if (!search.trim()) return items;
+    const q = search.toLowerCase();
+    return items.filter(
+      (l) =>
+        l.name?.toLowerCase().includes(q) ||
+        (l as unknown as { short_description?: string }).short_description
+          ?.toLowerCase()
+          .includes(q) ||
+        (l as unknown as { neighborhood?: string }).neighborhood
+          ?.toLowerCase()
+          .includes(q),
+    );
+  }, [items, search]);
+
+  const breadcrumbs = [{ label: "Home", to: "/" }, { label: hub.label }];
 
   const itemListJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: hub.heading,
-    itemListElement: items.slice(0, 20).map((l, i) => ({
+    itemListElement: visibleItems.slice(0, 20).map((l, i) => ({
       "@type": "ListItem",
       position: i + 1,
       url: `${SITE_URL}/${hub.slug}/${l.slug}`,
@@ -75,43 +120,151 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
 
   const jsonLd = [collectionJsonLd, itemListJsonLd, breadcrumbJsonLd(breadcrumbs)];
 
+  const heroImage =
+    hub.heroImage ||
+    "https://images.unsplash.com/photo-1538397956038-5b30aea4f88a?w=1600&q=80";
+  const popularChips = hub.popularChips ?? [];
+  const stats = hub.stats ?? [];
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
-      <section className="border-b border-border">
-        <div className="container-page pt-12 md:pt-16 pb-10">
+      {/* HERO — split layout, sponsor-aware (mirrors /cruises) */}
+      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-secondary/40 via-background to-background">
+        <div className="container-page pt-10 md:pt-14 pb-12 md:pb-20">
           <Breadcrumbs items={breadcrumbs} />
-          <div className="eyebrow mt-4 flex items-center gap-2">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
-            {hub.eyebrow}
+
+          <div className="mt-6 grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+            {/* Left: copy + search + chips */}
+            <div>
+              {sponsorActive && sponsorName ? (
+                <a
+                  href={sponsorLink || "#"}
+                  target={sponsorLink ? "_blank" : undefined}
+                  rel={sponsorLink ? "noreferrer noopener" : undefined}
+                  className="mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:bg-secondary/70 transition"
+                >
+                  <span className="opacity-70">Presented by</span>
+                  {sponsorLogo ? (
+                    <img
+                      src={sponsorLogo}
+                      alt={sponsorName}
+                      className="h-4 w-auto object-contain"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <span>{sponsorName}</span>
+                  )}
+                </a>
+              ) : (
+                <div className="eyebrow mb-5 flex items-center gap-2">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
+                  {heroVal("eyebrow")}
+                </div>
+              )}
+
+              <h1 className="font-display text-5xl md:text-6xl xl:text-7xl font-semibold tracking-tight leading-[1.02] text-foreground">
+                {heroVal("heading")}
+                {hub.headingAccent && (
+                  <span className="block text-accent">{hub.headingAccent}</span>
+                )}
+              </h1>
+
+              <p className="mt-6 max-w-xl text-base md:text-lg text-muted-foreground">
+                {heroVal("subheading")}
+              </p>
+
+              <form
+                onSubmit={(e) => e.preventDefault()}
+                className="mt-8 flex w-full max-w-xl items-center rounded-full border border-border bg-card shadow-sm overflow-hidden"
+              >
+                <div className="pl-5 pr-2 text-muted-foreground">
+                  <Search className="h-4 w-4" />
+                </div>
+                <input
+                  type="search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder={
+                    hub.searchPlaceholder || `Search ${hub.label.toLowerCase()}…`
+                  }
+                  className="flex-1 bg-transparent px-2 py-3.5 text-sm placeholder:text-muted-foreground focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  className="m-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition"
+                >
+                  Search
+                </button>
+              </form>
+
+              {popularChips.length > 0 && (
+                <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
+                  <span className="text-muted-foreground mr-1">Popular:</span>
+                  {popularChips.map((chip) => (
+                    <button
+                      key={chip.label}
+                      type="button"
+                      onClick={() => setSearch(chip.keyword)}
+                      className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground/85 hover:bg-secondary transition"
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Right: image with floating stat cards */}
+            <div className="relative">
+              <div className="relative aspect-[5/4] w-full overflow-hidden rounded-3xl bg-muted shadow-xl">
+                <img
+                  src={heroImage}
+                  alt={hub.heading}
+                  className="h-full w-full object-cover"
+                  loading="eager"
+                />
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/15 via-transparent to-transparent" />
+              </div>
+
+              {stats.length > 0 && (
+                <div className="absolute -bottom-6 left-4 right-4 hidden md:flex gap-3">
+                  {stats.map((s) => (
+                    <div
+                      key={s.label}
+                      className="flex-1 rounded-2xl border border-border bg-card/95 backdrop-blur px-4 py-4 text-center shadow-lg"
+                    >
+                      <div className="font-display text-2xl font-semibold text-foreground">
+                        {s.value}
+                      </div>
+                      <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                        {s.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-          <h1 className="mt-3 font-display text-4xl md:text-6xl font-semibold tracking-tight leading-[1.05]">
-            {hub.heading}
-          </h1>
-          <p className="mt-4 max-w-2xl text-base md:text-lg text-muted-foreground">
-            {hub.subheading}
-          </p>
-          <div className="mt-6 flex flex-wrap gap-2 text-sm text-muted-foreground">
-            <Link
-              to="/listings"
-              className="rounded-full border border-border bg-background px-3 py-1.5 hover:bg-secondary"
-            >
-              All listings
-            </Link>
-            <Link
-              to="/neighborhoods"
-              className="rounded-full border border-border bg-background px-3 py-1.5 hover:bg-secondary"
-            >
-              Browse by neighborhood
-            </Link>
-            <Link
-              to="/insider"
-              className="rounded-full bg-accent px-3 py-1.5 text-accent-foreground font-medium hover:opacity-90"
-            >
-              Save up to 40% with Insider
-            </Link>
-          </div>
+
+          {hub.insiderCta && (
+            <div className="mt-16 md:mt-20 rounded-2xl border border-accent/30 bg-accent/5 px-5 py-4 md:px-7 md:py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div>
+                <div className="font-display text-lg font-semibold text-foreground flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-accent" />
+                  {hub.insiderCta.title}
+                </div>
+                <p className="text-sm text-muted-foreground">{hub.insiderCta.body}</p>
+              </div>
+              <Link
+                to="/insider"
+                className="shrink-0 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground hover:opacity-90 transition"
+              >
+                Join Insider
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
@@ -151,6 +304,21 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
       )}
 
       <section className="container-page py-12">
+        <div className="flex items-end justify-between gap-6 mb-8">
+          <div>
+            <div className="eyebrow flex items-center gap-2">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
+              All {hub.label.toLowerCase()}
+            </div>
+            <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold tracking-tight">
+              Browse every {hub.singular.toLowerCase()}
+            </h2>
+          </div>
+          <span className="text-sm text-muted-foreground">
+            {visibleItems.length} {visibleItems.length === 1 ? "result" : "results"}
+          </span>
+        </div>
+
         {loading ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -160,13 +328,13 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
               />
             ))}
           </div>
-        ) : items.length === 0 ? (
+        ) : visibleItems.length === 0 ? (
           <div className="text-center text-muted-foreground py-20">
-            No {hub.label.toLowerCase()} published yet.
+            No {hub.label.toLowerCase()} match your search.
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {items.map((l) => (
+            {visibleItems.map((l) => (
               <ListingCard key={l.slug} listing={l} />
             ))}
           </div>

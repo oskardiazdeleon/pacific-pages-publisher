@@ -28,6 +28,18 @@ export type CategoryHub = {
   subheading: string;
   /** Schema.org @type for ItemList breadcrumb context */
   schemaType: "LodgingBusiness" | "Restaurant" | "TouristAttraction" | "Store" | "BarOrPub";
+  /** Optional accent line shown beneath heading (e.g. "where locals eat.") */
+  headingAccent?: string;
+  /** Hero image URL */
+  heroImage?: string;
+  /** Search input placeholder */
+  searchPlaceholder?: string;
+  /** Popular filter chips */
+  popularChips?: { label: string; keyword: string }[];
+  /** Floating stat cards */
+  stats?: { value: string; label: string }[];
+  /** Insider CTA bar */
+  insiderCta?: { title: string; body: string };
 };
 
 export const CATEGORY_HUBS: CategoryHub[] = [
@@ -44,6 +56,25 @@ export const CATEGORY_HUBS: CategoryHub[] = [
     subheading:
       "Beachfront resorts, downtown boutiques and historic stays — every property reviewed by our editors. Insider members save up to 40%.",
     schemaType: "LodgingBusiness",
+    headingAccent: "where to stay.",
+    heroImage:
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600&q=80",
+    searchPlaceholder: "Search hotels, neighborhoods, amenities…",
+    popularChips: [
+      { label: "Beachfront", keyword: "beach" },
+      { label: "Downtown", keyword: "downtown" },
+      { label: "Boutique", keyword: "boutique" },
+      { label: "Family", keyword: "family" },
+    ],
+    stats: [
+      { value: "200+", label: "Hotels" },
+      { value: "40%", label: "Insider Save" },
+      { value: "$129", label: "Starting From" },
+    ],
+    insiderCta: {
+      title: "Save up to 40% with Insider",
+      body: "Member-only rates, free upgrades and late checkout at participating hotels.",
+    },
   },
   {
     slug: "restaurants",
@@ -58,6 +89,25 @@ export const CATEGORY_HUBS: CategoryHub[] = [
     subheading:
       "From Michelin-starred dining rooms to legendary taco shops — the restaurants locals actually eat at, ranked by what's worth your time.",
     schemaType: "Restaurant",
+    headingAccent: "where locals eat.",
+    heroImage:
+      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&q=80",
+    searchPlaceholder: "Search restaurants, cuisines, neighborhoods…",
+    popularChips: [
+      { label: "Tacos", keyword: "taco" },
+      { label: "Waterfront", keyword: "waterfront" },
+      { label: "Michelin", keyword: "michelin" },
+      { label: "Brunch", keyword: "brunch" },
+    ],
+    stats: [
+      { value: "500+", label: "Restaurants" },
+      { value: "30", label: "Neighborhoods" },
+      { value: "$$", label: "Avg Price" },
+    ],
+    insiderCta: {
+      title: "Dine smarter with Insider",
+      body: "Priority reservations, complimentary courses and chef's-table access at top spots.",
+    },
   },
   {
     slug: "things-to-do",
@@ -72,6 +122,25 @@ export const CATEGORY_HUBS: CategoryHub[] = [
     subheading:
       "Iconic attractions, hidden coves, hands-on tours and one-of-a-kind experiences — the only San Diego itinerary you'll need.",
     schemaType: "TouristAttraction",
+    headingAccent: "things to do.",
+    heroImage:
+      "https://images.unsplash.com/photo-1538397956038-5b30aea4f88a?w=1600&q=80",
+    searchPlaceholder: "Search attractions, tours, beaches…",
+    popularChips: [
+      { label: "Beaches", keyword: "beach" },
+      { label: "Museums", keyword: "museum" },
+      { label: "Family", keyword: "family" },
+      { label: "Outdoor", keyword: "outdoor" },
+    ],
+    stats: [
+      { value: "1,200+", label: "Things To Do" },
+      { value: "70", label: "Miles of Coast" },
+      { value: "266", label: "Sunny Days" },
+    ],
+    insiderCta: {
+      title: "Skip the line with Insider",
+      body: "Front-of-line passes, member discounts and exclusive tours at top attractions.",
+    },
   },
   {
     slug: "shopping",
@@ -86,6 +155,25 @@ export const CATEGORY_HUBS: CategoryHub[] = [
     subheading:
       "From La Jolla boutiques to North Park vintage and Liberty Station artisans — the shops locals send their visiting friends to.",
     schemaType: "Store",
+    headingAccent: "where to shop.",
+    heroImage:
+      "https://images.unsplash.com/photo-1481437156560-3205f6a55735?w=1600&q=80",
+    searchPlaceholder: "Search shops, boutiques, markets…",
+    popularChips: [
+      { label: "Boutiques", keyword: "boutique" },
+      { label: "Vintage", keyword: "vintage" },
+      { label: "Markets", keyword: "market" },
+      { label: "Outlets", keyword: "outlet" },
+    ],
+    stats: [
+      { value: "150+", label: "Shops" },
+      { value: "12", label: "Districts" },
+      { value: "Daily", label: "Markets" },
+    ],
+    insiderCta: {
+      title: "Shop smarter with Insider",
+      body: "Member-only discounts and early access at participating boutiques and markets.",
+    },
   },
   {
     slug: "nightlife",
@@ -100,6 +188,25 @@ export const CATEGORY_HUBS: CategoryHub[] = [
     subheading:
       "Rooftop sunsets in Little Italy, dive bars in Ocean Beach, late-night cocktails Downtown — the spots worth staying out for.",
     schemaType: "BarOrPub",
+    headingAccent: "after dark.",
+    heroImage:
+      "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=1600&q=80",
+    searchPlaceholder: "Search bars, clubs, lounges…",
+    popularChips: [
+      { label: "Rooftops", keyword: "rooftop" },
+      { label: "Cocktails", keyword: "cocktail" },
+      { label: "Live Music", keyword: "music" },
+      { label: "Dive Bars", keyword: "dive" },
+    ],
+    stats: [
+      { value: "120+", label: "Venues" },
+      { value: "Late", label: "Open Til 2am" },
+      { value: "$12", label: "Avg Cocktail" },
+    ],
+    insiderCta: {
+      title: "Skip the line with Insider",
+      body: "VIP entry, complimentary drinks and table reservations at top venues.",
+    },
   },
 ];
 
