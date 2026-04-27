@@ -252,7 +252,19 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
           </div>
 
           <div>
-            <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Body (Markdown)</label>
+            <div className="flex items-center justify-between gap-3">
+              <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Body (Markdown)</label>
+              <button
+                type="button"
+                onClick={handleInsertLinks}
+                disabled={linkBusy}
+                title="Scan the body and insert relevant internal links to listings, neighborhoods, and other posts"
+                className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent hover:bg-accent/20 disabled:opacity-50"
+              >
+                {linkBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Link2 className="h-3 w-3" />}
+                {linkBusy ? "Inserting links…" : "AI internal links"}
+              </button>
+            </div>
             <textarea
               value={v.body}
               onChange={(e) => set("body", e.target.value)}
@@ -263,6 +275,35 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
             <p className="mt-1 text-xs text-muted-foreground">
               Markdown supported — headings, bold/italic, lists, links, images, blockquotes, code.
             </p>
+            {linkReport && (
+              <div className="mt-3 rounded-xl border border-border bg-card p-4 text-xs">
+                <div className="font-semibold text-foreground">Internal link report</div>
+                {linkReport.applied.length > 0 && (
+                  <div className="mt-2">
+                    <div className="text-emerald-600 dark:text-emerald-400 font-semibold">Inserted ({linkReport.applied.length})</div>
+                    <ul className="mt-1 space-y-0.5">
+                      {linkReport.applied.map((l, i) => (
+                        <li key={i} className="text-muted-foreground">
+                          <span className="text-foreground">"{l.anchor}"</span> → <code className="text-accent">{l.url}</code>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {linkReport.skipped.length > 0 && (
+                  <details className="mt-2">
+                    <summary className="cursor-pointer text-muted-foreground">Skipped ({linkReport.skipped.length})</summary>
+                    <ul className="mt-1 space-y-0.5">
+                      {linkReport.skipped.map((l, i) => (
+                        <li key={i} className="text-muted-foreground">
+                          "{l.anchor}" → {l.url} <span className="opacity-70">— {l.reason}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
