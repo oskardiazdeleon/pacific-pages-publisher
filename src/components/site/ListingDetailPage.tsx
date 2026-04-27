@@ -384,6 +384,7 @@ export function ListingDetailPage({
                 />
               </div>
             )}
+            <InsiderTipCard tip={listing.insider_tip} bestTime={listing.best_time_to_visit} />
             {listing.reservation_url && (
               <div className="rounded-3xl border border-accent/40 bg-gradient-to-br from-accent/15 via-card to-card p-5 shadow-sm">
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-accent/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent">
