@@ -355,16 +355,101 @@ export function ListingForm({
           </>
         )}
       </section>
+      )}
+
+      {/* Partner Spotlight — featured/premium tier perk */}
+      <section className="rounded-2xl border border-accent/30 bg-gradient-to-br from-accent/5 via-card to-card p-6 space-y-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+              <Megaphone className="h-4 w-4 text-accent" />
+              Partner Spotlight
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              {tierAllowsSpotlight
+                ? "Promote a special offer, product, or experience. Shown in the sidebar of the listing page."
+                : "Available on Featured and Premium tier listings only. Upgrade the tier to enable."}
+            </p>
+          </div>
+          <label className="inline-flex items-center gap-2 cursor-pointer shrink-0">
+            <input
+              type="checkbox"
+              checked={v.partner_spotlight.enabled}
+              disabled={!tierAllowsSpotlight}
+              onChange={(e) => setSpot("enabled", e.target.checked)}
+              className="h-4 w-4 accent-accent disabled:opacity-50"
+            />
+            <span className="text-sm font-medium">Enable</span>
+          </label>
+        </div>
+
+        {v.partner_spotlight.enabled && tierAllowsSpotlight && (
+          <>
+            <Field label="Eyebrow (small label above the title)">
+              <input
+                className={inputCls}
+                value={v.partner_spotlight.eyebrow}
+                placeholder="Partner Spotlight"
+                onChange={(e) => setSpot("eyebrow", e.target.value)}
+              />
+            </Field>
+            <Field label="Title">
+              <input
+                className={inputCls}
+                value={v.partner_spotlight.title}
+                placeholder="e.g. The Country Club at Maderas"
+                onChange={(e) => setSpot("title", e.target.value)}
+              />
+            </Field>
+            <Field label="Description">
+              <textarea
+                className={inputCls + " min-h-24"}
+                value={v.partner_spotlight.description}
+                placeholder="One or two sentences about what you're promoting."
+                onChange={(e) => setSpot("description", e.target.value)}
+              />
+            </Field>
+            <ImageUpload
+              label="Spotlight image (optional)"
+              bucket="listing-media"
+              folder={`${v.slug || "spotlight"}/spotlight`}
+              value={v.partner_spotlight.image_url}
+              onChange={(url) => setSpot("image_url", url)}
+            />
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field label="Button label">
+                <input
+                  className={inputCls}
+                  value={v.partner_spotlight.cta_label}
+                  placeholder="Learn more"
+                  onChange={(e) => setSpot("cta_label", e.target.value)}
+                />
+              </Field>
+              <Field label="Button link (URL)">
+                <input
+                  className={inputCls}
+                  type="url"
+                  value={v.partner_spotlight.cta_url}
+                  placeholder="https://..."
+                  onChange={(e) => setSpot("cta_url", e.target.value)}
+                />
+              </Field>
+            </div>
+          </>
+        )}
+      </section>
 
       <div className="flex gap-3">
         <button type="submit" disabled={busy}
           className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50">
-          {busy ? "Saving…" : v.id ? "Save changes" : "Create listing"}
+          {busy ? "Saving…" : partnerMode ? "Save spotlight" : v.id ? "Save changes" : "Create listing"}
         </button>
-        <button type="button" onClick={() => navigate({ to: "/admin/listings" })}
-          className="rounded-full border border-border px-6 py-3 text-sm font-semibold">
-          Cancel
-        </button>
+        {!partnerMode && (
+          <button type="button" onClick={() => navigate({ to: "/admin/listings" })}
+            className="rounded-full border border-border px-6 py-3 text-sm font-semibold">
+            Cancel
+          </button>
+        )}
       </div>
     </form>
   );
