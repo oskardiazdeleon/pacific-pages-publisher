@@ -100,7 +100,7 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
         category: v.category || null,
         tags,
         status,
-        read_time_minutes: v.read_time_minutes ? Number(v.read_time_minutes) : null,
+        read_time_minutes: v.read_time_minutes ? Math.max(1, Math.round(Number(v.read_time_minutes))) : null,
         meta_title: v.meta_title || null,
         meta_description: v.meta_description || null,
         author_id: user?.id ?? null,
