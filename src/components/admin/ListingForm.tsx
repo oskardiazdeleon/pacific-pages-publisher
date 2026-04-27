@@ -40,6 +40,13 @@ export interface ListingFormValues {
   sponsor_rank: string;
   sponsor_until: string;
   partner_spotlight: PartnerSpotlightValues;
+  editor_note: string;
+  why_we_picked_it: string; // comma-separated in form, split on save
+  insider_tip: string;
+  best_time_to_visit: string;
+  local_context: string;
+  source_url: string;
+  verified_visited: boolean;
 }
 
 const emptySpotlight: PartnerSpotlightValues = {
@@ -60,6 +67,9 @@ const empty: ListingFormValues = {
   reservation_url: "",
   is_sponsored: false, sponsor_name: "", sponsor_rank: "0", sponsor_until: "",
   partner_spotlight: { ...emptySpotlight },
+  editor_note: "", why_we_picked_it: "", insider_tip: "",
+  best_time_to_visit: "", local_context: "", source_url: "",
+  verified_visited: false,
 };
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -161,6 +171,18 @@ export function ListingForm({
         sponsor_until: v.sponsor_until ? new Date(v.sponsor_until).toISOString() : null,
         partner_spotlight: spotlightPayload,
         published_at: v.status === "published" ? new Date().toISOString() : null,
+        editor_note: v.editor_note.trim() || null,
+        why_we_picked_it: v.why_we_picked_it
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .slice(0, 6),
+        insider_tip: v.insider_tip.trim() || null,
+        best_time_to_visit: v.best_time_to_visit.trim() || null,
+        local_context: v.local_context.trim() || null,
+        source_url: v.source_url.trim() || null,
+        verified_visited: v.verified_visited,
+        verified_at: v.verified_visited ? new Date().toISOString() : null,
       };
 
       const res = v.id
