@@ -43,7 +43,7 @@ function priceLabel(price?: string | null): string | null {
 export function ListingCard({ listing }: { listing: ListingCardData }) {
   const img = listing.hero_image || listing.image || listingFallback;
   const desc = listing.short_description || listing.blurb || "";
-  const insight = insightFor(listing.category);
+  const cta = ctaFor(listing.category);
   const price = priceLabel(listing.price_range);
   const sponsored =
     !!listing.is_sponsored &&
