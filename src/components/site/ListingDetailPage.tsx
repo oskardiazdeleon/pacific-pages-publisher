@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Phone, Globe, MapPin, ArrowLeft, Sparkles, CalendarCheck } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Breadcrumbs, breadcrumbJsonLd } from "@/components/site/Breadcrumbs";
 import { recordImpression } from "@/lib/content-queries";
 import { hubForCategory, type CategoryHub } from "@/lib/listing-categories";
+import { supabase } from "@/integrations/supabase/client";
 import { ListingHero } from "./listing/ListingHero";
 import { ListingActionBar } from "./listing/ListingActionBar";
 import { ListingHoursPanel, useListingHours } from "./listing/ListingHours";
@@ -16,6 +17,14 @@ import {
   isSpotlightVisible,
   type PartnerSpotlightData,
 } from "./listing/PartnerSpotlight";
+import {
+  EditorNoteCallout,
+  WhyWePickedIt,
+  InsiderTipCard,
+  LocalContextBlock,
+  CuratorByline,
+} from "./listing/EditorialContext";
+import { PairThisWith } from "./listing/PairThisWith";
 import { toSchemaOpeningHours } from "@/lib/hours";
 
 const SITE_URL = "https://sandiego.com";
@@ -41,6 +50,14 @@ type Listing = {
   meta_description?: string | null;
   tier?: string | null;
   partner_spotlight?: unknown;
+  editor_note?: string | null;
+  why_we_picked_it?: string[] | null;
+  insider_tip?: string | null;
+  best_time_to_visit?: string | null;
+  local_context?: string | null;
+  curator_id?: string | null;
+  verified_visited?: boolean | null;
+  updated_at?: string | null;
 };
 
 function reservationProvider(url: string): string {
