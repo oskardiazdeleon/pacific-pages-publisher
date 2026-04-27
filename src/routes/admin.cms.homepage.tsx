@@ -89,6 +89,23 @@ function prettyKey(key: string) {
   return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+// Where each section renders on the public site. Used to group the sidebar
+// and to show a contextual hint in the editor header.
+type LocationKey = "homepage" | "cruises" | "themed_hubs";
+const LOCATIONS: Record<LocationKey, { label: string; hint: string; path: string }> = {
+  homepage: { label: "Homepage", hint: "Renders on the homepage ( / )", path: "/" },
+  cruises: { label: "Cruises hub", hint: "Renders on the Cruises category page", path: "/cruises" },
+  themed_hubs: { label: "Themed hubs", hint: "Renders on themed category hubs (e.g. Wineries, Golf)", path: "/wineries" },
+};
+
+function locationForSection(s: { section_key: string; section_type: string }): LocationKey {
+  const k = s.section_key.toLowerCase();
+  const t = s.section_type.toLowerCase();
+  if (t === "cruises_hero" || k.includes("cruise")) return "cruises";
+  if (t === "themed_hub_hero" || k.includes("wineries") || k.includes("themed") || k.includes("hub")) return "themed_hubs";
+  return "homepage";
+}
+
 function HomepagePage() {
   const [sections, setSections] = useState<Section[]>([]);
   const [busy, setBusy] = useState(false);
@@ -193,8 +210,8 @@ function HomepagePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl font-semibold">Homepage</h1>
-        <p className="text-sm text-muted-foreground mt-1">Pick a section on the left to edit. Disabled sections won't render.</p>
+        <h1 className="font-display text-3xl font-semibold">Page sections</h1>
+        <p className="text-sm text-muted-foreground mt-1">Sections are grouped by where they appear on the site. Disabled sections won't render.</p>
       </div>
 
       {msg && <div className="rounded-md bg-accent/10 text-accent text-sm px-3 py-2">{msg}</div>}
@@ -214,24 +231,39 @@ function HomepagePage() {
             </div>
           </div>
           <ul className="max-h-[70vh] overflow-y-auto">
-            {filtered.map((s) => {
-              const dirty = JSON.stringify(s.draft_content) !== JSON.stringify(s.published_content || {});
-              const isActive = s.id === activeId;
+            {(["homepage", "cruises", "themed_hubs"] as LocationKey[]).map((loc) => {
+              const items = filtered.filter((s) => locationForSection(s) === loc);
+              if (items.length === 0) return null;
+              const meta = LOCATIONS[loc];
               return (
-                <li key={s.id}>
-                  <button
-                    onClick={() => setActiveId(s.id)}
-                    className={`w-full text-left px-3 py-2.5 border-l-2 transition flex items-center justify-between gap-2 ${isActive ? "border-accent bg-accent/5" : "border-transparent hover:bg-secondary/40"}`}
-                  >
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium truncate">{prettyKey(s.section_key)}</div>
-                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">{s.section_type}</div>
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      {dirty && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" title="Unpublished changes" />}
-                      {s.enabled ? <Eye className="h-3 w-3 text-green-600" /> : <EyeOff className="h-3 w-3 text-muted-foreground" />}
-                    </div>
-                  </button>
+                <li key={loc} className="border-b border-border last:border-b-0">
+                  <div className="px-3 pt-3 pb-1.5 flex items-baseline justify-between gap-2">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{meta.label}</div>
+                    <code className="text-[10px] text-muted-foreground/70">{meta.path}</code>
+                  </div>
+                  <ul>
+                    {items.map((s) => {
+                      const dirty = JSON.stringify(s.draft_content) !== JSON.stringify(s.published_content || {});
+                      const isActive = s.id === activeId;
+                      return (
+                        <li key={s.id}>
+                          <button
+                            onClick={() => setActiveId(s.id)}
+                            className={`w-full text-left px-3 py-2.5 border-l-2 transition flex items-center justify-between gap-2 ${isActive ? "border-accent bg-accent/5" : "border-transparent hover:bg-secondary/40"}`}
+                          >
+                            <div className="min-w-0">
+                              <div className="text-sm font-medium truncate">{prettyKey(s.section_key)}</div>
+                              <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">{s.section_type}</div>
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0">
+                              {dirty && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" title="Unpublished changes" />}
+                              {s.enabled ? <Eye className="h-3 w-3 text-green-600" /> : <EyeOff className="h-3 w-3 text-muted-foreground" />}
+                            </div>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </li>
               );
             })}
@@ -248,13 +280,17 @@ function HomepagePage() {
             const contentFields = fields.filter((f) => (f.group ?? "content") === "content");
             const sponsorFields = fields.filter((f) => f.group === "sponsor");
             const advancedFields = fields.filter((f) => f.group === "advanced");
+            const loc = LOCATIONS[locationForSection(active)];
             return (
               <section className="rounded-xl border border-border bg-card">
                 {/* Sticky header */}
                 <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-6 py-4 border-b border-border bg-card/95 backdrop-blur rounded-t-xl">
                   <div className="min-w-0">
                     <h2 className="font-display text-xl font-semibold truncate">{prettyKey(active.section_key)}</h2>
-                    <p className="text-xs text-muted-foreground mt-0.5">Type: {active.section_type}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5 flex-wrap">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 text-accent px-2 py-0.5 font-semibold uppercase tracking-wider text-[10px]">{loc.label}</span>
+                      <span className="truncate">{loc.hint}</span>
+                    </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     {dirty && <span className="text-[10px] uppercase tracking-wider rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 px-2 py-0.5 font-semibold">Unpublished</span>}
