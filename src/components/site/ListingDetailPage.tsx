@@ -40,7 +40,7 @@ type Listing = {
   meta_title?: string | null;
   meta_description?: string | null;
   tier?: string | null;
-  partner_spotlight?: PartnerSpotlightData | null;
+  partner_spotlight?: unknown;
 };
 
 function reservationProvider(url: string): string {
