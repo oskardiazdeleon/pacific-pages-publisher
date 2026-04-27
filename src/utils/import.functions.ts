@@ -1171,6 +1171,7 @@ export const aiInsertInternalLinks = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => InternalLinkInput.parse(d))
   .handler(async ({ data, context }) => {
+   try {
     await ensureAdmin(context.supabase, context.userId);
 
     const apiKey = process.env.LOVABLE_API_KEY;
