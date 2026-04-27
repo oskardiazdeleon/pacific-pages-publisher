@@ -13,6 +13,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PartnersRouteImport } from './routes/partners'
+import { Route as PartnerRouteImport } from './routes/partner'
 import { Route as NeighborhoodsRouteImport } from './routes/neighborhoods'
 import { Route as ListingsRouteImport } from './routes/listings'
 import { Route as InsiderRouteImport } from './routes/insider'
@@ -79,6 +80,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const PartnersRoute = PartnersRouteImport.update({
   id: '/partners',
   path: '/partners',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnerRoute = PartnerRouteImport.update({
+  id: '/partner',
+  path: '/partner',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NeighborhoodsRoute = NeighborhoodsRouteImport.update({
@@ -325,6 +331,7 @@ export interface FileRoutesByFullPath {
   '/insider': typeof InsiderRoute
   '/listings': typeof ListingsRouteWithChildren
   '/neighborhoods': typeof NeighborhoodsRouteWithChildren
+  '/partner': typeof PartnerRoute
   '/partners': typeof PartnersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -375,6 +382,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/insider': typeof InsiderRoute
   '/neighborhoods': typeof NeighborhoodsRouteWithChildren
+  '/partner': typeof PartnerRoute
   '/partners': typeof PartnersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -429,6 +437,7 @@ export interface FileRoutesById {
   '/insider': typeof InsiderRoute
   '/listings': typeof ListingsRouteWithChildren
   '/neighborhoods': typeof NeighborhoodsRouteWithChildren
+  '/partner': typeof PartnerRoute
   '/partners': typeof PartnersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -484,6 +493,7 @@ export interface FileRouteTypes {
     | '/insider'
     | '/listings'
     | '/neighborhoods'
+    | '/partner'
     | '/partners'
     | '/reset-password'
     | '/robots.txt'
@@ -534,6 +544,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/insider'
     | '/neighborhoods'
+    | '/partner'
     | '/partners'
     | '/reset-password'
     | '/robots.txt'
@@ -587,6 +598,7 @@ export interface FileRouteTypes {
     | '/insider'
     | '/listings'
     | '/neighborhoods'
+    | '/partner'
     | '/partners'
     | '/reset-password'
     | '/robots.txt'
@@ -641,6 +653,7 @@ export interface RootRouteChildren {
   InsiderRoute: typeof InsiderRoute
   ListingsRoute: typeof ListingsRouteWithChildren
   NeighborhoodsRoute: typeof NeighborhoodsRouteWithChildren
+  PartnerRoute: typeof PartnerRoute
   PartnersRoute: typeof PartnersRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
@@ -693,6 +706,13 @@ declare module '@tanstack/react-router' {
       path: '/partners'
       fullPath: '/partners'
       preLoaderRoute: typeof PartnersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partner': {
+      id: '/partner'
+      path: '/partner'
+      fullPath: '/partner'
+      preLoaderRoute: typeof PartnerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/neighborhoods': {
@@ -1117,6 +1137,7 @@ const rootRouteChildren: RootRouteChildren = {
   InsiderRoute: InsiderRoute,
   ListingsRoute: ListingsRouteWithChildren,
   NeighborhoodsRoute: NeighborhoodsRouteWithChildren,
+  PartnerRoute: PartnerRoute,
   PartnersRoute: PartnersRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
