@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Megaphone } from "lucide-react";
+import { Megaphone, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { generateEditorialContext } from "@/utils/import.functions";
 
 export interface PartnerSpotlightValues {
   enabled: boolean;
