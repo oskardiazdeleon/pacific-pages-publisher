@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Megaphone } from "lucide-react";
+import { Megaphone, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { generateEditorialContext } from "@/utils/import.functions";
 
 export interface PartnerSpotlightValues {
   enabled: boolean;
@@ -96,6 +97,7 @@ export function ListingForm({
     partner_spotlight: { ...emptySpotlight, ...(initial?.partner_spotlight ?? {}) },
   });
   const [busy, setBusy] = useState(false);
+  const [aiFilling, setAiFilling] = useState(false);
 
   const set = <K extends keyof ListingFormValues>(key: K, val: ListingFormValues[K]) =>
     setV((p) => ({ ...p, [key]: val }));
@@ -109,6 +111,44 @@ export function ListingForm({
 
   const slugify = (s: string) =>
     s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+  const handleAiFill = async (mode: "fill" | "overwrite") => {
+    if (!v.name.trim() || !v.neighborhood.trim()) {
+      toast.error("Add a name and neighborhood first.");
+      return;
+    }
+    setAiFilling(true);
+    try {
+      const result = await generateEditorialContext({
+        data: {
+          name: v.name.trim(),
+          category: v.category,
+          neighborhood: v.neighborhood.trim(),
+          address: v.address || null,
+          website: v.website || null,
+          short_description: v.short_description || null,
+          description: v.description || null,
+        },
+      });
+      setV((prev) => ({
+        ...prev,
+        editor_note: mode === "overwrite" || !prev.editor_note ? result.editor_note : prev.editor_note,
+        why_we_picked_it:
+          mode === "overwrite" || !prev.why_we_picked_it
+            ? result.why_we_picked_it.join(", ")
+            : prev.why_we_picked_it,
+        insider_tip: mode === "overwrite" || !prev.insider_tip ? result.insider_tip : prev.insider_tip,
+        best_time_to_visit:
+          mode === "overwrite" || !prev.best_time_to_visit ? result.best_time_to_visit : prev.best_time_to_visit,
+        local_context: mode === "overwrite" || !prev.local_context ? result.local_context : prev.local_context,
+      }));
+      toast.success(mode === "overwrite" ? "Editorial context regenerated" : "Empty fields filled");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "AI fill failed");
+    } finally {
+      setAiFilling(false);
+    }
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -381,11 +421,34 @@ export function ListingForm({
 
       {!partnerMode && (
       <section className="rounded-2xl border border-border bg-card p-6 space-y-4">
-        <div>
-          <h2 className="font-display text-lg font-semibold">Editorial context</h2>
-          <p className="text-xs text-muted-foreground mt-1">
-            Proprietary editorial detail that differentiates this listing from the source. Required for publishing.
-          </p>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h2 className="font-display text-lg font-semibold">Editorial context</h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Proprietary editorial detail that differentiates this listing from the source. Required for publishing.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => handleAiFill("fill")}
+              disabled={aiFilling}
+              className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent/20 disabled:opacity-50"
+              title="Fill only empty fields"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              {aiFilling ? "Generating…" : "AI auto-fill"}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleAiFill("overwrite")}
+              disabled={aiFilling}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-secondary disabled:opacity-50"
+              title="Regenerate all editorial fields, overwriting existing values"
+            >
+              Regenerate
+            </button>
+          </div>
         </div>
         <Field label="Editor's note (1–2 sentences shown above the description)">
           <textarea className={inputCls + " min-h-20"} value={v.editor_note}

@@ -642,6 +642,89 @@ export const enrichExistingListing = createServerFn({ method: "POST" })
     return { id: listing.id, slug: listing.slug, originality_score, blockedReason };
   });
 
+// ============= AI-generate just the editorial context fields (no scrape) =============
+
+const EditorialGenInput = z.object({
+  name: z.string().min(1),
+  category: z.enum(["Restaurant", "Hotel", "Attraction", "Tour", "Shopping", "Nightlife"]),
+  neighborhood: z.string().min(1),
+  address: z.string().optional().nullable(),
+  website: z.string().optional().nullable(),
+  short_description: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
+});
+
+export const generateEditorialContext = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => EditorialGenInput.parse(d))
+  .handler(async ({ data, context }) => {
+    await ensureAdmin(context.supabase, context.userId);
+
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
+
+    const sys = `You write proprietary editorial context for sandiego.com listings — an editorial guide, NOT a directory.
+${BRAND_VOICE}
+
+CATEGORY-SPECIFIC GUIDANCE (${data.category}):
+${CATEGORY_PROMPTS[data.category]}
+
+You will produce ORIGINAL editorial commentary based on your knowledge of San Diego and the ${data.neighborhood} neighborhood. Do not copy phrases from the provided description — synthesize a local-perspective angle.`;
+
+    const userMsg = `Listing: ${data.name}
+Category: ${data.category}
+Neighborhood: ${data.neighborhood}
+${data.address ? `Address: ${data.address}` : ""}
+${data.website ? `Website: ${data.website}` : ""}
+${data.short_description ? `Short description: ${data.short_description}` : ""}
+${data.description ? `Existing description (for context only — do NOT copy): ${data.description.slice(0, 2000)}` : ""}
+
+Generate the editorial context fields for this listing.`;
+
+    const schema = {
+      type: "object",
+      properties: {
+        editor_note: { type: "string", description: "1–2 sentences in our voice — what makes this place worth a visit." },
+        why_we_picked_it: { type: "array", items: { type: "string" }, description: "3–5 short reason chips like 'Date night', 'Outdoor seating', 'Walk-ins welcome'." },
+        insider_tip: { type: "string", description: "1 sentence — best seat, what to order, when to go." },
+        best_time_to_visit: { type: "string", description: "Short — e.g. 'Weeknights before 6:30pm' or 'Sunday brunch'." },
+        local_context: { type: "string", description: "1–2 sentences placing the spot in its neighborhood." },
+      },
+      required: ["editor_note", "why_we_picked_it", "insider_tip", "best_time_to_visit", "local_context"],
+      additionalProperties: false,
+    };
+
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: sys },
+          { role: "user", content: userMsg },
+        ],
+        response_format: { type: "json_schema", json_schema: { name: "editorial_context", strict: true, schema } },
+      }),
+    });
+    if (res.status === 429) throw new Error("Rate limit hit. Please try again in a moment.");
+    if (res.status === 402) throw new Error("AI credits exhausted. Add credits in Workspace settings.");
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(`AI generation failed [${res.status}]: ${t.slice(0, 300)}`);
+    }
+    const json = (await res.json()) as any;
+    const content = json.choices?.[0]?.message?.content;
+    if (!content) throw new Error("AI returned empty content");
+    const parsed = JSON.parse(content);
+    return {
+      editor_note: String(parsed.editor_note ?? ""),
+      why_we_picked_it: Array.isArray(parsed.why_we_picked_it) ? parsed.why_we_picked_it.slice(0, 6).map(String) : [],
+      insider_tip: String(parsed.insider_tip ?? ""),
+      best_time_to_visit: String(parsed.best_time_to_visit ?? ""),
+      local_context: String(parsed.local_context ?? ""),
+    };
+  });
+
 // ============= Queued bulk import =============
 
 const EnqueueInput = z.object({
