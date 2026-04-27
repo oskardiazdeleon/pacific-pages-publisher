@@ -1177,7 +1177,7 @@ export const aiInsertInternalLinks = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
 
     // 1) Build candidate pool from the database.
-    const supabase = supabaseAdmin();
+    const supabase = supabaseAdmin;
     const [listingsRes, blogRes, articlesRes] = await Promise.all([
       supabase
         .from("listings")
