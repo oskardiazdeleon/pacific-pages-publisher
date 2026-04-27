@@ -1341,4 +1341,8 @@ Choose 4–${data.maxLinks} anchor phrases from the body and the best matching c
     }
 
     return { applied, skipped, body };
+   } catch (err) {
+    console.error("[aiInsertInternalLinks] handler error:", err);
+    throw err instanceof Error ? err : new Error(String(err));
+   }
   });
