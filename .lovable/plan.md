@@ -1,100 +1,119 @@
-## What's wrong with the current page
+## Goal
 
-Looking at the Kingfisher screenshot:
+Make it trivial to launch new themed category pages (like **Wineries**, **Breweries**, **Beaches**, **Family**, etc.) that share the same modern look as the Cruises hub: a sponsorable HERO, a curated listings grid, related Articles, and related Blog posts — all driven by config + CMS, no per-page custom code.
 
-1. **Hero is a giant disconnected image** — no name, neighborhood, rating or CTA overlaid; the user has to scroll past it to learn what the place even is.
-2. **Description is duplicated** — short_description renders, then almost the same text renders again as the long description. Looks broken.
-3. **Contact row floats in dead space** — address / phone / "Visit website" sit alone with no map, no hours, no "Open now" status.
-4. **No gallery** — we store a `gallery[]` column but never use it.
-5. **No hours** — `hours` JSONB exists; never displayed. Users have to leave the page to know if it's open.
-6. **No "what's around"** — dead end. No related restaurants, no neighborhood context, no editorial articles that mention this place.
-7. **FAQ is generic filler** — same 3 questions for every listing, last one is a sales pitch. Crawlers will see this as boilerplate and discount it.
-8. **No way to act** — no Reserve, Call, Directions, Save, or Share buttons in a sticky way.
+## What you'll get
 
-## What top sites do (reference)
+1. A reusable **`ThemedHubPage`** component with the cruise-style split HERO (image + floating stat cards + sponsor override + search + chips), an Articles strip, a Blog strip, and a listings grid.
+2. A single **`THEMED_HUBS`** config file. Adding a new category page = adding one entry + one 3-line route file.
+3. **Wineries** shipped as the first example at `/wineries`.
+4. CMS hero override per hub (sponsor name/logo/link + custom heading/sub) using the existing `homepage_sections` pattern (`{slug}_hero` key), editable from `/admin/cms/homepage`.
 
-- **Resy** — sticky right-rail booking widget, big photo gallery grid, "Need to know" chips (dress code, parking), neighborhood map.
-- **The Infatuation** — opinionated editorial blurb up top, "Perfect for" tag chips (Date Night, Big Groups), photo strip, "Suggested reading" related articles.
-- **Eater** — magazine hero with credit, pull-quote review, embedded map with nearby Eater picks, "More in [Neighborhood]" rail.
-- **OpenTable / Google Places** — at-a-glance bar (rating · price · cuisine · open status · neighborhood), tabbed sections (Overview / Photos / Menu / Reviews), embedded map.
-- **Yelp** — primary action buttons stuck to the top (Directions, Call, Website, Save, Share), photo lightbox grid.
-
-## Proposed redesign
+## URL & content model
 
 ```text
-┌─────────────────────────────────────────────────────────┐
-│ HERO (60vh, photo + dark gradient, info OVERLAID)       │
-│   Restaurant · Golden Hill · $$ · ★ 4.6                 │
-│   Kingfisher                                            │
-│   "Vietnamese-leaning seafood in a jewel-box bar."      │
-│   [Reserve] [Call] [Directions] [Website]  ♡  ⤴         │
-└─────────────────────────────────────────────────────────┘
-┌────────────────────────────┬────────────────────────────┐
-│ STICKY SUB-NAV (scrolls)   │                            │
-│ Overview · Photos · Hours  │  RIGHT RAIL (sticky)       │
-│  · Location · Nearby       │  ┌──────────────────────┐  │
-│                            │  │ ● Open until 11pm    │  │
-│ ## The vibe                │  │  Today 5–11pm   ▾    │  │
-│  editorial description     │  ├──────────────────────┤  │
-│                            │  │ 📞 619.432.1014      │  │
-│ ## Good to know            │  │ 🌐 kingfishersd.com  │  │
-│  chips: Date night ·       │  │ 📍 2469 Broadway     │  │
-│  Outdoor seating · etc     │  │      Get directions  │  │
-│                            │  ├──────────────────────┤  │
-│ ## Photos (3-col masonry)  │  │ Insider 30% off      │  │
-│  + lightbox                │  │  [Become an Insider] │  │
-│                            │  └──────────────────────┘  │
-│ ## Where you'll be         │                            │
-│  embedded map + address    │                            │
-│                            │                            │
-│ ## More in Golden Hill     │                            │
-│  4-card carousel           │                            │
-│                            │                            │
-│ ## More restaurants        │                            │
-│  4-card carousel           │                            │
-└────────────────────────────┴────────────────────────────┘
+/wineries                  → ThemedHubPage (HERO + Articles + Blog + Listings grid)
+/wineries/$slug            → existing ListingDetailPage (reuses listings table)
 ```
 
-### Mobile
-- Hero stays full-bleed with overlaid info.
-- Right rail collapses into a **sticky bottom action bar** (Call · Directions · Website · Save) — same pattern Yelp/Google Maps use.
-- Hours becomes a collapsible "Open until 11pm ▾" pill at the top of content.
+- **Listings**: themed hubs filter the existing `listings` table by **tag match on `short_description`/`name`** OR a configured set of `dbCategories` (e.g. Wineries → `category = Restaurant` + name/desc contains "winery"/"wine"). No DB enum change needed — keeps it instantly extensible.
+- **Articles** strip: pulls from `articles` where `category` matches the hub's `contentTag` OR any `tags` overlap. Top 3 shown.
+- **Blog** strip: pulls from `blog_posts` where `category = hub.contentTag` OR `tags` overlap. Top 3 shown.
+- **Hero CMS override**: same mechanism as cruises — `homepage_sections` row with `section_key = "{slug}_hero"`. Sponsor mode swaps the eyebrow chip for "Presented by {logo}" and lets the sponsor override headline/sub.
 
-### Concrete UX wins
-- **Open / closed status** computed live from `hours` JSON ("Open · closes 11pm" in green, "Closed · opens 5pm" in muted).
-- **Photo gallery** with lightbox — uses `gallery[]`; falls back to hero only.
-- **Embedded map** (static OpenStreetMap tile, no API key needed) with a "Get Directions" deep link to Google/Apple Maps.
-- **Action chips** instead of cards for Call / Directions / Website / Save / Share — always visible, work on hover and on mobile.
-- **"More in [neighborhood]" + "More [category]"** carousels — keeps users on site, big SEO internal-linking win.
-- **Smarter FAQ** — drop the boilerplate Insider question; auto-generate from real fields (hours, price range, reservations, parking) so each FAQ is unique per listing.
-- **Sponsor slot** — right-rail card is the natural place to sell premium placements ("Featured by [Brand]" or Insider perks).
+## Files to create
 
-## Technical changes
+- `src/lib/themed-hubs.ts` — config registry (`THEMED_HUBS`), helpers `themedHubForSlug`, `listingsMatchHub`.
+- `src/components/site/ThemedHubPage.tsx` — the reusable hub layout (HERO, Articles strip, Blog strip, Listings grid, JSON-LD).
+- `src/components/site/HubArticlesStrip.tsx` — 3-card horizontal articles row.
+- `src/components/site/HubBlogStrip.tsx` — 3-card lifestyle-style blog row.
+- `src/routes/wineries.index.tsx` — 10-line route file using `ThemedHubPage`.
+- `src/routes/wineries.$slug.tsx` — listing detail (mirrors `hotels.$slug.tsx`).
 
-**New files**
-- `src/components/site/listing/ListingHero.tsx` — full-bleed photo, gradient, overlaid title block + action chips.
-- `src/components/site/listing/ListingActionBar.tsx` — desktop chip row + mobile sticky bottom bar.
-- `src/components/site/listing/ListingHours.tsx` — parses `hours` JSONB, computes open/closed, renders the weekly schedule in a popover.
-- `src/components/site/listing/ListingGallery.tsx` — masonry grid + lightbox (use existing `Dialog` from `@/components/ui/dialog`).
-- `src/components/site/listing/ListingMap.tsx` — static OSM tile via `staticmap.openstreetmap.de` (no key) + "Get Directions" link.
-- `src/components/site/listing/ListingSidebar.tsx` — sticky right-rail card.
-- `src/components/site/listing/RelatedListings.tsx` — fetches same-neighborhood and same-category siblings.
-- `src/lib/hours.ts` — hours parsing/formatting helpers + open-now computation.
+## Files to update
 
-**Changed**
-- `src/components/site/ListingDetailPage.tsx` — rewritten to compose the new components in the two-column layout. Keeps the same `Listing` prop shape, the `expectedHub` redirect logic, and the JSON-LD blocks (just enriched with `openingHours`, `geo` if available, `image[]` from gallery).
-- `src/lib/content-queries.ts` — add `fetchRelatedListings({ category, neighborhood, excludeId, limit })`.
+- `src/routes/admin.cms.homepage.tsx` — add a `wineries_hero` (and any future themed hub) editor section, mirroring the cruises hero block (sponsor toggle + name/logo/link + heading/sub overrides).
+- `src/components/site/Header.tsx` — add "Wineries" to the main nav.
+- `src/lib/listing-categories.ts` — leave untouched (themed hubs are a parallel system — they don't replace the 5 main category hubs).
 
-**Data**
-- No schema changes required. `gallery`, `hours`, `rating`, `price_range` already exist; we just start using them. Listings missing these fields gracefully degrade (gallery section hidden, hours pill hidden, etc.).
-- Optional follow-up (not in this change): extend the Firecrawl import to also pull `hours` and additional photos so pages get richer over time.
+## `THEMED_HUBS` schema
 
-**SEO**
-- Replace boilerplate FAQ with field-derived FAQ (only render questions we can actually answer from real data).
-- Enrich JSON-LD with `openingHoursSpecification`, `image: gallery`, and `priceRange`.
-- Internal links to neighborhood hub + category hub + 4 related listings = stronger crawl graph.
+Each entry fully describes a page so adding one is config-only:
 
-## Out of scope (call out for later)
-- Real reservations integration (Resy/OpenTable deep links can be added once we capture a `reservation_url` field).
-- User reviews / ratings submission.
-- Backfilling hours + extra gallery photos for the 50 imported restaurants — separate enrichment job.
+```ts
+{
+  slug: "wineries",
+  label: "Wineries",
+  eyebrow: "Wine country",
+  heading: "San Diego Wineries",
+  headingAccent: "from vine to glass.",
+  subheading: "Tasting rooms in Ramona, urban wineries in Miramar...",
+  heroImage: "https://images.unsplash.com/photo-...",
+  searchPlaceholder: "Search wineries, varietals, regions…",
+  popularChips: [
+    { label: "Ramona Valley", to: "/wineries", search: "ramona" },
+    { label: "Urban Wineries", to: "/wineries", search: "urban" },
+  ],
+  stats: [
+    { value: "40+", label: "Wineries" },
+    { value: "12", label: "AVA Regions" },
+    { value: "$15", label: "Tastings From" },
+  ],
+  // listings filter
+  listingFilter: {
+    dbCategories: ["Restaurant", "Attraction"],
+    keywords: ["winery", "wine", "vineyard", "tasting"],
+  },
+  // related content
+  contentTag: "wineries",        // matched against articles.category / blog_posts.category
+  tagAliases: ["wine", "vineyard"],
+  // SEO
+  metaTitle: "Best San Diego Wineries — Tasting Rooms & Vineyards",
+  metaDescription: "...",
+  // Insider CTA bar (optional, default on)
+  insiderCta: { icon: "Wine", title: "Sip smarter with Insider", body: "Free tastings..." },
+}
+```
+
+## Adding a future themed hub (the payoff)
+
+1. Add one entry to `THEMED_HUBS` in `src/lib/themed-hubs.ts`.
+2. Create `src/routes/{slug}.index.tsx` (10 lines, copy of wineries route).
+3. Create `src/routes/{slug}.$slug.tsx` (10 lines, copy of wineries detail).
+4. (Optional) Add a `{slug}_hero` block to the homepage CMS admin for sponsor override.
+
+That's it — HERO, Articles, Blog, and Listings all wire up from config.
+
+## ASCII layout of the new template
+
+```text
+┌──────────────────────────────────────────────────────────────┐
+│ Header                                                        │
+├──────────────────────────────────────────────────────────────┤
+│ Breadcrumbs › Wineries                                       │
+│                                                               │
+│  ┌─ Eyebrow / Sponsor chip                ┌──────────────┐  │
+│  │  H1 headline + accent line             │              │  │
+│  │  Subheading paragraph                  │  Hero image  │  │
+│  │  [🔍 Search ………………………… ] [Search]      │              │  │
+│  │  Popular: [chip] [chip] [chip]         │  ┌──┬──┬──┐  │  │
+│  │                                         │  │St│St│St│  │  │
+│  └────────────────────────────────────────┘  └──┴──┴──┘  │  │
+│                                                               │
+│  ┌── Insider CTA bar ───────────────────── [Join Insider] ┐  │
+├──────────────────────────────────────────────────────────────┤
+│ Featured Stories  (Articles strip — 3 cards)                  │
+├──────────────────────────────────────────────────────────────┤
+│ From the Blog    (Blog strip — 3 lifestyle cards)             │
+├──────────────────────────────────────────────────────────────┤
+│ All Wineries     (Listings grid — ListingCard, 3 cols)        │
+├──────────────────────────────────────────────────────────────┤
+│ Footer                                                        │
+└──────────────────────────────────────────────────────────────┘
+```
+
+## Notes / non-goals
+
+- Not adding a new DB enum value for "Winery" — uses keyword + category filter on existing `listings` so you can publish winery listings today without a migration.
+- If later you want strict typed categories (e.g. a real `Winery` enum), that's a small follow-up migration; the template won't need to change.
+- Articles/Blog strips gracefully hide when there's no matching content.
