@@ -421,11 +421,34 @@ export function ListingForm({
 
       {!partnerMode && (
       <section className="rounded-2xl border border-border bg-card p-6 space-y-4">
-        <div>
-          <h2 className="font-display text-lg font-semibold">Editorial context</h2>
-          <p className="text-xs text-muted-foreground mt-1">
-            Proprietary editorial detail that differentiates this listing from the source. Required for publishing.
-          </p>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h2 className="font-display text-lg font-semibold">Editorial context</h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Proprietary editorial detail that differentiates this listing from the source. Required for publishing.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => handleAiFill("fill")}
+              disabled={aiFilling}
+              className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent/20 disabled:opacity-50"
+              title="Fill only empty fields"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              {aiFilling ? "Generating…" : "AI auto-fill"}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleAiFill("overwrite")}
+              disabled={aiFilling}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-secondary disabled:opacity-50"
+              title="Regenerate all editorial fields, overwriting existing values"
+            >
+              Regenerate
+            </button>
+          </div>
         </div>
         <Field label="Editor's note (1–2 sentences shown above the description)">
           <textarea className={inputCls + " min-h-20"} value={v.editor_note}
