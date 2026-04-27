@@ -11,6 +11,11 @@ import { ListingHoursPanel, useListingHours } from "./listing/ListingHours";
 import { ListingGallery } from "./listing/ListingGallery";
 import { ListingMap } from "./listing/ListingMap";
 import { RelatedListings } from "./listing/RelatedListings";
+import {
+  PartnerSpotlight,
+  isSpotlightVisible,
+  type PartnerSpotlightData,
+} from "./listing/PartnerSpotlight";
 import { toSchemaOpeningHours } from "@/lib/hours";
 
 const SITE_URL = "https://sandiego.com";
@@ -34,6 +39,8 @@ type Listing = {
   hours?: unknown;
   meta_title?: string | null;
   meta_description?: string | null;
+  tier?: string | null;
+  partner_spotlight?: PartnerSpotlightData | null;
 };
 
 function reservationProvider(url: string): string {
