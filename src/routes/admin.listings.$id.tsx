@@ -45,6 +45,7 @@ function EditListing() {
         sponsor_until: row.sponsor_until
           ? new Date(row.sponsor_until).toISOString().slice(0, 16)
           : "",
+        partner_spotlight: (row.partner_spotlight ?? {}) as Partial<ListingFormValues["partner_spotlight"]>,
       });
     };
     load();
