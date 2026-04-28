@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Megaphone } from "lucide-react";
+import { Plus, Pencil, Megaphone, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -190,6 +190,15 @@ function AdminListings() {
                             {active ? "Promoted" : "Promote"}
                           </button>
                         )}
+                        <a
+                          href={`/listings/${r.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground text-xs font-medium"
+                          title="View public listing"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" /> View
+                        </a>
                         <Link
                           to="/admin/listings/$id"
                           params={{ id: r.id }}
