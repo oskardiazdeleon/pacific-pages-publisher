@@ -189,8 +189,8 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
 
               <h1 className="font-display text-5xl md:text-6xl xl:text-7xl font-semibold tracking-tight leading-[1.02] text-foreground">
                 {heroVal("heading")}
-                {hub.headingAccent && (
-                  <span className="block text-accent">{hub.headingAccent}</span>
+                {headingAccent && (
+                  <span className="block text-accent">{headingAccent}</span>
                 )}
               </h1>
 
