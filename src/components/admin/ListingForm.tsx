@@ -120,7 +120,18 @@ export function ListingForm({
       return;
     }
     setAiFilling(true);
+    const originalFetch = window.fetch;
     try {
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) throw new Error("Please sign in again before using AI auto-fill.");
+
+      window.fetch = (input, init = {}) => {
+        const headers = new Headers(init.headers || {});
+        headers.set("Authorization", `Bearer ${token}`);
+        return originalFetch(input, { ...init, headers });
+      };
+
       const result = await generateEditorialContextFn({
         data: {
           name: v.name.trim(),
@@ -132,7 +143,6 @@ export function ListingForm({
           description: v.description?.trim() || undefined,
         },
       });
-      console.log("[AI fill] result", result);
       const safeChips = Array.isArray(result?.why_we_picked_it)
         ? result.why_we_picked_it.filter((s: unknown): s is string => typeof s === "string")
         : [];
@@ -159,6 +169,7 @@ export function ListingForm({
       console.error("[AI fill] error", err);
       toast.error(err instanceof Error ? err.message : "AI fill failed");
     } finally {
+      window.fetch = originalFetch;
       setAiFilling(false);
     }
   };
