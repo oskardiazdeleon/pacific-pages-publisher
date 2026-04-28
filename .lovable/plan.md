@@ -1,77 +1,51 @@
+## Goal
 
-# Plan — Make imported listings genuinely unique for Google + LLMs
+Fix the awkward layout of the editorial section on the homepage and replace the generic "The Magazine / Stories from the coast" wording with something with genuine San Diego personality.
 
-Goal: every imported listing carries proprietary editorial context, structured data, and a quality gate so it can't go live as paraphrased boilerplate.
+## Problem
 
-## What changes
+In `src/routes/index.tsx` (lines 170–189), the editorial section uses a 5-column grid:
+- Left (`col-span-3`): one `ArticleCard large` — which itself is a side-by-side image+text card
+- Right (`col-span-2`): two stacked standard `ArticleCard`s
 
-### 1. Stronger AI rewrite contract (`src/utils/import.functions.ts`)
-Rebuild `aiNormalize` for listings:
-- Per-category prompt templates (Restaurant / Hotel / Attraction / Tour / Shopping / Nightlife) — each enforces its own structure (e.g. restaurants: hook → cuisine/vibe → signature dish → who it's for → reservation tip).
-- Brand voice rules baked in: second-person, knowledgeable local, no marketing fluff, banned phrases ("hidden gem", "must-visit", "something for everyone", "nestled").
-- Forbid copying any 8-word run verbatim from the source.
-- Output expanded schema with new fields: `editor_note`, `why_we_picked_it` (string[]), `insider_tip`, `best_time_to_visit`, `local_context` (1–2 sentences referencing the neighborhood).
-- After generation, run a cheap n-gram overlap check vs source markdown; if >25% shared 5-grams, regenerate once with a "more original" instruction.
+Because the lead card is short (image and text sit side-by-side), and the right column stacks two full cards vertically, the left column ends with a large empty void below it (visible in the screenshot).
 
-### 2. Schema additions (migration)
-Add to `listings`:
-- `editor_note text`
-- `why_we_picked_it text[] default '{}'`
-- `insider_tip text`
-- `best_time_to_visit text`
-- `local_context text`
-- `curator_id uuid` (references profile / editor)
-- `verified_visited boolean default false`
-- `verified_at timestamptz`
-- `source_url text` (provenance)
-- `originality_score numeric` (0–1, computed at import)
+## Fix — Layout
 
-No RLS changes needed — same policies cover the new columns.
+Rebalance the editorial grid so the lead article visually anchors the section without leaving dead space:
 
-### 3. Quality gate before publish
-In `insertListing` (and curated path):
-- If `description` <300 chars, OR `editor_note` empty, OR `hero_image` null, OR `originality_score < 0.6` → force `status = 'draft'` regardless of `autoPublish`. Store reason in a new `import_job_items.last_error`-style note so editors see why it didn't publish.
+**Option chosen:** Switch to a 12-column layout where:
+- Lead article (left, `lg:col-span-7`) renders as a single tall card — image on top (aspect ~16/10), headline + excerpt below. Drop the side-by-side `large` variant here.
+- Right column (`lg:col-span-5`) keeps two stacked standard cards but tightens spacing so heights match.
 
-### 4. Listing detail page upgrades (`src/components/site/ListingDetailPage.tsx`)
-- **Editor's note callout** above the description (when present).
-- **"Why we picked it"** chip row near the hero.
-- **Insider tip** small highlighted block in the sidebar.
-- **Best time to visit** inline with hours panel.
-- **Local context** paragraph appended to the description.
-- **Byline + freshness line**: "Curated by [Curator name] · Updated [date]" + "Verified visited" badge when applicable.
-- **Pair this with** module: pick 2 nearby listings of complementary categories (restaurant → bar/coffee, hotel → restaurant + attraction).
-- **JSON-LD**: emit `LocalBusiness` / `Restaurant` / `Hotel` / `TouristAttraction` with `name`, `address`, `geo` (if available), `priceRange`, `aggregateRating` (if rating exists), `openingHoursSpecification`, `image`, `url`, `dateModified`. Wired through TanStack `head()` so it ships in SSR HTML.
+This gives a magazine-style "1 hero + 2 secondary" composition with no empty gap. Update `ArticleCard` only if needed — likely we can keep `large` and just change how it's used (image-on-top instead of side-by-side) by passing a new prop like `orientation="vertical"`, or simpler: render the lead with custom JSX inline in `index.tsx` and remove the `large` prop usage here.
 
-### 5. Per-listing meta variation (`src/routes/listings.$slug.tsx`)
-Title/description templates use neighborhood + category + signature trait so two restaurants never share the same meta. og:image already uses `hero_image` — confirm + add `twitter:image`.
+Preferred approach: render the lead card inline with a vertical layout (image top, text bottom) directly in `index.tsx` to keep `ArticleCard` simple. The lead image gets `aspect-[16/10]` so the card height roughly matches two stacked standard cards on the right.
 
-### 6. Admin form additions (`src/components/admin/ListingForm.tsx`)
-New "Editorial context" panel exposing all new fields, plus "Mark as visited" toggle and curator dropdown (auto-set to current user on first save).
+## Fix — Naming
 
-### 7. Backfill helper
-A small server function `enrichExistingListing(id)` that re-runs the new AI rewrite for an already-imported listing using its `source_url`, so older imports can be upgraded without re-importing. Surfaced as a "Re-enrich with AI" button on the admin listing page.
+Replace "The Magazine" eyebrow and "Stories from the coast" heading with options that feel San Diego: sun, surf, tacos, neighborhoods, locals.
 
-## Files touched
+I'll pick one default and mention alternates in the response. Recommended default:
 
-- `src/utils/import.functions.ts` — rewrite contract, n-gram check, quality gate, new fields, enrich function
-- `supabase/migrations/<new>.sql` — column additions
-- `src/components/site/ListingDetailPage.tsx` — new modules, byline, JSON-LD
-- `src/components/site/listing/EditorialContext.tsx` *(new)* — editor note, why-we-picked, insider tip blocks
-- `src/components/site/listing/PairThisWith.tsx` *(new)* — companion listings module
-- `src/routes/listings.$slug.tsx` — meta templates, twitter:image, loader fetches new fields + curator profile
-- `src/components/admin/ListingForm.tsx` — Editorial context panel
-- `src/routes/admin.listings.$id.tsx` — "Re-enrich" button
+- **Eyebrow:** `LOCAL DISPATCH`
+- **Heading:** `Postcards from San Diego`
 
-## Out of scope (call out for later)
+Alternates I'll mention so you can pick:
+- `THE LOCAL` / `Notes from the 619`
+- `FROM THE LOCALS` / `Sun, surf & stories`
+- `INSIDER INTEL` / `What locals are talking about`
+- `LATEST DROP` / `Tacos, tides & trails`
 
-- Reviews/tips UGC (separate plan from previous turn).
-- Author E-E-A-T pages (curator profile pages) — this plan adds the byline; full creator profile pages can come with the Creator Program.
-- Auto-composited OG images per listing — defer; we'll use existing hero for now.
+The defaults are stored in `c("editorial", "eyebrow", ...)` and `c("editorial", "heading", ...)` calls — these are just fallback strings used when no CMS override exists, so changing them is safe and won't affect any saved CMS content.
 
-## Open questions before I build
+## Files to change
 
-1. **Curator default**: when an admin imports, set curator = themselves automatically, or leave blank and force them to assign? (Default I'll use: auto-assign to importer.)
-2. **Auto re-enrich**: should I batch-re-enrich existing published listings on first deploy, or leave it as a manual per-listing button? (Default: manual button only — safer.)
-3. **Originality threshold**: is 0.6 too strict / too loose? Easy to tune — I'll start at 0.6 and expose it as a setting in `site_settings` so you can adjust without a deploy.
+- `src/routes/index.tsx` — rebuild the editorial section JSX (lines ~170–189) with the new 7/5 grid, vertical lead card, and new eyebrow/heading defaults.
 
-If those defaults look fine, just say "go" and I'll implement. Otherwise tell me what to change.
+No other files need to change. `ArticleCard` stays as-is.
+
+## Out of scope
+
+- The neighborhoods, partner CTA, and other sections below are unchanged.
+- No CMS schema or DB changes — only fallback copy.
