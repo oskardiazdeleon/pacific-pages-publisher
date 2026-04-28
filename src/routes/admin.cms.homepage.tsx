@@ -279,7 +279,7 @@ function HomepagePage() {
             </div>
           </div>
           <ul className="max-h-[70vh] overflow-y-auto">
-            {(["homepage", "cruises", "themed_hubs"] as LocationKey[]).map((loc) => {
+            {(["homepage", "category_hubs", "cruises", "themed_hubs"] as LocationKey[]).map((loc) => {
               const items = filtered.filter((s) => locationForSection(s) === loc);
               if (items.length === 0) return null;
               const meta = LOCATIONS[loc];
