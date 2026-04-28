@@ -72,12 +72,19 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
   const sponsorLogo = (cms["sponsor_logo_url"] as string) || "";
   const sponsorLink = (cms["sponsor_link_url"] as string) || "";
 
-  const heroVal = (field: "eyebrow" | "heading" | "subheading"): string => {
-    if (sponsorActive) {
-      return ((cms[field] as string) || "").trim() || hub[field];
-    }
-    return hub[field];
+  // CMS overrides win when present; otherwise fall back to the hardcoded hub config.
+  const cmsStr = (key: string, fallback: string): string => {
+    const v = (cms[key] as string | undefined)?.toString().trim();
+    return v && v.length > 0 ? v : fallback;
   };
+  const heroVal = (field: "eyebrow" | "heading" | "subheading"): string => {
+    return cmsStr(field, hub[field]);
+  };
+  const headingAccent = cmsStr("heading_accent", hub.headingAccent || "");
+  const searchPlaceholder = cmsStr(
+    "search_placeholder",
+    hub.searchPlaceholder || `Search ${hub.label.toLowerCase()}…`,
+  );
 
   const visibleItems = useMemo(() => {
     if (!search.trim()) return items;
@@ -121,10 +128,26 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
   const jsonLd = [collectionJsonLd, itemListJsonLd, breadcrumbJsonLd(breadcrumbs)];
 
   const heroImage =
-    hub.heroImage ||
+    cmsStr("hero_image_url", hub.heroImage || "") ||
     "https://images.unsplash.com/photo-1538397956038-5b30aea4f88a?w=1600&q=80";
-  const popularChips = hub.popularChips ?? [];
-  const stats = hub.stats ?? [];
+
+  const cmsChips = Array.isArray(cms["popular_chips"])
+    ? ((cms["popular_chips"] as Array<{ label?: string; keyword?: string }>) ?? [])
+        .filter((c) => c?.label?.trim())
+        .map((c) => ({ label: c.label!.trim(), keyword: (c.keyword || c.label || "").trim() }))
+    : [];
+  const popularChips = cmsChips.length > 0 ? cmsChips : (hub.popularChips ?? []);
+
+  const cmsStats = Array.isArray(cms["stats"])
+    ? ((cms["stats"] as Array<{ value?: string; label?: string }>) ?? [])
+        .filter((s) => s?.value?.toString().trim() && s?.label?.toString().trim())
+        .map((s) => ({ value: s.value!.toString().trim(), label: s.label!.toString().trim() }))
+    : [];
+  const stats = cmsStats.length > 0 ? cmsStats : (hub.stats ?? []);
+
+  const insiderTitle = cmsStr("insider_cta_title", hub.insiderCta?.title || "");
+  const insiderBody = cmsStr("insider_cta_body", hub.insiderCta?.body || "");
+  const showInsiderCta = Boolean(insiderTitle || insiderBody);
 
   return (
     <div className="min-h-screen bg-background">
