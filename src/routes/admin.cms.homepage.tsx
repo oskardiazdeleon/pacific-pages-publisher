@@ -22,9 +22,15 @@ type Section = {
 type FieldDef = {
   name: string;
   label: string;
-  type?: "text" | "textarea" | "image" | "toggle";
+  type?: "text" | "textarea" | "image" | "toggle" | "repeater";
   help?: string;
   group?: "content" | "sponsor" | "advanced";
+  /** For type="repeater": the editable subfields per row. */
+  itemFields?: { name: string; label: string; placeholder?: string }[];
+  /** For type="repeater": friendly label for the add button (e.g. "chip", "stat"). */
+  itemLabel?: string;
+  /** For type="repeater": cap on number of rows. */
+  maxItems?: number;
 };
 
 const FIELDS_BY_TYPE: Record<string, FieldDef[]> = {
