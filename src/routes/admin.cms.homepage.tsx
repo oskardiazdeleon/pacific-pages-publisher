@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Save, Send, Eye, EyeOff, ChevronDown, Search, Megaphone, Sparkles, Settings2 } from "lucide-react";
+import { Save, Send, Eye, EyeOff, ChevronDown, Search, Megaphone, Sparkles, Settings2, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CmsImageUpload } from "@/components/admin/CmsImageUpload";
 
