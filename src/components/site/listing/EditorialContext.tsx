@@ -60,21 +60,38 @@ export function WhyWePickedIt({ reasons }: { reasons: string[] }) {
 export function InsiderTipCard({ tip, bestTime }: { tip?: string | null; bestTime?: string | null }) {
   if (!tip && !bestTime) return null;
   return (
-    <div className="rounded-3xl border border-border bg-card p-5 shadow-sm">
-      {tip && (
-        <>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-secondary/60 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-foreground">
-            <Lightbulb className="h-3 w-3" /> Insider tip
+    <div className="relative overflow-hidden rounded-3xl p-6 pt-8 shadow-[0_20px_50px_-20px_hsl(var(--accent)/0.45)] ring-1 ring-accent/20 bg-gradient-to-br from-accent/15 via-card to-primary/10">
+      {/* Decorative sun-burst accent */}
+      <div aria-hidden className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-accent/30 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-20 -left-12 h-36 w-36 rounded-full bg-primary/20 blur-3xl" />
+
+      {/* Floating icon badge */}
+      <div className="absolute -top-4 left-6 flex h-10 w-10 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-lg ring-4 ring-background">
+        <Lightbulb className="h-5 w-5" />
+      </div>
+
+      <div className="relative">
+        {tip && (
+          <>
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
+              Insider tip
+            </div>
+            <p className="mt-2 font-display text-lg leading-snug text-foreground">
+              "{tip}"
+            </p>
+          </>
+        )}
+        {bestTime && (
+          <div className={`flex items-center gap-2.5 text-sm ${tip ? "mt-5 pt-4 border-t border-accent/20" : ""}`}>
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-background/70 ring-1 ring-accent/30">
+              <Clock className="h-3.5 w-3.5 text-accent" />
+            </div>
+            <span className="text-muted-foreground">
+              <span className="font-semibold text-foreground">Best time:</span> {bestTime}
+            </span>
           </div>
-          <p className="mt-3 text-sm leading-relaxed text-foreground">{tip}</p>
-        </>
-      )}
-      {bestTime && (
-        <div className={`flex items-center gap-2 text-sm text-muted-foreground ${tip ? "mt-4 pt-4 border-t border-border" : ""}`}>
-          <Clock className="h-4 w-4 text-accent" />
-          <span><span className="font-medium text-foreground">Best time:</span> {bestTime}</span>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
