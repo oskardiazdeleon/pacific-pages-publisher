@@ -120,12 +120,12 @@ export function ListingForm({
       return;
     }
     setAiFilling(true);
+    const originalFetch = window.fetch;
     try {
       const { data } = await supabase.auth.getSession();
       const token = data.session?.access_token;
       if (!token) throw new Error("Please sign in again before using AI auto-fill.");
 
-      const originalFetch = window.fetch;
       window.fetch = (input, init = {}) => {
         const headers = new Headers(init.headers || {});
         headers.set("Authorization", `Bearer ${token}`);
