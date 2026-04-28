@@ -49,6 +49,7 @@ export interface ListingFormValues {
   local_context: string;
   source_url: string;
   verified_visited: boolean;
+  faqs: { q: string; a: string }[];
 }
 
 const emptySpotlight: PartnerSpotlightValues = {
@@ -72,6 +73,7 @@ const empty: ListingFormValues = {
   editor_note: "", why_we_picked_it: "", insider_tip: "",
   best_time_to_visit: "", local_context: "", source_url: "",
   verified_visited: false,
+  faqs: [],
 };
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -247,6 +249,9 @@ export function ListingForm({
         source_url: v.source_url.trim() || null,
         verified_visited: v.verified_visited,
         verified_at: v.verified_visited ? new Date().toISOString() : null,
+        faqs: v.faqs
+          .map((f) => ({ q: f.q.trim(), a: f.a.trim() }))
+          .filter((f) => f.q && f.a),
       };
 
       const res = v.id
@@ -515,6 +520,55 @@ export function ListingForm({
           />
           <span className="text-sm font-medium">Mark as verified visited</span>
         </label>
+      </section>
+      )}
+
+      {!partnerMode && (
+      <section className="rounded-2xl border border-border bg-card p-6 space-y-4">
+        <div>
+          <h2 className="font-display text-lg font-semibold">FAQs</h2>
+          <p className="text-xs text-muted-foreground mt-1">
+            Custom questions & answers for this listing. Leave empty to auto-generate FAQs from address, hours, contact, and price.
+          </p>
+        </div>
+        {v.faqs.length === 0 && (
+          <p className="text-xs text-muted-foreground italic">No custom FAQs — defaults will be shown.</p>
+        )}
+        <div className="space-y-3">
+          {v.faqs.map((f, i) => (
+            <div key={i} className="rounded-xl border border-border bg-background p-3 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">FAQ #{i + 1}</span>
+                <button
+                  type="button"
+                  onClick={() => set("faqs", v.faqs.filter((_, idx) => idx !== i))}
+                  className="text-xs font-medium text-destructive hover:underline"
+                >
+                  Remove
+                </button>
+              </div>
+              <input
+                className={inputCls}
+                placeholder="Question"
+                value={f.q}
+                onChange={(e) => set("faqs", v.faqs.map((x, idx) => idx === i ? { ...x, q: e.target.value } : x))}
+              />
+              <textarea
+                className={inputCls + " min-h-20"}
+                placeholder="Answer"
+                value={f.a}
+                onChange={(e) => set("faqs", v.faqs.map((x, idx) => idx === i ? { ...x, a: e.target.value } : x))}
+              />
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => set("faqs", [...v.faqs, { q: "", a: "" }])}
+          className="rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-xs font-semibold text-accent hover:bg-accent/20"
+        >
+          + Add FAQ
+        </button>
       </section>
       )}
 

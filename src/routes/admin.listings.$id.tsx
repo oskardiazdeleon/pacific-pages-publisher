@@ -58,6 +58,12 @@ function EditListing() {
         local_context: row.local_context ?? "",
         source_url: row.source_url ?? "",
         verified_visited: !!row.verified_visited,
+        faqs: Array.isArray(row.faqs)
+          ? (row.faqs as unknown[]).filter(
+              (f): f is { q: string; a: string } =>
+                !!f && typeof f === "object" && typeof (f as any).q === "string" && typeof (f as any).a === "string",
+            )
+          : [],
       });
     };
     load();

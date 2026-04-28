@@ -58,6 +58,7 @@ type Listing = {
   curator_id?: string | null;
   verified_visited?: boolean | null;
   updated_at?: string | null;
+  faqs?: unknown;
 };
 
 function reservationProvider(url: string): string {
@@ -155,37 +156,48 @@ export function ListingDetailPage({
   const canonicalUrl = `${SITE_URL}/${hub.slug}/${listing.slug}`;
   const tags = tagsForListing(listing);
 
-  // FAQs — derived from real fields when possible, generic only as fallback.
-  const faqs: { q: string; a: string }[] = [
-    {
-      q: `Where is ${listing.name} located?`,
-      a: listing.address
-        ? `${listing.name} is at ${listing.address} in ${listing.neighborhood}, San Diego.`
-        : `${listing.name} is located in ${listing.neighborhood}, San Diego.`,
-    },
-  ];
-  if (hours.label && hours.state !== "unknown") {
-    faqs.push({
-      q: `What are ${listing.name}'s hours?`,
-      a: `${listing.name} is currently ${hours.label.toLowerCase()}. See the hours panel for the full weekly schedule.`,
-    });
-  }
-  if (listing.phone || listing.website) {
-    faqs.push({
-      q: `How do I contact ${listing.name}?`,
-      a: [
-        listing.phone ? `Call ${listing.phone}.` : null,
-        listing.website ? `Visit the official website for current details.` : null,
-      ]
-        .filter(Boolean)
-        .join(" "),
-    });
-  }
-  if (listing.price_range) {
-    faqs.push({
-      q: `How expensive is ${listing.name}?`,
-      a: `${listing.name} is in the ${listing.price_range} price range.`,
-    });
+  // FAQs — prefer custom per-listing FAQs; otherwise derive from real fields.
+  const customFaqs = Array.isArray(listing.faqs)
+    ? (listing.faqs as unknown[]).filter(
+        (f): f is { q: string; a: string } =>
+          !!f && typeof f === "object" && typeof (f as any).q === "string" && typeof (f as any).a === "string" && (f as any).q.trim() && (f as any).a.trim(),
+      )
+    : [];
+  let faqs: { q: string; a: string }[];
+  if (customFaqs.length > 0) {
+    faqs = customFaqs;
+  } else {
+    faqs = [
+      {
+        q: `Where is ${listing.name} located?`,
+        a: listing.address
+          ? `${listing.name} is at ${listing.address} in ${listing.neighborhood}, San Diego.`
+          : `${listing.name} is located in ${listing.neighborhood}, San Diego.`,
+      },
+    ];
+    if (hours.label && hours.state !== "unknown") {
+      faqs.push({
+        q: `What are ${listing.name}'s hours?`,
+        a: `${listing.name} is currently ${hours.label.toLowerCase()}. See the hours panel for the full weekly schedule.`,
+      });
+    }
+    if (listing.phone || listing.website) {
+      faqs.push({
+        q: `How do I contact ${listing.name}?`,
+        a: [
+          listing.phone ? `Call ${listing.phone}.` : null,
+          listing.website ? `Visit the official website for current details.` : null,
+        ]
+          .filter(Boolean)
+          .join(" "),
+      });
+    }
+    if (listing.price_range) {
+      faqs.push({
+        q: `How expensive is ${listing.name}?`,
+        a: `${listing.name} is in the ${listing.price_range} price range.`,
+      });
+    }
   }
 
   const businessJsonLd: Record<string, unknown> = {
