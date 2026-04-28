@@ -209,9 +209,7 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
                   type="search"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder={
-                    hub.searchPlaceholder || `Search ${hub.label.toLowerCase()}…`
-                  }
+                  placeholder={searchPlaceholder}
                   className="flex-1 bg-transparent px-2 py-3.5 text-sm placeholder:text-muted-foreground focus:outline-none"
                 />
                 <button
