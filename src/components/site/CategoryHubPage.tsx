@@ -72,12 +72,19 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
   const sponsorLogo = (cms["sponsor_logo_url"] as string) || "";
   const sponsorLink = (cms["sponsor_link_url"] as string) || "";
 
-  const heroVal = (field: "eyebrow" | "heading" | "subheading"): string => {
-    if (sponsorActive) {
-      return ((cms[field] as string) || "").trim() || hub[field];
-    }
-    return hub[field];
+  // CMS overrides win when present; otherwise fall back to the hardcoded hub config.
+  const cmsStr = (key: string, fallback: string): string => {
+    const v = (cms[key] as string | undefined)?.toString().trim();
+    return v && v.length > 0 ? v : fallback;
   };
+  const heroVal = (field: "eyebrow" | "heading" | "subheading"): string => {
+    return cmsStr(field, hub[field]);
+  };
+  const headingAccent = cmsStr("heading_accent", hub.headingAccent || "");
+  const searchPlaceholder = cmsStr(
+    "search_placeholder",
+    hub.searchPlaceholder || `Search ${hub.label.toLowerCase()}…`,
+  );
 
   const visibleItems = useMemo(() => {
     if (!search.trim()) return items;
@@ -121,10 +128,26 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
   const jsonLd = [collectionJsonLd, itemListJsonLd, breadcrumbJsonLd(breadcrumbs)];
 
   const heroImage =
-    hub.heroImage ||
+    cmsStr("hero_image_url", hub.heroImage || "") ||
     "https://images.unsplash.com/photo-1538397956038-5b30aea4f88a?w=1600&q=80";
-  const popularChips = hub.popularChips ?? [];
-  const stats = hub.stats ?? [];
+
+  const cmsChips = Array.isArray(cms["popular_chips"])
+    ? ((cms["popular_chips"] as Array<{ label?: string; keyword?: string }>) ?? [])
+        .filter((c) => c?.label?.trim())
+        .map((c) => ({ label: c.label!.trim(), keyword: (c.keyword || c.label || "").trim() }))
+    : [];
+  const popularChips = cmsChips.length > 0 ? cmsChips : (hub.popularChips ?? []);
+
+  const cmsStats = Array.isArray(cms["stats"])
+    ? ((cms["stats"] as Array<{ value?: string; label?: string }>) ?? [])
+        .filter((s) => s?.value?.toString().trim() && s?.label?.toString().trim())
+        .map((s) => ({ value: s.value!.toString().trim(), label: s.label!.toString().trim() }))
+    : [];
+  const stats = cmsStats.length > 0 ? cmsStats : (hub.stats ?? []);
+
+  const insiderTitle = cmsStr("insider_cta_title", hub.insiderCta?.title || "");
+  const insiderBody = cmsStr("insider_cta_body", hub.insiderCta?.body || "");
+  const showInsiderCta = Boolean(insiderTitle || insiderBody);
 
   return (
     <div className="min-h-screen bg-background">
@@ -166,8 +189,8 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
 
               <h1 className="font-display text-5xl md:text-6xl xl:text-7xl font-semibold tracking-tight leading-[1.02] text-foreground">
                 {heroVal("heading")}
-                {hub.headingAccent && (
-                  <span className="block text-accent">{hub.headingAccent}</span>
+                {headingAccent && (
+                  <span className="block text-accent">{headingAccent}</span>
                 )}
               </h1>
 
@@ -186,9 +209,7 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
                   type="search"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder={
-                    hub.searchPlaceholder || `Search ${hub.label.toLowerCase()}…`
-                  }
+                  placeholder={searchPlaceholder}
                   className="flex-1 bg-transparent px-2 py-3.5 text-sm placeholder:text-muted-foreground focus:outline-none"
                 />
                 <button
@@ -248,14 +269,14 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
             </div>
           </div>
 
-          {hub.insiderCta && (
+          {showInsiderCta && (
             <div className="mt-16 md:mt-20 rounded-2xl border border-accent/30 bg-accent/5 px-5 py-4 md:px-7 md:py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
                 <div className="font-display text-lg font-semibold text-foreground flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-accent" />
-                  {hub.insiderCta.title}
+                  {insiderTitle}
                 </div>
-                <p className="text-sm text-muted-foreground">{hub.insiderCta.body}</p>
+                {insiderBody && <p className="text-sm text-muted-foreground">{insiderBody}</p>}
               </div>
               <Link
                 to="/insider"

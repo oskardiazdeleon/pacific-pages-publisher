@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Save, Send, Eye, EyeOff, ChevronDown, Search, Megaphone, Sparkles, Settings2 } from "lucide-react";
+import { Save, Send, Eye, EyeOff, ChevronDown, Search, Megaphone, Sparkles, Settings2, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CmsImageUpload } from "@/components/admin/CmsImageUpload";
 
@@ -22,9 +22,15 @@ type Section = {
 type FieldDef = {
   name: string;
   label: string;
-  type?: "text" | "textarea" | "image" | "toggle";
+  type?: "text" | "textarea" | "image" | "toggle" | "repeater";
   help?: string;
   group?: "content" | "sponsor" | "advanced";
+  /** For type="repeater": the editable subfields per row. */
+  itemFields?: { name: string; label: string; placeholder?: string }[];
+  /** For type="repeater": friendly label for the add button (e.g. "chip", "stat"). */
+  itemLabel?: string;
+  /** For type="repeater": cap on number of rows. */
+  maxItems?: number;
 };
 
 const FIELDS_BY_TYPE: Record<string, FieldDef[]> = {
@@ -60,6 +66,46 @@ const FIELDS_BY_TYPE: Record<string, FieldDef[]> = {
     { name: "sponsor_logo_url", label: "Sponsor logo (transparent PNG)", type: "image", group: "sponsor" },
     { name: "sponsor_link_url", label: "Sponsor click-through URL", group: "sponsor" },
   ],
+  category_hub_hero: [
+    { name: "eyebrow", label: "Eyebrow", group: "content", help: "Small label above the heading (e.g. \"Where to stay\")." },
+    { name: "heading", label: "Heading", group: "content" },
+    { name: "heading_accent", label: "Heading accent (second line, colored)", group: "content", help: "Optional second line of the heading rendered in the accent color." },
+    { name: "subheading", label: "Subheading", type: "textarea", group: "content" },
+    { name: "hero_image_url", label: "Hero image", type: "image", group: "content", help: "Large image shown to the right of the heading." },
+    { name: "search_placeholder", label: "Search box placeholder", group: "content" },
+    {
+      name: "popular_chips",
+      label: "Popular search chips",
+      type: "repeater",
+      group: "content",
+      itemLabel: "chip",
+      maxItems: 8,
+      itemFields: [
+        { name: "label", label: "Label", placeholder: "Beachfront" },
+        { name: "keyword", label: "Search keyword", placeholder: "beach" },
+      ],
+      help: "Quick-filter buttons under the search box. Clicking one searches by the keyword.",
+    },
+    {
+      name: "stats",
+      label: "Stat cards",
+      type: "repeater",
+      group: "content",
+      itemLabel: "stat",
+      maxItems: 4,
+      itemFields: [
+        { name: "value", label: "Value", placeholder: "1,200+" },
+        { name: "label", label: "Label", placeholder: "Things To Do" },
+      ],
+      help: "Floating cards under the hero image (max 3 visible on desktop).",
+    },
+    { name: "insider_cta_title", label: "Insider CTA title", group: "content" },
+    { name: "insider_cta_body", label: "Insider CTA body", type: "textarea", group: "content" },
+    { name: "sponsor_active", label: "Enable sponsored takeover", type: "toggle", group: "sponsor", help: "When ON, the eyebrow is replaced by a 'Presented by' badge with your sponsor name/logo." },
+    { name: "sponsor_name", label: "Sponsor name", group: "sponsor" },
+    { name: "sponsor_logo_url", label: "Sponsor logo (transparent PNG)", type: "image", group: "sponsor" },
+    { name: "sponsor_link_url", label: "Sponsor click-through URL", group: "sponsor" },
+  ],
   featured_listings: [
     { name: "eyebrow", label: "Eyebrow", group: "content" },
     { name: "heading", label: "Heading", group: "content" },
@@ -91,9 +137,10 @@ function prettyKey(key: string) {
 
 // Where each section renders on the public site. Used to group the sidebar
 // and to show a contextual hint in the editor header.
-type LocationKey = "homepage" | "cruises" | "themed_hubs";
+type LocationKey = "homepage" | "category_hubs" | "cruises" | "themed_hubs";
 const LOCATIONS: Record<LocationKey, { label: string; hint: string; path: string }> = {
   homepage: { label: "Homepage", hint: "Renders on the homepage ( / )", path: "/" },
+  category_hubs: { label: "Category hubs", hint: "Hero on Hotels, Restaurants, Things To Do, Shopping, and Nightlife pages", path: "/things-to-do" },
   cruises: { label: "Cruises hub", hint: "Renders on the Cruises category page", path: "/cruises" },
   themed_hubs: { label: "Themed hubs", hint: "Renders on themed category hubs (e.g. Wineries, Golf)", path: "/wineries" },
 };
@@ -101,6 +148,7 @@ const LOCATIONS: Record<LocationKey, { label: string; hint: string; path: string
 function locationForSection(s: { section_key: string; section_type: string }): LocationKey {
   const k = s.section_key.toLowerCase();
   const t = s.section_type.toLowerCase();
+  if (t === "category_hub_hero") return "category_hubs";
   if (t === "cruises_hero" || k.includes("cruise")) return "cruises";
   if (t === "themed_hub_hero" || k.includes("wineries") || k.includes("themed") || k.includes("hub")) return "themed_hubs";
   return "homepage";
@@ -165,6 +213,72 @@ function HomepagePage() {
       );
     }
     if (f.type === "image") return <CmsImageUpload key={f.name} value={val} onChange={(v) => updateField(s.id, f.name, v)} label={f.label} />;
+    if (f.type === "repeater") {
+      const items = Array.isArray(rawVal) ? (rawVal as Record<string, string>[]) : [];
+      const subFields = f.itemFields ?? [];
+      const atMax = typeof f.maxItems === "number" && items.length >= f.maxItems;
+      const updateItem = (idx: number, key: string, v: string) => {
+        const next = items.map((it, i) => (i === idx ? { ...it, [key]: v } : it));
+        updateField(s.id, f.name, next);
+      };
+      const removeItem = (idx: number) => {
+        updateField(s.id, f.name, items.filter((_, i) => i !== idx));
+      };
+      const addItem = () => {
+        const blank: Record<string, string> = {};
+        subFields.forEach((sf) => { blank[sf.name] = ""; });
+        updateField(s.id, f.name, [...items, blank]);
+      };
+      return (
+        <div key={f.name}>
+          <div className="flex items-end justify-between gap-2 mb-1.5">
+            <label className="text-xs font-medium text-foreground/70">{f.label}</label>
+            <span className="text-[10px] text-muted-foreground">{items.length}{f.maxItems ? ` / ${f.maxItems}` : ""}</span>
+          </div>
+          {f.help && <p className="text-[11px] text-muted-foreground mb-2">{f.help}</p>}
+          <div className="space-y-2">
+            {items.length === 0 && (
+              <div className="rounded-md border border-dashed border-border px-3 py-4 text-center text-xs text-muted-foreground">
+                No {f.itemLabel ?? "items"} yet.
+              </div>
+            )}
+            {items.map((item, idx) => (
+              <div key={idx} className="rounded-md border border-border bg-background/50 p-2 flex items-end gap-2">
+                <div className="grid flex-1 gap-2" style={{ gridTemplateColumns: `repeat(${subFields.length}, minmax(0, 1fr))` }}>
+                  {subFields.map((sf) => (
+                    <div key={sf.name}>
+                      <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{sf.label}</label>
+                      <input
+                        value={item[sf.name] ?? ""}
+                        onChange={(e) => updateItem(idx, sf.name, e.target.value)}
+                        placeholder={sf.placeholder}
+                        className="mt-0.5 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeItem(idx)}
+                  className="shrink-0 rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition"
+                  title="Remove"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={addItem}
+            disabled={atMax}
+            className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs font-semibold hover:bg-secondary disabled:opacity-50"
+          >
+            <Plus className="h-3 w-3" /> Add {f.itemLabel ?? "item"}
+          </button>
+        </div>
+      );
+    }
     if (f.type === "textarea") return (
       <div key={f.name}>
         <label className="text-xs font-medium text-foreground/70">{f.label}</label>
@@ -231,7 +345,7 @@ function HomepagePage() {
             </div>
           </div>
           <ul className="max-h-[70vh] overflow-y-auto">
-            {(["homepage", "cruises", "themed_hubs"] as LocationKey[]).map((loc) => {
+            {(["homepage", "category_hubs", "cruises", "themed_hubs"] as LocationKey[]).map((loc) => {
               const items = filtered.filter((s) => locationForSection(s) === loc);
               if (items.length === 0) return null;
               const meta = LOCATIONS[loc];
