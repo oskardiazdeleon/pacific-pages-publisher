@@ -213,6 +213,72 @@ function HomepagePage() {
       );
     }
     if (f.type === "image") return <CmsImageUpload key={f.name} value={val} onChange={(v) => updateField(s.id, f.name, v)} label={f.label} />;
+    if (f.type === "repeater") {
+      const items = Array.isArray(rawVal) ? (rawVal as Record<string, string>[]) : [];
+      const subFields = f.itemFields ?? [];
+      const atMax = typeof f.maxItems === "number" && items.length >= f.maxItems;
+      const updateItem = (idx: number, key: string, v: string) => {
+        const next = items.map((it, i) => (i === idx ? { ...it, [key]: v } : it));
+        updateField(s.id, f.name, next);
+      };
+      const removeItem = (idx: number) => {
+        updateField(s.id, f.name, items.filter((_, i) => i !== idx));
+      };
+      const addItem = () => {
+        const blank: Record<string, string> = {};
+        subFields.forEach((sf) => { blank[sf.name] = ""; });
+        updateField(s.id, f.name, [...items, blank]);
+      };
+      return (
+        <div key={f.name}>
+          <div className="flex items-end justify-between gap-2 mb-1.5">
+            <label className="text-xs font-medium text-foreground/70">{f.label}</label>
+            <span className="text-[10px] text-muted-foreground">{items.length}{f.maxItems ? ` / ${f.maxItems}` : ""}</span>
+          </div>
+          {f.help && <p className="text-[11px] text-muted-foreground mb-2">{f.help}</p>}
+          <div className="space-y-2">
+            {items.length === 0 && (
+              <div className="rounded-md border border-dashed border-border px-3 py-4 text-center text-xs text-muted-foreground">
+                No {f.itemLabel ?? "items"} yet.
+              </div>
+            )}
+            {items.map((item, idx) => (
+              <div key={idx} className="rounded-md border border-border bg-background/50 p-2 flex items-end gap-2">
+                <div className="grid flex-1 gap-2" style={{ gridTemplateColumns: `repeat(${subFields.length}, minmax(0, 1fr))` }}>
+                  {subFields.map((sf) => (
+                    <div key={sf.name}>
+                      <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{sf.label}</label>
+                      <input
+                        value={item[sf.name] ?? ""}
+                        onChange={(e) => updateItem(idx, sf.name, e.target.value)}
+                        placeholder={sf.placeholder}
+                        className="mt-0.5 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeItem(idx)}
+                  className="shrink-0 rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition"
+                  title="Remove"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={addItem}
+            disabled={atMax}
+            className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs font-semibold hover:bg-secondary disabled:opacity-50"
+          >
+            <Plus className="h-3 w-3" /> Add {f.itemLabel ?? "item"}
+          </button>
+        </div>
+      );
+    }
     if (f.type === "textarea") return (
       <div key={f.name}>
         <label className="text-xs font-medium text-foreground/70">{f.label}</label>
