@@ -49,6 +49,7 @@ export interface ListingFormValues {
   local_context: string;
   source_url: string;
   verified_visited: boolean;
+  faqs: { q: string; a: string }[];
 }
 
 const emptySpotlight: PartnerSpotlightValues = {
@@ -72,6 +73,7 @@ const empty: ListingFormValues = {
   editor_note: "", why_we_picked_it: "", insider_tip: "",
   best_time_to_visit: "", local_context: "", source_url: "",
   verified_visited: false,
+  faqs: [],
 };
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -247,6 +249,9 @@ export function ListingForm({
         source_url: v.source_url.trim() || null,
         verified_visited: v.verified_visited,
         verified_at: v.verified_visited ? new Date().toISOString() : null,
+        faqs: v.faqs
+          .map((f) => ({ q: f.q.trim(), a: f.a.trim() }))
+          .filter((f) => f.q && f.a),
       };
 
       const res = v.id
