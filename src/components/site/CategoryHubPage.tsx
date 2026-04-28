@@ -269,14 +269,14 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
             </div>
           </div>
 
-          {hub.insiderCta && (
+          {showInsiderCta && (
             <div className="mt-16 md:mt-20 rounded-2xl border border-accent/30 bg-accent/5 px-5 py-4 md:px-7 md:py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
                 <div className="font-display text-lg font-semibold text-foreground flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-accent" />
-                  {hub.insiderCta.title}
+                  {insiderTitle}
                 </div>
-                <p className="text-sm text-muted-foreground">{hub.insiderCta.body}</p>
+                {insiderBody && <p className="text-sm text-muted-foreground">{insiderBody}</p>}
               </div>
               <Link
                 to="/insider"
