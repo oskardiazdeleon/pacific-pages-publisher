@@ -681,37 +681,30 @@ ${data.description ? `Existing description (for context only — do NOT copy): $
 
 Generate the editorial context fields for this listing.`;
 
-    const tool = {
-      type: "function",
-      function: {
-        name: "set_editorial_context",
-        description: "Set the proprietary editorial context fields for the listing.",
-        parameters: {
-          type: "object",
-          properties: {
-            editor_note: { type: "string", description: "1–2 sentences in our voice — what makes this place worth a visit." },
-            why_we_picked_it: { type: "array", items: { type: "string" }, description: "3–5 short reason chips like 'Date night', 'Outdoor seating', 'Walk-ins welcome'." },
-            insider_tip: { type: "string", description: "1 sentence — best seat, what to order, when to go." },
-            best_time_to_visit: { type: "string", description: "Short — e.g. 'Weeknights before 6:30pm' or 'Sunday brunch'." },
-            local_context: { type: "string", description: "1–2 sentences placing the spot in its neighborhood." },
-          },
-          required: ["editor_note", "why_we_picked_it", "insider_tip", "best_time_to_visit", "local_context"],
-          additionalProperties: false,
-        },
+    const schema = {
+      type: "object",
+      properties: {
+        editor_note: { type: "string", description: "1–2 sentences in our voice — what makes this place worth a visit." },
+        why_we_picked_it: { type: "array", items: { type: "string" }, description: "3–5 short reason chips like 'Date night', 'Outdoor seating', 'Walk-ins welcome'." },
+        insider_tip: { type: "string", description: "1 sentence — best seat, what to order, when to go." },
+        best_time_to_visit: { type: "string", description: "Short — e.g. 'Weeknights before 6:30pm' or 'Sunday brunch'." },
+        local_context: { type: "string", description: "1–2 sentences placing the spot in its neighborhood." },
       },
+      required: ["editor_note", "why_we_picked_it", "insider_tip", "best_time_to_visit", "local_context"],
+      additionalProperties: false,
     };
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: sys },
           { role: "user", content: userMsg },
         ],
-        tools: [tool],
-        tool_choice: { type: "function", function: { name: "set_editorial_context" } },
+        response_format: { type: "json_schema", json_schema: { name: "editorial_context", strict: true, schema } },
+        max_tokens: 1800,
       }),
     });
     if (res.status === 429) throw new Error("Rate limit hit. Please try again in a moment.");
@@ -721,11 +714,20 @@ Generate the editorial context fields for this listing.`;
       throw new Error(`AI generation failed [${res.status}]: ${t.slice(0, 300)}`);
     }
     const json = (await res.json()) as any;
-    const msg = json.choices?.[0]?.message;
+    const choice = json.choices?.[0];
+    const finishReason = choice?.finish_reason ?? choice?.native_finish_reason;
+    if (finishReason === "length" || finishReason === "MAX_TOKENS") {
+      throw new Error("AI response was cut off. Try again with a shorter listing description.");
+    }
+    const msg = choice?.message;
     const argsStr = msg?.tool_calls?.[0]?.function?.arguments;
     let parsed: any = null;
     if (argsStr) {
-      try { parsed = JSON.parse(argsStr); } catch { parsed = null; }
+      if (typeof argsStr === "string") {
+        try { parsed = JSON.parse(argsStr); } catch { parsed = null; }
+      } else if (typeof argsStr === "object") {
+        parsed = argsStr;
+      }
     }
     // Fallback: some models return JSON in content instead of tool_calls
     if (!parsed && typeof msg?.content === "string" && msg.content.trim()) {
@@ -738,13 +740,18 @@ Generate the editorial context fields for this listing.`;
       console.error("[generateEditorialContext] unexpected AI response", JSON.stringify(json).slice(0, 1000));
       throw new Error("AI returned no structured content");
     }
-    return {
-      editor_note: String(parsed.editor_note ?? ""),
-      why_we_picked_it: Array.isArray(parsed.why_we_picked_it) ? parsed.why_we_picked_it.slice(0, 6).map(String) : [],
-      insider_tip: String(parsed.insider_tip ?? ""),
-      best_time_to_visit: String(parsed.best_time_to_visit ?? ""),
-      local_context: String(parsed.local_context ?? ""),
+    const normalized = {
+      editor_note: String(parsed.editor_note ?? "").trim(),
+      why_we_picked_it: Array.isArray(parsed.why_we_picked_it) ? parsed.why_we_picked_it.slice(0, 6).map(String).map((s: string) => s.trim()).filter(Boolean) : [],
+      insider_tip: String(parsed.insider_tip ?? "").trim(),
+      best_time_to_visit: String(parsed.best_time_to_visit ?? "").trim(),
+      local_context: String(parsed.local_context ?? "").trim(),
     };
+    if (!normalized.editor_note || normalized.why_we_picked_it.length === 0 || !normalized.insider_tip || !normalized.best_time_to_visit || !normalized.local_context) {
+      console.error("[generateEditorialContext] incomplete AI response", JSON.stringify(parsed).slice(0, 1000));
+      throw new Error("AI returned incomplete editorial fields. Please try again.");
+    }
+    return normalized;
   });
 
 // ============= Queued bulk import =============
