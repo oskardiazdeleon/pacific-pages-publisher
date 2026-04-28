@@ -137,9 +137,10 @@ function prettyKey(key: string) {
 
 // Where each section renders on the public site. Used to group the sidebar
 // and to show a contextual hint in the editor header.
-type LocationKey = "homepage" | "cruises" | "themed_hubs";
+type LocationKey = "homepage" | "category_hubs" | "cruises" | "themed_hubs";
 const LOCATIONS: Record<LocationKey, { label: string; hint: string; path: string }> = {
   homepage: { label: "Homepage", hint: "Renders on the homepage ( / )", path: "/" },
+  category_hubs: { label: "Category hubs", hint: "Hero on Hotels, Restaurants, Things To Do, Shopping, and Nightlife pages", path: "/things-to-do" },
   cruises: { label: "Cruises hub", hint: "Renders on the Cruises category page", path: "/cruises" },
   themed_hubs: { label: "Themed hubs", hint: "Renders on themed category hubs (e.g. Wineries, Golf)", path: "/wineries" },
 };
@@ -147,6 +148,7 @@ const LOCATIONS: Record<LocationKey, { label: string; hint: string; path: string
 function locationForSection(s: { section_key: string; section_type: string }): LocationKey {
   const k = s.section_key.toLowerCase();
   const t = s.section_type.toLowerCase();
+  if (t === "category_hub_hero") return "category_hubs";
   if (t === "cruises_hero" || k.includes("cruise")) return "cruises";
   if (t === "themed_hub_hero" || k.includes("wineries") || k.includes("themed") || k.includes("hub")) return "themed_hubs";
   return "homepage";
