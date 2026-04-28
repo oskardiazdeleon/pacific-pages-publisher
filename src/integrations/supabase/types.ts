@@ -439,6 +439,7 @@ export type Database = {
           description: string | null
           editor_note: string | null
           email: string | null
+          faqs: Json
           gallery: string[] | null
           hero_image: string | null
           hours: Json | null
@@ -481,6 +482,7 @@ export type Database = {
           description?: string | null
           editor_note?: string | null
           email?: string | null
+          faqs?: Json
           gallery?: string[] | null
           hero_image?: string | null
           hours?: Json | null
@@ -523,6 +525,7 @@ export type Database = {
           description?: string | null
           editor_note?: string | null
           email?: string | null
+          faqs?: Json
           gallery?: string[] | null
           hero_image?: string | null
           hours?: Json | null
