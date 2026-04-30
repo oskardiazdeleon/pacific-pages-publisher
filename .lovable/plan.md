@@ -1,51 +1,70 @@
 ## Goal
 
-Fix the awkward layout of the editorial section on the homepage and replace the generic "The Magazine / Stories from the coast" wording with something with genuine San Diego personality.
+Generate a downloadable **Brand Guidelines PDF** for sandiego.com that documents the visual system (colors, typography, logo) and brand positioning (voice, tagline, audience) — pulled directly from your live site so it stays accurate.
 
-## Problem
+This is a one-off artifact (not a feature added to the app). It will be delivered to `/mnt/documents/sandiego-brand-guidelines.pdf` for download.
 
-In `src/routes/index.tsx` (lines 170–189), the editorial section uses a 5-column grid:
-- Left (`col-span-3`): one `ArticleCard large` — which itself is a side-by-side image+text card
-- Right (`col-span-2`): two stacked standard `ArticleCard`s
+## What the document will contain
 
-Because the lead card is short (image and text sit side-by-side), and the right column stacks two full cards vertically, the left column ends with a large empty void below it (visible in the screenshot).
+**1. Cover** — Logo, "Brand Guidelines", site name, tagline.
 
-## Fix — Layout
+**2. Brand Positioning**
+- Tagline: *"The Definitive Guide to America's Finest City"*
+- Mission/voice: definitive, local-insider, editorial — *"places to stay, eat, explore and the stories behind them"*
+- Audience: visitors planning trips + locals looking for what's actually good
+- Tone of voice: confident, curated, warm, knowledgeable (with do/don't examples)
+- Pillars: Hotels · Restaurants · Things to Do · Nightlife · Shopping · Cruises · Neighborhoods · Wineries
 
-Rebalance the editorial grid so the lead article visually anchors the section without leaving dead space:
+**3. Logo**
+- The existing `sandiego-logo.svg` (rendered on light + dark backgrounds)
+- Clear-space and minimum-size rules
+- Misuse examples (don't stretch, recolor, place on busy photos, etc.)
 
-**Option chosen:** Switch to a 12-column layout where:
-- Lead article (left, `lg:col-span-7`) renders as a single tall card — image on top (aspect ~16/10), headline + excerpt below. Drop the side-by-side `large` variant here.
-- Right column (`lg:col-span-5`) keeps two stacked standard cards but tightens spacing so heights match.
+**4. Color System** — pulled from `src/styles.css` "Ocean Deep" palette:
+- Ocean Deep `#0c2340` (primary)
+- Ocean `#1a4a6e`
+- Teal `#2d8a9e` (accent)
+- Teal Soft `#5cbdb9`
+- Sand `#faf8f3`
+- Plus neutrals (background, foreground, border, muted) and the dark-mode variants
+- Each swatch shown with HEX + OKLCH + role/usage
 
-This gives a magazine-style "1 hero + 2 secondary" composition with no empty gap. Update `ArticleCard` only if needed — likely we can keep `large` and just change how it's used (image-on-top instead of side-by-side) by passing a new prop like `orientation="vertical"`, or simpler: render the lead with custom JSX inline in `index.tsx` and remove the `large` prop usage here.
+**5. Typography**
+- Display: **Outfit** (100–900) — headings, hero copy
+- Body: **Figtree** (300–900) — paragraphs, UI
+- Type scale samples (H1 → caption), letter-spacing rule (`-0.02em` on headings), eyebrow style (`0.72rem`, `0.18em` tracking, accent color, uppercase)
 
-Preferred approach: render the lead card inline with a vertical layout (image top, text bottom) directly in `index.tsx` to keep `ArticleCard` simple. The lead image gets `aspect-[16/10]` so the card height roughly matches two stacked standard cards on the right.
+**6. Imagery & Photography**
+- Style direction: editorial coastal, golden-hour warmth, wide horizons, authentic San Diego (not stock-y)
+- Subject matter: ocean/coastline, neighborhoods, food close-ups, people in places
+- Treatment rules: no heavy filters, avoid oversaturation, prefer natural light
+- A grid of 6 representative hero images sampled from current category hubs (Things to Do, Hotels, Restaurants, Wineries, Nightlife, Shopping)
 
-## Fix — Naming
+**7. UI Patterns** (brief)
+- Border radius `0.75rem`
+- Eyebrow + heading + accent-line pattern (e.g. *"San Diego Wineries / from vine to glass."*)
+- Card/listing visual conventions
 
-Replace "The Magazine" eyebrow and "Stories from the coast" heading with options that feel San Diego: sun, surf, tacos, neighborhoods, locals.
+**8. Contact / Stewardship**
+- Phone, address, social handles from site settings
+- Note on where the live tokens are maintained (Admin → CMS → Settings)
 
-I'll pick one default and mention alternates in the response. Recommended default:
+## How it's built
 
-- **Eyebrow:** `LOCAL DISPATCH`
-- **Heading:** `Postcards from San Diego`
+- A Python script using **ReportLab** (Platypus) renders the PDF.
+- Color values are read directly from `src/styles.css` and the `homepage_sections` / `site_settings` tables so the doc reflects the live brand.
+- The logo is embedded from `src/assets/sandiego-logo.svg` (converted to PNG for ReportLab).
+- 6 hero images are pulled from the seeded `category_hub_hero` rows and downloaded for the imagery grid.
+- After generation, every page is rasterized to JPEG and visually QA'd before delivery.
 
-Alternates I'll mention so you can pick:
-- `THE LOCAL` / `Notes from the 619`
-- `FROM THE LOCALS` / `Sun, surf & stories`
-- `INSIDER INTEL` / `What locals are talking about`
-- `LATEST DROP` / `Tacos, tides & trails`
+Output: `/mnt/documents/sandiego-brand-guidelines.pdf` (~10–14 pages, US Letter).
 
-The defaults are stored in `c("editorial", "eyebrow", ...)` and `c("editorial", "heading", ...)` calls — these are just fallback strings used when no CMS override exists, so changing them is safe and won't affect any saved CMS content.
+## What I'll need from you
 
-## Files to change
+Nothing — I have all the source data. If you'd like, after I generate v1 you can ask for tweaks like:
+- Add a **competitor / "anti-brand"** section (what we're *not*)
+- Add **example headlines** in your voice
+- Swap to a different cover image
+- Produce a **.docx** or **.pptx** version in addition to PDF
 
-- `src/routes/index.tsx` — rebuild the editorial section JSX (lines ~170–189) with the new 7/5 grid, vertical lead card, and new eyebrow/heading defaults.
-
-No other files need to change. `ArticleCard` stays as-is.
-
-## Out of scope
-
-- The neighborhoods, partner CTA, and other sections below are unchanged.
-- No CMS schema or DB changes — only fallback copy.
+Approve and I'll generate the PDF.
