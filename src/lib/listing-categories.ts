@@ -179,6 +179,7 @@ export const CATEGORY_HUBS: CategoryHub[] = [
       title: "Shop smarter with Insider",
       body: "Member-only discounts and early access at participating boutiques and markets.",
     },
+    memberBenefit: "💳 SD Insider Members Save 10–20% at Local Boutiques & Markets",
   },
   {
     slug: "nightlife",
