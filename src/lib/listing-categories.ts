@@ -48,9 +48,9 @@ export const CATEGORY_HUBS: CategoryHub[] = [
     dbCategories: ["Hotel"],
     label: "Hotels",
     singular: "Hotel",
-    metaTitle: "Best San Diego Hotels — Editor-Vetted Stays | sandiego.com",
+    metaTitle: "Hotels in San Diego | Insider Members Save 15–40%",
     metaDescription:
-      "The best hotels in San Diego, hand-picked by locals. Beachfront resorts, downtown boutiques, family-friendly stays — with Insider rates up to 40% off.",
+      "Browse 200+ editor-vetted San Diego hotels. SD Insider members save 15–40% on beachfront resorts, downtown boutiques and family stays. Join & save »",
     eyebrow: "Where to stay",
     heading: "San Diego Hotels",
     subheading:
