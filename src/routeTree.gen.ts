@@ -50,6 +50,7 @@ import { Route as AdminImportRouteImport } from './routes/admin.import'
 import { Route as AdminListingsIndexRouteImport } from './routes/admin.listings.index'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin.blog.index'
 import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
+import { Route as ApiPublicBlogRouteImport } from './routes/api/public/blog'
 import { Route as AdminListingsNewRouteImport } from './routes/admin.listings.new'
 import { Route as AdminListingsIdRouteImport } from './routes/admin.listings.$id'
 import { Route as AdminCmsSettingsRouteImport } from './routes/admin.cms.settings'
@@ -267,6 +268,11 @@ const AdminArticlesIndexRoute = AdminArticlesIndexRouteImport.update({
   path: '/articles/',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiPublicBlogRoute = ApiPublicBlogRouteImport.update({
+  id: '/api/public/blog',
+  path: '/api/public/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminListingsNewRoute = AdminListingsNewRouteImport.update({
   id: '/listings/new',
   path: '/listings/new',
@@ -371,6 +377,7 @@ export interface FileRoutesByFullPath {
   '/admin/cms/settings': typeof AdminCmsSettingsRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
+  '/api/public/blog': typeof ApiPublicBlogRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/admin/listings/': typeof AdminListingsIndexRoute
@@ -422,6 +429,7 @@ export interface FileRoutesByTo {
   '/admin/cms/settings': typeof AdminCmsSettingsRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
+  '/api/public/blog': typeof ApiPublicBlogRoute
   '/admin/articles': typeof AdminArticlesIndexRoute
   '/admin/blog': typeof AdminBlogIndexRoute
   '/admin/listings': typeof AdminListingsIndexRoute
@@ -477,6 +485,7 @@ export interface FileRoutesById {
   '/admin/cms/settings': typeof AdminCmsSettingsRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
+  '/api/public/blog': typeof ApiPublicBlogRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/admin/listings/': typeof AdminListingsIndexRoute
@@ -533,6 +542,7 @@ export interface FileRouteTypes {
     | '/admin/cms/settings'
     | '/admin/listings/$id'
     | '/admin/listings/new'
+    | '/api/public/blog'
     | '/admin/articles/'
     | '/admin/blog/'
     | '/admin/listings/'
@@ -584,6 +594,7 @@ export interface FileRouteTypes {
     | '/admin/cms/settings'
     | '/admin/listings/$id'
     | '/admin/listings/new'
+    | '/api/public/blog'
     | '/admin/articles'
     | '/admin/blog'
     | '/admin/listings'
@@ -638,6 +649,7 @@ export interface FileRouteTypes {
     | '/admin/cms/settings'
     | '/admin/listings/$id'
     | '/admin/listings/new'
+    | '/api/public/blog'
     | '/admin/articles/'
     | '/admin/blog/'
     | '/admin/listings/'
@@ -676,6 +688,7 @@ export interface RootRouteChildren {
   ShoppingIndexRoute: typeof ShoppingIndexRoute
   ThingsToDoIndexRoute: typeof ThingsToDoIndexRoute
   WineriesIndexRoute: typeof WineriesIndexRoute
+  ApiPublicBlogRoute: typeof ApiPublicBlogRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -967,6 +980,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminArticlesIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/public/blog': {
+      id: '/api/public/blog'
+      path: '/api/public/blog'
+      fullPath: '/api/public/blog'
+      preLoaderRoute: typeof ApiPublicBlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/listings/new': {
       id: '/admin/listings/new'
       path: '/listings/new'
@@ -1160,6 +1180,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShoppingIndexRoute: ShoppingIndexRoute,
   ThingsToDoIndexRoute: ThingsToDoIndexRoute,
   WineriesIndexRoute: WineriesIndexRoute,
+  ApiPublicBlogRoute: ApiPublicBlogRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
