@@ -77,6 +77,7 @@ export const CATEGORY_HUBS: CategoryHub[] = [
       title: "Save up to 40% with Insider",
       body: "Member-only rates, free upgrades and late checkout at participating hotels.",
     },
+    memberBenefit: "💳 SD Insider Members Save 15–40% on San Diego Hotels",
   },
   {
     slug: "restaurants",
