@@ -273,9 +273,9 @@ function NeighborhoodCategoryPage() {
                   : `${hub.label} in ${hood.name}`}
               </h2>
             </div>
-            <Link to="/$category" params={{ category: hub.slug }} className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-accent">
+            <a href={`/${hub.slug}`} className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-accent">
               All {hub.label.toLowerCase()} <ArrowRight className="h-4 w-4" />
-            </Link>
+            </a>
           </div>
 
           {loading ? (
