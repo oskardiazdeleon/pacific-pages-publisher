@@ -427,6 +427,4 @@ X-API-Key: sk_live_…   (scope: listings:write)`}
     </>
   );
 }
-    </div>
-  );
-}
+
