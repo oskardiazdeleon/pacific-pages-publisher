@@ -207,7 +207,29 @@ function EditNeighborhoodPage() {
       )}
 
       <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-        <h2 className="font-display text-lg font-semibold">Editorial</h2>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <h2 className="font-display text-lg font-semibold">Editorial</h2>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => aiFill("missing")}
+              disabled={busy}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-medium hover:bg-accent/10 disabled:opacity-50"
+              title="Fill only empty fields"
+            >
+              <Sparkles className="h-3.5 w-3.5" /> AI fill empty
+            </button>
+            <button
+              type="button"
+              onClick={() => aiFill("all")}
+              disabled={busy}
+              className="inline-flex items-center gap-1.5 rounded-md bg-accent px-2.5 py-1.5 text-xs font-medium text-accent-foreground hover:bg-accent/90 disabled:opacity-50"
+              title="Replace all editorial fields with a fresh AI draft"
+            >
+              <Sparkles className="h-3.5 w-3.5" /> AI draft (replace)
+            </button>
+          </div>
+        </div>
         <p className="text-xs text-muted-foreground">
           Leave any field blank to fall back to the auto-generated default.
         </p>
