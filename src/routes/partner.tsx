@@ -51,7 +51,7 @@ function PartnerDashboard() {
       id: row.id,
       name: row.name,
       slug: row.slug,
-      category: row.category,
+      category: row.category as ListingFormValues["category"],
       neighborhood: row.neighborhood,
       tier: row.tier,
       status: row.status,

@@ -28,7 +28,7 @@ function EditListing() {
         id: row.id,
         name: row.name,
         slug: row.slug,
-        category: row.category,
+        category: row.category as ListingFormValues["category"],
         neighborhood: row.neighborhood,
         short_description: row.short_description ?? "",
         description: row.description ?? "",
