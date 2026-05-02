@@ -40,6 +40,8 @@ export type CategoryHub = {
   stats?: { value: string; label: string }[];
   /** Insider CTA bar */
   insiderCta?: { title: string; body: string };
+  /** Hero member benefit pill (e.g. "💳 SD Insider Members Save 15–30% on Hotels") */
+  memberBenefit?: string;
 };
 
 export const CATEGORY_HUBS: CategoryHub[] = [
