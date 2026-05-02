@@ -134,6 +134,17 @@ export function ListingCard({ listing }: { listing: ListingCardData }) {
           />
         </button>
 
+        {/* Member discount badge — bottom-left, high-contrast pop */}
+        {listing.member_discount?.label && (
+          <span
+            className="absolute left-3 bottom-3 inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-foreground shadow-md ring-1 ring-accent-foreground/10"
+            title={listing.member_discount.details || "SD Insider members save here"}
+          >
+            <BadgePercent className="h-3 w-3" />
+            Members Save {listing.member_discount.label}
+          </span>
+        )}
+
         {/* Hover CTA — bottom right */}
         <div className="absolute right-3 bottom-3 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-200">
           <span className="inline-flex items-center gap-1 rounded-full bg-background px-3 py-1.5 text-xs font-semibold text-foreground shadow-md">
