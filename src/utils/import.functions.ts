@@ -689,8 +689,27 @@ Generate the editorial context fields for this listing.`;
         insider_tip: { type: "string", description: "1 sentence — best seat, what to order, when to go." },
         best_time_to_visit: { type: "string", description: "Short — e.g. 'Weeknights before 6:30pm' or 'Sunday brunch'." },
         local_context: { type: "string", description: "1–2 sentences placing the spot in its neighborhood." },
+        short_description: { type: "string", description: "1 sentence card teaser, ~140 chars. Hook + specific detail." },
+        description: { type: "string", description: "3–5 paragraph editorial overview in our voice (~300–450 words). Markdown OK. No marketing fluff." },
+        meta_title: { type: "string", description: `SEO title <60 chars including the listing name and "${data.neighborhood}".` },
+        meta_description: { type: "string", description: "SEO meta description ~155 chars with a benefit hook and the city/neighborhood." },
+        faqs: {
+          type: "array",
+          minItems: 3,
+          maxItems: 5,
+          description: "3–5 FAQs visitors actually ask (parking, reservations, dress code, kids, hours, etc.).",
+          items: {
+            type: "object",
+            properties: { q: { type: "string" }, a: { type: "string" } },
+            required: ["q", "a"],
+            additionalProperties: false,
+          },
+        },
       },
-      required: ["editor_note", "why_we_picked_it", "insider_tip", "best_time_to_visit", "local_context"],
+      required: [
+        "editor_note", "why_we_picked_it", "insider_tip", "best_time_to_visit", "local_context",
+        "short_description", "description", "meta_title", "meta_description", "faqs",
+      ],
       additionalProperties: false,
     };
 
@@ -704,7 +723,7 @@ Generate the editorial context fields for this listing.`;
           { role: "user", content: userMsg },
         ],
         response_format: { type: "json_schema", json_schema: { name: "editorial_context", strict: true, schema } },
-        max_tokens: 1800,
+        max_tokens: 4000,
       }),
     });
     if (res.status === 429) throw new Error("Rate limit hit. Please try again in a moment.");
@@ -746,6 +765,16 @@ Generate the editorial context fields for this listing.`;
       insider_tip: String(parsed.insider_tip ?? "").trim(),
       best_time_to_visit: String(parsed.best_time_to_visit ?? "").trim(),
       local_context: String(parsed.local_context ?? "").trim(),
+      short_description: String(parsed.short_description ?? "").trim(),
+      description: String(parsed.description ?? "").trim(),
+      meta_title: String(parsed.meta_title ?? "").trim(),
+      meta_description: String(parsed.meta_description ?? "").trim(),
+      faqs: Array.isArray(parsed.faqs)
+        ? parsed.faqs
+            .map((f: any) => ({ q: String(f?.q ?? "").trim(), a: String(f?.a ?? "").trim() }))
+            .filter((f: { q: string; a: string }) => f.q && f.a)
+            .slice(0, 5)
+        : [],
     };
     if (!normalized.editor_note || normalized.why_we_picked_it.length === 0 || !normalized.insider_tip || !normalized.best_time_to_visit || !normalized.local_context) {
       console.error("[generateEditorialContext] incomplete AI response", JSON.stringify(parsed).slice(0, 1000));
