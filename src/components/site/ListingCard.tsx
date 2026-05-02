@@ -1,4 +1,4 @@
-import { Star, Heart, MapPin, Sparkles, ArrowRight } from "lucide-react";
+import { Star, Heart, MapPin, Sparkles, ArrowRight, BadgePercent } from "lucide-react";
 import { useState, type MouseEvent } from "react";
 import { listingUrl } from "@/lib/listing-categories";
 import listingFallback from "@/assets/listing-restaurant.jpg";
@@ -18,6 +18,7 @@ export interface ListingCardData {
   is_sponsored?: boolean | null;
   sponsor_name?: string | null;
   sponsor_until?: string | null;
+  member_discount?: { label?: string; details?: string } | null;
 }
 
 // Lightweight, deterministic "insight" per category to drive engagement
