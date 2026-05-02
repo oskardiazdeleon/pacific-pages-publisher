@@ -4,10 +4,17 @@ import { createHash, randomBytes } from "crypto";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
+const ScopeEnum = z.enum(["blog:write", "listings:write"]);
+
 export const createApiKey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { name: string }) =>
-    z.object({ name: z.string().min(1).max(80) }).parse(data),
+  .inputValidator((data: { name: string; scopes?: string[] }) =>
+    z
+      .object({
+        name: z.string().min(1).max(80),
+        scopes: z.array(ScopeEnum).min(1).max(5).optional(),
+      })
+      .parse(data),
   )
   .handler(async ({ data, context }) => {
     const { userId, supabase } = context;
@@ -29,10 +36,10 @@ export const createApiKey = createServerFn({ method: "POST" })
         name: data.name,
         key_hash: hash,
         key_prefix: prefix,
-        scopes: ["blog:write"],
+        scopes: data.scopes ?? ["blog:write"],
         created_by: userId,
       })
-      .select("id, name, key_prefix, created_at")
+      .select("id, name, key_prefix, scopes, created_at")
       .single();
 
     if (error) throw new Error(error.message);
