@@ -214,7 +214,9 @@ function NeighborhoodCategoryPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/30" />
           <div className="container-page relative z-10 flex h-full flex-col justify-end pb-10">
-            <Breadcrumbs items={breadcrumbs} variant="dark" />
+            <div className="[&_*]:!text-white/85 [&_a:hover]:!text-white">
+              <Breadcrumbs items={breadcrumbs} />
+            </div>
             <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
               <MapPin className="h-3.5 w-3.5" />
               <span>{hood.name}</span>
