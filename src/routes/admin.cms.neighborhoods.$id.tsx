@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, ExternalLink, Plus, Save, Send, Trash2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, Plus, Save, Send, Sparkles, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CmsImageUpload } from "@/components/admin/CmsImageUpload";
 
@@ -66,6 +66,48 @@ function EditNeighborhoodPage() {
     setPage((p) =>
       p ? { ...p, faqs: (p.faqs ?? []).filter((_, idx) => idx !== i) } : p,
     );
+
+  const aiFill = async (mode: "all" | "missing") => {
+    if (!page) return;
+    setBusy(true);
+    setMsg("Generating with AI…");
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-neighborhood-page", {
+        body: {
+          category_slug: page.category_slug,
+          category_label: capitalize(page.category_slug.replace(/-/g, " ")),
+          neighborhood_name: page.neighborhood_name,
+          neighborhood_slug: page.neighborhood_slug,
+        },
+      });
+      if (error) throw error;
+      const draft = (data as { draft?: Page })?.draft;
+      if (!draft) throw new Error("Empty draft");
+      setPage((p) => {
+        if (!p) return p;
+        const pick = <K extends keyof Page>(k: K, val: Page[K]): Page[K] =>
+          mode === "all" ? val : (p[k] && String(p[k]).trim() ? p[k] : val);
+        const existingFaqs = p.faqs ?? [];
+        return {
+          ...p,
+          title: pick("title", draft.title ?? p.title),
+          intro: pick("intro", draft.intro ?? p.intro),
+          insider_tip: pick("insider_tip", draft.insider_tip ?? p.insider_tip),
+          meta_title: pick("meta_title", draft.meta_title ?? p.meta_title),
+          meta_description: pick("meta_description", draft.meta_description ?? p.meta_description),
+          faqs:
+            mode === "all" || existingFaqs.length === 0
+              ? draft.faqs ?? existingFaqs
+              : existingFaqs,
+        };
+      });
+      setMsg("AI draft applied — review and save.");
+    } catch (e) {
+      setMsg(`AI error: ${e instanceof Error ? e.message : "unknown"}`);
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const buildPayload = () => ({
     title: page.title?.trim() || null,
