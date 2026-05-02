@@ -124,11 +124,35 @@ function ApiKeysPage() {
           />
           <button
             onClick={handleCreate}
-            disabled={creating || !name.trim()}
+            disabled={creating || !name.trim() || scopes.length === 0}
             className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
           >
             {creating ? "Creating…" : "Generate key"}
           </button>
+        </div>
+        <div className="mt-4">
+          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+            Scopes
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {ALL_SCOPES.map((s) => {
+              const active = scopes.includes(s.value);
+              return (
+                <button
+                  key={s.value}
+                  type="button"
+                  onClick={() => toggleScope(s.value)}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                    active
+                      ? "border-accent bg-accent/10 text-accent"
+                      : "border-border bg-background text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  {s.label} <span className="font-mono opacity-70">({s.value})</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
         {newKey && (
           <div className="mt-4 rounded-lg border border-accent/40 bg-accent/5 p-4">
