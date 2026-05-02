@@ -313,7 +313,7 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
       {hub.slug === "things-to-do" && (
         <section className="container-page pt-10">
           <Link
-            to="/things-to-do/golf"
+            to="/golf-courses"
             className="group relative block overflow-hidden rounded-3xl border border-border bg-card"
           >
             <div className="grid md:grid-cols-2">
