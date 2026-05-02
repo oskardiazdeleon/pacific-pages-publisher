@@ -180,9 +180,9 @@ export const CATEGORY_HUBS: CategoryHub[] = [
     dbCategories: ["Nightlife"],
     label: "Nightlife",
     singular: "Nightlife Spot",
-    metaTitle: "Best San Diego Nightlife — Bars, Clubs & Rooftops | sandiego.com",
+    metaTitle: "San Diego Nightlife | Member Perks at Top Bars & Clubs",
     metaDescription:
-      "San Diego nightlife guide: rooftop bars, craft cocktail lounges, live music venues and dance clubs — vetted by locals who go out.",
+      "Rooftop bars, craft cocktails, live music and dance clubs. SD Insider members get VIP entry and complimentary drinks at participating venues. Join & save »",
     eyebrow: "After dark",
     heading: "San Diego Nightlife",
     subheading:
