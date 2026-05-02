@@ -50,6 +50,8 @@ export interface ListingFormValues {
   source_url: string;
   verified_visited: boolean;
   faqs: { q: string; a: string }[];
+  member_discount_label: string;
+  member_discount_details: string;
 }
 
 const emptySpotlight: PartnerSpotlightValues = {
