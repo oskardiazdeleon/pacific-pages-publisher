@@ -117,14 +117,14 @@ const TIERS: Tier[] = [
   },
 ];
 
-const BENEFITS = [
-  { icon: Hotel, title: "Hotels", copy: "Member pricing across 200+ San Diego hotels and resorts." },
-  { icon: Ship, title: "Cruises", copy: "Discounts on Hornblower, day cruises and harbor tours." },
-  { icon: Ticket, title: "Tickets", copy: "Save on Padres, theater, attractions and live events." },
+const BENEFITS: { icon: typeof Hotel; title: string; copy: string; pillar?: string }[] = [
+  { icon: Hotel, title: "Hotels", copy: "Member pricing across 200+ San Diego hotels and resorts.", pillar: "hotels" },
+  { icon: Ship, title: "Cruises", copy: "Discounts on Hornblower, day cruises and harbor tours.", pillar: "cruises" },
+  { icon: Ticket, title: "Tickets", copy: "Save on Padres, theater, attractions and live events.", pillar: "things-to-do" },
   { icon: Car, title: "Rental Cars", copy: "Negotiated rates with national and local agencies." },
   { icon: CalendarDays, title: "Resort Weeks", copy: "Curated weeklong resort getaways at insider rates." },
-  { icon: Compass, title: "Experiences", copy: "Tours, tastings and activities chosen by locals." },
-  { icon: ShoppingBag, title: "Retail", copy: "Member discounts at independent SD shops and brands." },
+  { icon: Compass, title: "Experiences", copy: "Tours, tastings and activities chosen by locals.", pillar: "things-to-do" },
+  { icon: ShoppingBag, title: "Retail", copy: "Member discounts at independent SD shops and brands.", pillar: "shopping" },
   { icon: Plane, title: "Flights", copy: "Travel-club pricing on getaways in and out of SAN." },
   { icon: HomeIcon, title: "Villas", copy: "Boutique villas in La Jolla, Coronado and beyond." },
   { icon: Wine, title: "Wine", copy: "Quarterly shipments from California's best small producers." },
@@ -330,15 +330,36 @@ function InsiderPage() {
           </p>
         </div>
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
-          {BENEFITS.map((b) => (
-            <div key={b.title} className="rounded-2xl border border-border bg-card p-5 hover:shadow-lg transition">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-accent/10 text-accent">
-                <b.icon className="h-5 w-5" />
+          {BENEFITS.map((b) => {
+            const inner = (
+              <>
+                <div className="grid h-10 w-10 place-items-center rounded-xl bg-accent/10 text-accent">
+                  <b.icon className="h-5 w-5" />
+                </div>
+                <h3 className="mt-4 font-display text-lg font-semibold">{b.title}</h3>
+                <p className="mt-1 text-sm text-foreground/70">{b.copy}</p>
+                {b.pillar && (
+                  <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-accent">
+                    See member savings <ArrowRight className="h-3 w-3" />
+                  </span>
+                )}
+              </>
+            );
+            return b.pillar ? (
+              <Link
+                key={b.title}
+                to="/save-on/$pillar"
+                params={{ pillar: b.pillar }}
+                className="rounded-2xl border border-border bg-card p-5 hover:border-accent hover:shadow-lg transition"
+              >
+                {inner}
+              </Link>
+            ) : (
+              <div key={b.title} className="rounded-2xl border border-border bg-card p-5 hover:shadow-lg transition">
+                {inner}
               </div>
-              <h3 className="mt-4 font-display text-lg font-semibold">{b.title}</h3>
-              <p className="mt-1 text-sm text-foreground/70">{b.copy}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
