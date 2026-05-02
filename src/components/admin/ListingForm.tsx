@@ -459,6 +459,41 @@ export function ListingForm({
       )}
 
       {!partnerMode && (
+      <section className="rounded-2xl border border-accent/30 bg-gradient-to-br from-accent/5 via-card to-card p-6 space-y-4">
+        <div>
+          <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-accent" />
+            SD Insider Member Discount
+          </h2>
+          <p className="text-xs text-muted-foreground mt-1">
+            If this place offers a discount to SD Insider members, fill in the label.
+            A "Members Save&nbsp;…" badge will appear on the listing card and detail page.
+            Leave blank to hide.
+          </p>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Field label='Discount label (e.g. "15% off", "$20 off", "2-for-1")'>
+            <input
+              className={inputCls}
+              maxLength={40}
+              value={v.member_discount_label}
+              placeholder="15% off"
+              onChange={(e) => set("member_discount_label", e.target.value)}
+            />
+          </Field>
+          <Field label="Details (optional, shown on hover)">
+            <input
+              className={inputCls}
+              value={v.member_discount_details}
+              placeholder="Insider members only. Show card at checkout."
+              onChange={(e) => set("member_discount_details", e.target.value)}
+            />
+          </Field>
+        </div>
+      </section>
+      )}
+
+      {!partnerMode && (
       <section className="rounded-2xl border border-border bg-card p-6 space-y-4">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
