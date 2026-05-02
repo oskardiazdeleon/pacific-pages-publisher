@@ -20,11 +20,19 @@ interface ApiKeyRow {
   created_at: string;
 }
 
+type Scope = "blog:write" | "listings:write";
+const ALL_SCOPES: { value: Scope; label: string }[] = [
+  { value: "blog:write", label: "Blog posts" },
+  { value: "listings:write", label: "Listings" },
+];
+
 function ApiKeysPage() {
   const [rows, setRows] = useState<ApiKeyRow[]>([]);
   const [name, setName] = useState("");
+  const [scopes, setScopes] = useState<Scope[]>(["blog:write"]);
   const [creating, setCreating] = useState(false);
   const [newKey, setNewKey] = useState<string | null>(null);
+  const [docsTab, setDocsTab] = useState<"blog" | "listings">("blog");
   const create = useServerFn(createApiKey);
   const revoke = useServerFn(revokeApiKey);
 
