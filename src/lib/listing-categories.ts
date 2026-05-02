@@ -111,6 +111,7 @@ export const CATEGORY_HUBS: CategoryHub[] = [
       title: "Dine smarter with Insider",
       body: "Priority reservations, complimentary courses and chef's-table access at top spots.",
     },
+    memberBenefit: "💳 SD Insider Members Save 15–25% at 150+ Restaurants",
   },
   {
     slug: "things-to-do",
