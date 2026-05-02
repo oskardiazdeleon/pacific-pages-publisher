@@ -198,27 +198,48 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
                 {heroVal("subheading")}
               </p>
 
-              <form
-                onSubmit={(e) => e.preventDefault()}
-                className="mt-8 flex w-full max-w-xl items-center rounded-full border border-border bg-card shadow-sm overflow-hidden"
-              >
-                <div className="pl-5 pr-2 text-muted-foreground">
-                  <Search className="h-4 w-4" />
-                </div>
-                <input
-                  type="search"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder={searchPlaceholder}
-                  className="flex-1 bg-transparent px-2 py-3.5 text-sm placeholder:text-muted-foreground focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  className="m-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition"
+              {/* Member benefit pill — high-contrast pop, immediately below headline */}
+              {hub.memberBenefit && (
+                <Link
+                  to="/insider"
+                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-xs md:text-sm font-bold text-accent-foreground shadow-md shadow-accent/30 ring-1 ring-accent-foreground/10 hover:opacity-90 transition"
                 >
-                  Search
-                </button>
-              </form>
+                  <BadgePercent className="h-4 w-4" />
+                  <span>{hub.memberBenefit}</span>
+                  <ArrowRight className="h-3.5 w-3.5 opacity-80" />
+                </Link>
+              )}
+
+              <div className="mt-6 flex w-full max-w-xl flex-col sm:flex-row gap-3">
+                <form
+                  onSubmit={(e) => e.preventDefault()}
+                  className="flex flex-1 items-center rounded-full border border-border bg-card shadow-sm overflow-hidden"
+                >
+                  <div className="pl-5 pr-2 text-muted-foreground">
+                    <Search className="h-4 w-4" />
+                  </div>
+                  <input
+                    type="search"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder={searchPlaceholder}
+                    className="flex-1 bg-transparent px-2 py-3.5 text-sm placeholder:text-muted-foreground focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="m-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition"
+                  >
+                    Search
+                  </button>
+                </form>
+                <Link
+                  to="/insider"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-full border-2 border-accent bg-background px-5 py-3 text-sm font-bold text-accent hover:bg-accent hover:text-accent-foreground transition whitespace-nowrap"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Join &amp; Save
+                </Link>
+              </div>
 
               {popularChips.length > 0 && (
                 <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
