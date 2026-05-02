@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { neighborhoodHubs } from "@/lib/neighborhoods-data";
 import { CATEGORY_HUBS, hubForCategory } from "@/lib/listing-categories";
+import { allSeoCategoryNeighborhoodPairs } from "@/lib/seo-neighborhoods";
 
 const SITE_URL = process.env.SITE_URL || "https://sandiego.com";
 
@@ -45,6 +46,12 @@ export const Route = createFileRoute("/sitemap.xml")({
         for (const n of neighborhoodHubs) {
           urls.push(
             `<url><loc>${SITE_URL}/neighborhoods/${n.slug}</loc><lastmod>${now}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`,
+          );
+        }
+        // Layer 2 SEO: /[category]/in/[neighborhood] landing pages.
+        for (const pair of allSeoCategoryNeighborhoodPairs()) {
+          urls.push(
+            `<url><loc>${SITE_URL}/${pair.category}/in/${pair.neighborhood}</loc><lastmod>${now}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>`,
           );
         }
         // Listing detail pages — emit canonical URL only (/{category}/{slug}).
