@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Sparkles, Clock, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Header } from "@/components/site/Header";
+import { Footer } from "@/components/site/Footer";
 
 export const Route = createFileRoute("/blog/")({
   head: () => ({
@@ -55,7 +57,9 @@ function BlogIndex() {
   const [hero, ...rest] = visible;
 
   return (
-    <div className="bg-background">
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="bg-background">
       {/* Hero header */}
       <section className="border-b border-border">
         <div className="container-page py-16 md:py-24">
@@ -163,6 +167,8 @@ function BlogIndex() {
           </>
         )}
       </div>
+    </div>
+      <Footer />
     </div>
   );
 }
