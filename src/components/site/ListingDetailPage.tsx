@@ -26,6 +26,7 @@ import {
 } from "./listing/EditorialContext";
 import { PairThisWith } from "./listing/PairThisWith";
 import { toSchemaOpeningHours } from "@/lib/hours";
+import { reservationCtaForCategory, reservationProvider } from "@/lib/reservation-cta";
 
 const SITE_URL = "https://sandiego.com";
 
@@ -61,24 +62,7 @@ type Listing = {
   faqs?: unknown;
 };
 
-function reservationProvider(url: string): string {
-  try {
-    const host = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
-    if (host.includes("opentable")) return "OpenTable";
-    if (host.includes("resy")) return "Resy";
-    if (host.includes("exploretock") || host.includes("tock")) return "Tock";
-    if (host.includes("sevenrooms")) return "SevenRooms";
-    if (host.includes("yelp")) return "Yelp";
-    if (host.includes("booking.com")) return "Booking.com";
-    if (host.includes("expedia")) return "Expedia";
-    if (host.includes("hotels.com")) return "Hotels.com";
-    if (host.includes("getyourguide")) return "GetYourGuide";
-    if (host.includes("viator")) return "Viator";
-    return host.split(".").slice(-2, -1)[0]?.replace(/^\w/, (c) => c.toUpperCase()) || "their site";
-  } catch {
-    return "their site";
-  }
-}
+// reservationProvider() now lives in @/lib/reservation-cta
 
 function tagsForListing(l: Listing): string[] {
   const tags: string[] = [];
@@ -397,29 +381,35 @@ export function ListingDetailPage({
               </div>
             )}
             <InsiderTipCard tip={listing.insider_tip} bestTime={listing.best_time_to_visit} />
-            {listing.reservation_url && (
-              <div className="rounded-3xl border border-accent/40 bg-gradient-to-br from-accent/15 via-card to-card p-5 shadow-sm">
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-accent/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent">
-                  <CalendarCheck className="h-3 w-3" /> Book a table
+            {listing.reservation_url && (() => {
+              const cta = reservationCtaForCategory(
+                listing.category,
+                listing.name,
+                listing.neighborhood,
+              );
+              const provider = reservationProvider(listing.reservation_url);
+              return (
+                <div className="rounded-3xl border border-accent/40 bg-gradient-to-br from-accent/15 via-card to-card p-5 shadow-sm">
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-accent/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent">
+                    <CalendarCheck className="h-3 w-3" /> {cta.eyebrow}
+                  </div>
+                  <p className="mt-3 text-sm font-medium">{cta.prompt(listing.name)}</p>
+                  <a
+                    href={listing.reservation_url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    onClick={() => recordImpression(listing.id, "reservation_click")}
+                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground hover:opacity-90"
+                  >
+                    <CalendarCheck className="h-4 w-4" />
+                    {cta.buttonLabel(provider)}
+                  </a>
+                  <p className="mt-2 text-[11px] text-muted-foreground text-center">
+                    You'll be redirected to {provider} to complete your booking.
+                  </p>
                 </div>
-                <p className="mt-3 text-sm font-medium">
-                  Reserve at {listing.name} in seconds.
-                </p>
-                <a
-                  href={listing.reservation_url}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  onClick={() => recordImpression(listing.id, "reservation_click")}
-                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground hover:opacity-90"
-                >
-                  <CalendarCheck className="h-4 w-4" />
-                  Reserve on {reservationProvider(listing.reservation_url)}
-                </a>
-                <p className="mt-2 text-[11px] text-muted-foreground text-center">
-                  You'll be redirected to {reservationProvider(listing.reservation_url)} to complete your booking.
-                </p>
-              </div>
-            )}
+              );
+            })()}
             <div className="rounded-3xl border border-border bg-card p-5 shadow-sm">
               {hours.label && (
                 <div className="mb-4 flex items-center gap-2 text-sm">
