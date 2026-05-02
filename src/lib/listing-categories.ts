@@ -81,9 +81,9 @@ export const CATEGORY_HUBS: CategoryHub[] = [
     dbCategories: ["Restaurant"],
     label: "Restaurants",
     singular: "Restaurant",
-    metaTitle: "Best San Diego Restaurants — Where Locals Eat | sandiego.com",
+    metaTitle: "Top Restaurants in San Diego | Member Exclusive Deals",
     metaDescription:
-      "The definitive guide to San Diego restaurants: tacos, fine dining, waterfront patios and neighborhood gems — all editor-vetted by locals.",
+      "Discover San Diego's best restaurants — tacos, fine dining, waterfront patios. SD Insider members save 15–25% at participating spots. Join & save »",
     eyebrow: "Where to eat",
     heading: "San Diego Restaurants",
     subheading:
