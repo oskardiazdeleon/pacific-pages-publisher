@@ -288,9 +288,9 @@ function NeighborhoodCategoryPage() {
             <div className="rounded-2xl border border-dashed border-border bg-card/60 px-6 py-14 text-center">
               <p className="text-muted-foreground">
                 We're still curating {hub.label.toLowerCase()} in {hood.name}.{" "}
-                <Link to="/$category" params={{ category: hub.slug }} className="text-accent font-medium">
+                <a href={`/${hub.slug}`} className="text-accent font-medium">
                   Browse all {hub.label.toLowerCase()} in San Diego →
-                </Link>
+                </a>
               </p>
             </div>
           ) : (
