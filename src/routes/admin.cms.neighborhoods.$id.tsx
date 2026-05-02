@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, ExternalLink, Plus, Save, Send, Trash2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, Plus, Save, Send, Sparkles, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CmsImageUpload } from "@/components/admin/CmsImageUpload";
 
@@ -66,6 +66,48 @@ function EditNeighborhoodPage() {
     setPage((p) =>
       p ? { ...p, faqs: (p.faqs ?? []).filter((_, idx) => idx !== i) } : p,
     );
+
+  const aiFill = async (mode: "all" | "missing") => {
+    if (!page) return;
+    setBusy(true);
+    setMsg("Generating with AI…");
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-neighborhood-page", {
+        body: {
+          category_slug: page.category_slug,
+          category_label: capitalize(page.category_slug.replace(/-/g, " ")),
+          neighborhood_name: page.neighborhood_name,
+          neighborhood_slug: page.neighborhood_slug,
+        },
+      });
+      if (error) throw error;
+      const draft = (data as { draft?: Page })?.draft;
+      if (!draft) throw new Error("Empty draft");
+      setPage((p) => {
+        if (!p) return p;
+        const pick = <K extends keyof Page>(k: K, val: Page[K]): Page[K] =>
+          mode === "all" ? val : (p[k] && String(p[k]).trim() ? p[k] : val);
+        const existingFaqs = p.faqs ?? [];
+        return {
+          ...p,
+          title: pick("title", draft.title ?? p.title),
+          intro: pick("intro", draft.intro ?? p.intro),
+          insider_tip: pick("insider_tip", draft.insider_tip ?? p.insider_tip),
+          meta_title: pick("meta_title", draft.meta_title ?? p.meta_title),
+          meta_description: pick("meta_description", draft.meta_description ?? p.meta_description),
+          faqs:
+            mode === "all" || existingFaqs.length === 0
+              ? draft.faqs ?? existingFaqs
+              : existingFaqs,
+        };
+      });
+      setMsg("AI draft applied — review and save.");
+    } catch (e) {
+      setMsg(`AI error: ${e instanceof Error ? e.message : "unknown"}`);
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const buildPayload = () => ({
     title: page.title?.trim() || null,
@@ -165,7 +207,29 @@ function EditNeighborhoodPage() {
       )}
 
       <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-        <h2 className="font-display text-lg font-semibold">Editorial</h2>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <h2 className="font-display text-lg font-semibold">Editorial</h2>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => aiFill("missing")}
+              disabled={busy}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-medium hover:bg-accent/10 disabled:opacity-50"
+              title="Fill only empty fields"
+            >
+              <Sparkles className="h-3.5 w-3.5" /> AI fill empty
+            </button>
+            <button
+              type="button"
+              onClick={() => aiFill("all")}
+              disabled={busy}
+              className="inline-flex items-center gap-1.5 rounded-md bg-accent px-2.5 py-1.5 text-xs font-medium text-accent-foreground hover:bg-accent/90 disabled:opacity-50"
+              title="Replace all editorial fields with a fresh AI draft"
+            >
+              <Sparkles className="h-3.5 w-3.5" /> AI draft (replace)
+            </button>
+          </div>
+        </div>
         <p className="text-xs text-muted-foreground">
           Leave any field blank to fall back to the auto-generated default.
         </p>
