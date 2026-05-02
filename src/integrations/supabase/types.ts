@@ -823,6 +823,7 @@ export type Database = {
         | "Tour"
         | "Shopping"
         | "Nightlife"
+        | "Golf"
       listing_tier: "free" | "featured" | "premium"
     }
     CompositeTypes: {
@@ -976,6 +977,7 @@ export const Constants = {
         "Tour",
         "Shopping",
         "Nightlife",
+        "Golf",
       ],
       listing_tier: ["free", "featured", "premium"],
     },
