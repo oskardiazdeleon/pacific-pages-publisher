@@ -5,7 +5,7 @@ export async function fetchPublishedListings(opts?: { category?: string; limit?:
   let q = supabase
     .from("listings")
     .select(
-      "id, slug, name, category, neighborhood, short_description, hero_image, tier, rating, price_range, published_at, is_sponsored, sponsor_name, sponsor_rank, sponsor_until",
+      "id, slug, name, category, neighborhood, short_description, hero_image, tier, rating, price_range, published_at, is_sponsored, sponsor_name, sponsor_rank, sponsor_until, member_discount",
     )
     .eq("status", "published");
   if (opts?.category && opts.category !== "All") {
@@ -36,7 +36,7 @@ export async function fetchGolfCourses(opts?: { limit?: number }) {
   let q = supabase
     .from("listings")
     .select(
-      "id, slug, name, category, neighborhood, short_description, hero_image, tier, rating, price_range, published_at, is_sponsored, sponsor_name, sponsor_rank, sponsor_until, reservation_url",
+      "id, slug, name, category, neighborhood, short_description, hero_image, tier, rating, price_range, published_at, is_sponsored, sponsor_name, sponsor_rank, sponsor_until, reservation_url, member_discount",
     )
     .eq("status", "published")
     .like("slug", "golf-%")

@@ -40,6 +40,8 @@ export type CategoryHub = {
   stats?: { value: string; label: string }[];
   /** Insider CTA bar */
   insiderCta?: { title: string; body: string };
+  /** Hero member benefit pill (e.g. "💳 SD Insider Members Save 15–30% on Hotels") */
+  memberBenefit?: string;
 };
 
 export const CATEGORY_HUBS: CategoryHub[] = [
@@ -48,9 +50,9 @@ export const CATEGORY_HUBS: CategoryHub[] = [
     dbCategories: ["Hotel"],
     label: "Hotels",
     singular: "Hotel",
-    metaTitle: "Best San Diego Hotels — Editor-Vetted Stays | sandiego.com",
+    metaTitle: "Hotels in San Diego | Insider Members Save 15–40%",
     metaDescription:
-      "The best hotels in San Diego, hand-picked by locals. Beachfront resorts, downtown boutiques, family-friendly stays — with Insider rates up to 40% off.",
+      "Browse 200+ editor-vetted San Diego hotels. SD Insider members save 15–40% on beachfront resorts, downtown boutiques and family stays. Join & save »",
     eyebrow: "Where to stay",
     heading: "San Diego Hotels",
     subheading:
@@ -75,15 +77,16 @@ export const CATEGORY_HUBS: CategoryHub[] = [
       title: "Save up to 40% with Insider",
       body: "Member-only rates, free upgrades and late checkout at participating hotels.",
     },
+    memberBenefit: "💳 SD Insider Members Save 15–40% on San Diego Hotels",
   },
   {
     slug: "restaurants",
     dbCategories: ["Restaurant"],
     label: "Restaurants",
     singular: "Restaurant",
-    metaTitle: "Best San Diego Restaurants — Where Locals Eat | sandiego.com",
+    metaTitle: "Top Restaurants in San Diego | Member Exclusive Deals",
     metaDescription:
-      "The definitive guide to San Diego restaurants: tacos, fine dining, waterfront patios and neighborhood gems — all editor-vetted by locals.",
+      "Discover San Diego's best restaurants — tacos, fine dining, waterfront patios. SD Insider members save 15–25% at participating spots. Join & save »",
     eyebrow: "Where to eat",
     heading: "San Diego Restaurants",
     subheading:
@@ -108,15 +111,16 @@ export const CATEGORY_HUBS: CategoryHub[] = [
       title: "Dine smarter with Insider",
       body: "Priority reservations, complimentary courses and chef's-table access at top spots.",
     },
+    memberBenefit: "💳 SD Insider Members Save 15–25% at 150+ Restaurants",
   },
   {
     slug: "things-to-do",
     dbCategories: ["Attraction", "Tour"],
     label: "Things To Do",
     singular: "Thing To Do",
-    metaTitle: "Best Things To Do in San Diego — Attractions & Tours | sandiego.com",
+    metaTitle: "Things to Do in San Diego | Members Save at 200+ Places",
     metaDescription:
-      "1,200+ things to do in San Diego: top attractions, tours, beaches, museums and family activities — curated by locals, updated weekly.",
+      "1,200+ things to do in San Diego: attractions, tours, beaches and museums. SD Insider members save up to 30% at 200+ partner places. Join & save »",
     eyebrow: "What to do",
     heading: "Things To Do in San Diego",
     subheading:
@@ -141,15 +145,16 @@ export const CATEGORY_HUBS: CategoryHub[] = [
       title: "Skip the line with Insider",
       body: "Front-of-line passes, member discounts and exclusive tours at top attractions.",
     },
+    memberBenefit: "💳 SD Insider Members Save Up to 30% at 200+ San Diego Attractions",
   },
   {
     slug: "shopping",
     dbCategories: ["Shopping"],
     label: "Shopping",
     singular: "Shop",
-    metaTitle: "Best Shopping in San Diego — Boutiques & Markets | sandiego.com",
+    metaTitle: "Shopping in San Diego | Member Discounts at Local Boutiques",
     metaDescription:
-      "Where to shop in San Diego: independent boutiques, designer outlets, vintage finds and farmers markets — handpicked by local editors.",
+      "Independent boutiques, vintage finds and farmers markets — handpicked by locals. SD Insider members save 10–20% at participating shops. Join & save »",
     eyebrow: "Where to shop",
     heading: "San Diego Shopping",
     subheading:
@@ -174,15 +179,16 @@ export const CATEGORY_HUBS: CategoryHub[] = [
       title: "Shop smarter with Insider",
       body: "Member-only discounts and early access at participating boutiques and markets.",
     },
+    memberBenefit: "💳 SD Insider Members Save 10–20% at Local Boutiques & Markets",
   },
   {
     slug: "nightlife",
     dbCategories: ["Nightlife"],
     label: "Nightlife",
     singular: "Nightlife Spot",
-    metaTitle: "Best San Diego Nightlife — Bars, Clubs & Rooftops | sandiego.com",
+    metaTitle: "San Diego Nightlife | Member Perks at Top Bars & Clubs",
     metaDescription:
-      "San Diego nightlife guide: rooftop bars, craft cocktail lounges, live music venues and dance clubs — vetted by locals who go out.",
+      "Rooftop bars, craft cocktails, live music and dance clubs. SD Insider members get VIP entry and complimentary drinks at participating venues. Join & save »",
     eyebrow: "After dark",
     heading: "San Diego Nightlife",
     subheading:
@@ -207,6 +213,7 @@ export const CATEGORY_HUBS: CategoryHub[] = [
       title: "Skip the line with Insider",
       body: "VIP entry, complimentary drinks and table reservations at top venues.",
     },
+    memberBenefit: "💳 SD Insider Members Get VIP Entry & Drink Perks at Top Venues",
   },
 ];
 

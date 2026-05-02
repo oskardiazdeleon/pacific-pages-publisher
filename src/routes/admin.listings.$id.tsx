@@ -64,6 +64,8 @@ function EditListing() {
                 !!f && typeof f === "object" && typeof (f as any).q === "string" && typeof (f as any).a === "string",
             )
           : [],
+        member_discount_label: (row.member_discount as { label?: string } | null)?.label ?? "",
+        member_discount_details: (row.member_discount as { details?: string } | null)?.details ?? "",
       });
     };
     load();
