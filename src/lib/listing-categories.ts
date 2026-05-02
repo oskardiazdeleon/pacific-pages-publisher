@@ -215,6 +215,39 @@ export const CATEGORY_HUBS: CategoryHub[] = [
       body: "VIP entry, complimentary drinks and table reservations at top venues.",
     },
     memberBenefit: "💳 SD Insider Members Get VIP Entry & Drink Perks at Top Venues",
+  {
+    slug: "golf-courses",
+    dbCategories: ["Golf"],
+    label: "Golf Courses",
+    singular: "Golf Course",
+    metaTitle: "Best Golf Courses in San Diego | Insider Members Save on Tee Times",
+    metaDescription:
+      "Play San Diego's best golf courses — from Torrey Pines to hidden municipal gems. SD Insider members save on tee times at participating courses. Join & save »",
+    eyebrow: "Where to play",
+    heading: "San Diego Golf Courses",
+    subheading:
+      "Championship layouts, ocean-view fairways and walkable munis — every course rated by our editors. Insider members save on tee times.",
+    schemaType: "GolfCourse",
+    headingAccent: "where to tee it up.",
+    heroImage:
+      "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=1600&q=80",
+    searchPlaceholder: "Search courses, neighborhoods, designers…",
+    popularChips: [
+      { label: "Ocean View", keyword: "ocean" },
+      { label: "Public", keyword: "public" },
+      { label: "Championship", keyword: "championship" },
+      { label: "Municipal", keyword: "muni" },
+    ],
+    stats: [
+      { value: "90+", label: "Courses" },
+      { value: "$45+", label: "Twilight Rates" },
+      { value: "266", label: "Sunny Days" },
+    ],
+    insiderCta: {
+      title: "Tee off for less with Insider",
+      body: "Member rates, priority tee times and twilight upgrades at participating courses.",
+    },
+    memberBenefit: "💳 SD Insider Members Save on Tee Times at Top San Diego Courses",
   },
 ];
 
