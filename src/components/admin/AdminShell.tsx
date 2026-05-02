@@ -1,9 +1,9 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LogOut, LayoutDashboard, FileText, Building2, BarChart3, Download, Settings, Menu as MenuIcon, Home, FileStack, Sparkles } from "lucide-react";
+import { LogOut, LayoutDashboard, FileText, Building2, BarChart3, Download, Settings, Menu as MenuIcon, Home, FileStack, Sparkles, KeyRound } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
 const navItems: ReadonlyArray<{
-  to: "/admin" | "/admin/listings" | "/admin/articles" | "/admin/blog" | "/admin/impressions" | "/admin/import" | "/admin/cms/settings" | "/admin/cms/navigation" | "/admin/cms/homepage" | "/admin/cms/pages";
+  to: "/admin" | "/admin/listings" | "/admin/articles" | "/admin/blog" | "/admin/impressions" | "/admin/import" | "/admin/cms/settings" | "/admin/cms/navigation" | "/admin/cms/homepage" | "/admin/cms/pages" | "/admin/api-keys";
   label: string;
   icon: typeof LayoutDashboard;
   exact?: boolean;
@@ -19,6 +19,7 @@ const navItems: ReadonlyArray<{
   { to: "/admin/cms/navigation", label: "Navigation", icon: MenuIcon, group: "CMS" },
   { to: "/admin/cms/homepage", label: "Homepage", icon: Home, group: "CMS" },
   { to: "/admin/cms/pages", label: "Pages", icon: FileStack, group: "CMS" },
+  { to: "/admin/api-keys", label: "API Keys", icon: KeyRound, group: "CMS" },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

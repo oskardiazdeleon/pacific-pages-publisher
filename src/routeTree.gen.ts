@@ -47,9 +47,11 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ArticlesSlugRouteImport } from './routes/articles.$slug'
 import { Route as AdminImpressionsRouteImport } from './routes/admin.impressions'
 import { Route as AdminImportRouteImport } from './routes/admin.import'
+import { Route as AdminApiKeysRouteImport } from './routes/admin.api-keys'
 import { Route as AdminListingsIndexRouteImport } from './routes/admin.listings.index'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin.blog.index'
 import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
+import { Route as ApiPublicBlogRouteImport } from './routes/api/public/blog'
 import { Route as AdminListingsNewRouteImport } from './routes/admin.listings.new'
 import { Route as AdminListingsIdRouteImport } from './routes/admin.listings.$id'
 import { Route as AdminCmsSettingsRouteImport } from './routes/admin.cms.settings'
@@ -252,6 +254,11 @@ const AdminImportRoute = AdminImportRouteImport.update({
   path: '/import',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminApiKeysRoute = AdminApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminListingsIndexRoute = AdminListingsIndexRouteImport.update({
   id: '/listings/',
   path: '/listings/',
@@ -266,6 +273,11 @@ const AdminArticlesIndexRoute = AdminArticlesIndexRouteImport.update({
   id: '/articles/',
   path: '/articles/',
   getParentRoute: () => AdminRoute,
+} as any)
+const ApiPublicBlogRoute = ApiPublicBlogRouteImport.update({
+  id: '/api/public/blog',
+  path: '/api/public/blog',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminListingsNewRoute = AdminListingsNewRouteImport.update({
   id: '/listings/new',
@@ -336,6 +348,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/api-keys': typeof AdminApiKeysRoute
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
@@ -371,6 +384,7 @@ export interface FileRoutesByFullPath {
   '/admin/cms/settings': typeof AdminCmsSettingsRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
+  '/api/public/blog': typeof ApiPublicBlogRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/admin/listings/': typeof AdminListingsIndexRoute
@@ -387,6 +401,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/api-keys': typeof AdminApiKeysRoute
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
@@ -422,6 +437,7 @@ export interface FileRoutesByTo {
   '/admin/cms/settings': typeof AdminCmsSettingsRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
+  '/api/public/blog': typeof ApiPublicBlogRoute
   '/admin/articles': typeof AdminArticlesIndexRoute
   '/admin/blog': typeof AdminBlogIndexRoute
   '/admin/listings': typeof AdminListingsIndexRoute
@@ -442,6 +458,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/api-keys': typeof AdminApiKeysRoute
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
@@ -477,6 +494,7 @@ export interface FileRoutesById {
   '/admin/cms/settings': typeof AdminCmsSettingsRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
+  '/api/public/blog': typeof ApiPublicBlogRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/admin/listings/': typeof AdminListingsIndexRoute
@@ -498,6 +516,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/admin/api-keys'
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
@@ -533,6 +552,7 @@ export interface FileRouteTypes {
     | '/admin/cms/settings'
     | '/admin/listings/$id'
     | '/admin/listings/new'
+    | '/api/public/blog'
     | '/admin/articles/'
     | '/admin/blog/'
     | '/admin/listings/'
@@ -549,6 +569,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/admin/api-keys'
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
@@ -584,6 +605,7 @@ export interface FileRouteTypes {
     | '/admin/cms/settings'
     | '/admin/listings/$id'
     | '/admin/listings/new'
+    | '/api/public/blog'
     | '/admin/articles'
     | '/admin/blog'
     | '/admin/listings'
@@ -603,6 +625,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/admin/api-keys'
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
@@ -638,6 +661,7 @@ export interface FileRouteTypes {
     | '/admin/cms/settings'
     | '/admin/listings/$id'
     | '/admin/listings/new'
+    | '/api/public/blog'
     | '/admin/articles/'
     | '/admin/blog/'
     | '/admin/listings/'
@@ -676,6 +700,7 @@ export interface RootRouteChildren {
   ShoppingIndexRoute: typeof ShoppingIndexRoute
   ThingsToDoIndexRoute: typeof ThingsToDoIndexRoute
   WineriesIndexRoute: typeof WineriesIndexRoute
+  ApiPublicBlogRoute: typeof ApiPublicBlogRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -946,6 +971,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminImportRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/api-keys': {
+      id: '/admin/api-keys'
+      path: '/api-keys'
+      fullPath: '/admin/api-keys'
+      preLoaderRoute: typeof AdminApiKeysRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/listings/': {
       id: '/admin/listings/'
       path: '/listings'
@@ -966,6 +998,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/articles/'
       preLoaderRoute: typeof AdminArticlesIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/api/public/blog': {
+      id: '/api/public/blog'
+      path: '/api/public/blog'
+      fullPath: '/api/public/blog'
+      preLoaderRoute: typeof ApiPublicBlogRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/admin/listings/new': {
       id: '/admin/listings/new'
@@ -1048,6 +1087,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminApiKeysRoute: typeof AdminApiKeysRoute
   AdminImportRoute: typeof AdminImportRoute
   AdminImpressionsRoute: typeof AdminImpressionsRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -1068,6 +1108,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminApiKeysRoute: AdminApiKeysRoute,
   AdminImportRoute: AdminImportRoute,
   AdminImpressionsRoute: AdminImpressionsRoute,
   AdminIndexRoute: AdminIndexRoute,
@@ -1160,6 +1201,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShoppingIndexRoute: ShoppingIndexRoute,
   ThingsToDoIndexRoute: ThingsToDoIndexRoute,
   WineriesIndexRoute: WineriesIndexRoute,
+  ApiPublicBlogRoute: ApiPublicBlogRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
