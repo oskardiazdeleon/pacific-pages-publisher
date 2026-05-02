@@ -36,6 +36,7 @@ import { Route as WineriesSlugRouteImport } from './routes/wineries.$slug'
 import { Route as ThingsToDoGolfRouteImport } from './routes/things-to-do.golf'
 import { Route as ThingsToDoSlugRouteImport } from './routes/things-to-do.$slug'
 import { Route as ShoppingSlugRouteImport } from './routes/shopping.$slug'
+import { Route as SaveOnPillarRouteImport } from './routes/save-on.$pillar'
 import { Route as RestaurantsSlugRouteImport } from './routes/restaurants.$slug'
 import { Route as PagesSlugRouteImport } from './routes/pages.$slug'
 import { Route as NightlifeSlugRouteImport } from './routes/nightlife.$slug'
@@ -199,6 +200,11 @@ const ThingsToDoSlugRoute = ThingsToDoSlugRouteImport.update({
 const ShoppingSlugRoute = ShoppingSlugRouteImport.update({
   id: '/shopping/$slug',
   path: '/shopping/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SaveOnPillarRoute = SaveOnPillarRouteImport.update({
+  id: '/save-on/$pillar',
+  path: '/save-on/$pillar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RestaurantsSlugRoute = RestaurantsSlugRouteImport.update({
@@ -372,6 +378,7 @@ export interface FileRoutesByFullPath {
   '/nightlife/$slug': typeof NightlifeSlugRoute
   '/pages/$slug': typeof PagesSlugRoute
   '/restaurants/$slug': typeof RestaurantsSlugRoute
+  '/save-on/$pillar': typeof SaveOnPillarRoute
   '/shopping/$slug': typeof ShoppingSlugRoute
   '/things-to-do/$slug': typeof ThingsToDoSlugRoute
   '/things-to-do/golf': typeof ThingsToDoGolfRoute
@@ -427,6 +434,7 @@ export interface FileRoutesByTo {
   '/nightlife/$slug': typeof NightlifeSlugRoute
   '/pages/$slug': typeof PagesSlugRoute
   '/restaurants/$slug': typeof RestaurantsSlugRoute
+  '/save-on/$pillar': typeof SaveOnPillarRoute
   '/shopping/$slug': typeof ShoppingSlugRoute
   '/things-to-do/$slug': typeof ThingsToDoSlugRoute
   '/things-to-do/golf': typeof ThingsToDoGolfRoute
@@ -486,6 +494,7 @@ export interface FileRoutesById {
   '/nightlife/$slug': typeof NightlifeSlugRoute
   '/pages/$slug': typeof PagesSlugRoute
   '/restaurants/$slug': typeof RestaurantsSlugRoute
+  '/save-on/$pillar': typeof SaveOnPillarRoute
   '/shopping/$slug': typeof ShoppingSlugRoute
   '/things-to-do/$slug': typeof ThingsToDoSlugRoute
   '/things-to-do/golf': typeof ThingsToDoGolfRoute
@@ -546,6 +555,7 @@ export interface FileRouteTypes {
     | '/nightlife/$slug'
     | '/pages/$slug'
     | '/restaurants/$slug'
+    | '/save-on/$pillar'
     | '/shopping/$slug'
     | '/things-to-do/$slug'
     | '/things-to-do/golf'
@@ -601,6 +611,7 @@ export interface FileRouteTypes {
     | '/nightlife/$slug'
     | '/pages/$slug'
     | '/restaurants/$slug'
+    | '/save-on/$pillar'
     | '/shopping/$slug'
     | '/things-to-do/$slug'
     | '/things-to-do/golf'
@@ -659,6 +670,7 @@ export interface FileRouteTypes {
     | '/nightlife/$slug'
     | '/pages/$slug'
     | '/restaurants/$slug'
+    | '/save-on/$pillar'
     | '/shopping/$slug'
     | '/things-to-do/$slug'
     | '/things-to-do/golf'
@@ -712,6 +724,7 @@ export interface RootRouteChildren {
   NightlifeSlugRoute: typeof NightlifeSlugRoute
   PagesSlugRoute: typeof PagesSlugRoute
   RestaurantsSlugRoute: typeof RestaurantsSlugRoute
+  SaveOnPillarRoute: typeof SaveOnPillarRoute
   ShoppingSlugRoute: typeof ShoppingSlugRoute
   ThingsToDoSlugRoute: typeof ThingsToDoSlugRoute
   ThingsToDoGolfRoute: typeof ThingsToDoGolfRoute
@@ -918,6 +931,13 @@ declare module '@tanstack/react-router' {
       path: '/shopping/$slug'
       fullPath: '/shopping/$slug'
       preLoaderRoute: typeof ShoppingSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/save-on/$pillar': {
+      id: '/save-on/$pillar'
+      path: '/save-on/$pillar'
+      fullPath: '/save-on/$pillar'
+      preLoaderRoute: typeof SaveOnPillarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/restaurants/$slug': {
@@ -1229,6 +1249,7 @@ const rootRouteChildren: RootRouteChildren = {
   NightlifeSlugRoute: NightlifeSlugRoute,
   PagesSlugRoute: PagesSlugRoute,
   RestaurantsSlugRoute: RestaurantsSlugRoute,
+  SaveOnPillarRoute: SaveOnPillarRoute,
   ShoppingSlugRoute: ShoppingSlugRoute,
   ThingsToDoSlugRoute: ThingsToDoSlugRoute,
   ThingsToDoGolfRoute: ThingsToDoGolfRoute,
