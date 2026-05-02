@@ -44,8 +44,18 @@ function HomePage() {
           fetchPublishedArticles({ limit: 4 }),
           fetchPublishedHomepageSections(),
         ]);
-        const feat = l.filter((x) => x.tier !== "free").slice(0, 3);
-        setFeatured(feat.length ? (feat as ListingCardData[]) : (mockListings.filter((m) => m.tier !== "free").slice(0, 3) as ListingCardData[]));
+        const paid = l.filter((x) => x.tier !== "free");
+        const filler = l.filter((x) => x.tier === "free");
+        let feat = [...paid, ...filler].slice(0, 3);
+        if (feat.length < 3) {
+          const seen = new Set(feat.map((f) => f.slug));
+          const mockFill = [
+            ...mockListings.filter((m) => m.tier !== "free"),
+            ...mockListings.filter((m) => m.tier === "free"),
+          ].filter((m) => !seen.has(m.slug));
+          feat = [...feat, ...mockFill].slice(0, 3) as typeof feat;
+        }
+        setFeatured(feat as ListingCardData[]);
         setPosts(a.length ? (a as ArticleCardData[]) : (mockArticles as ArticleCardData[]));
         const map: Record<string, Record<string, unknown>> = {};
         for (const s of sections as HomepageSection[]) map[s.section_key] = (s.published_content || {}) as Record<string, unknown>;
