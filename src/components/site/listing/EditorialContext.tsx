@@ -60,14 +60,16 @@ export function WhyWePickedIt({ reasons }: { reasons: string[] }) {
 export function InsiderTipCard({ tip, bestTime }: { tip?: string | null; bestTime?: string | null }) {
   if (!tip && !bestTime) return null;
   return (
-    <div className="relative mt-5 overflow-hidden rounded-2xl p-5 pt-7 shadow-[0_12px_30px_-15px_hsl(var(--accent)/0.4)] ring-1 ring-accent/20 bg-gradient-to-br from-accent/10 via-card to-primary/5">
-      {/* Decorative sun-burst accent */}
-      <div aria-hidden className="pointer-events-none absolute -top-12 -right-12 h-28 w-28 rounded-full bg-accent/25 blur-3xl" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-14 -left-10 h-24 w-24 rounded-full bg-primary/15 blur-3xl" />
+    <div className="relative mt-7 rounded-2xl p-5 pt-8 shadow-[0_18px_40px_-18px_hsl(var(--accent)/0.55)] ring-2 ring-accent/40 bg-gradient-to-br from-accent/15 via-card to-primary/10">
+      {/* Decorative sun-burst accent (clipped to card) */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
+        <div className="absolute -top-12 -right-12 h-28 w-28 rounded-full bg-accent/30 blur-3xl" />
+        <div className="absolute -bottom-14 -left-10 h-24 w-24 rounded-full bg-primary/15 blur-3xl" />
+      </div>
 
-      {/* Floating icon badge */}
-      <div className="absolute -top-3.5 left-5 flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-md ring-4 ring-background">
-        <Lightbulb className="h-4 w-4" />
+      {/* Floating icon badge — solid accent pill that pops */}
+      <div className="absolute -top-4 left-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-lg shadow-accent/40 ring-4 ring-background">
+        <Lightbulb className="h-5 w-5" strokeWidth={2.5} />
       </div>
 
       <div className="relative">
