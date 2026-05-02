@@ -66,10 +66,12 @@ function ApiKeysPage() {
   };
 
   const handleCreate = async () => {
-    if (!name.trim()) return;
+    if (!name.trim() || scopes.length === 0) return;
     setCreating(true);
     try {
-      const res = await withAuth(() => create({ data: { name: name.trim() } }));
+      const res = await withAuth(() =>
+        create({ data: { name: name.trim(), scopes } }),
+      );
       setNewKey(res.key);
       setName("");
       await load();
@@ -80,6 +82,9 @@ function ApiKeysPage() {
       setCreating(false);
     }
   };
+
+  const toggleScope = (s: Scope) =>
+    setScopes((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
 
   const handleRevoke = async (id: string) => {
     if (!confirm("Revoke this key? Existing integrations will break.")) return;
