@@ -147,9 +147,9 @@ export const CATEGORY_HUBS: CategoryHub[] = [
     dbCategories: ["Shopping"],
     label: "Shopping",
     singular: "Shop",
-    metaTitle: "Best Shopping in San Diego — Boutiques & Markets | sandiego.com",
+    metaTitle: "Shopping in San Diego | Member Discounts at Local Boutiques",
     metaDescription:
-      "Where to shop in San Diego: independent boutiques, designer outlets, vintage finds and farmers markets — handpicked by local editors.",
+      "Independent boutiques, vintage finds and farmers markets — handpicked by locals. SD Insider members save 10–20% at participating shops. Join & save »",
     eyebrow: "Where to shop",
     heading: "San Diego Shopping",
     subheading:
