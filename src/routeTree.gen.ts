@@ -62,6 +62,7 @@ import { Route as AdminBlogNewRouteImport } from './routes/admin.blog.new'
 import { Route as AdminBlogIdRouteImport } from './routes/admin.blog.$id'
 import { Route as AdminArticlesNewRouteImport } from './routes/admin.articles.new'
 import { Route as AdminArticlesIdRouteImport } from './routes/admin.articles.$id'
+import { Route as CategoryInNeighborhoodRouteImport } from './routes/$category.in.$neighborhood'
 import { Route as AdminCmsPagesIndexRouteImport } from './routes/admin.cms.pages.index'
 import { Route as AdminCmsPagesIdRouteImport } from './routes/admin.cms.pages.$id'
 
@@ -330,6 +331,11 @@ const AdminArticlesIdRoute = AdminArticlesIdRouteImport.update({
   path: '/articles/$id',
   getParentRoute: () => AdminRoute,
 } as any)
+const CategoryInNeighborhoodRoute = CategoryInNeighborhoodRouteImport.update({
+  id: '/$category/in/$neighborhood',
+  path: '/$category/in/$neighborhood',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminCmsPagesIndexRoute = AdminCmsPagesIndexRouteImport.update({
   id: '/cms/pages/',
   path: '/cms/pages/',
@@ -381,6 +387,7 @@ export interface FileRoutesByFullPath {
   '/shopping/': typeof ShoppingIndexRoute
   '/things-to-do/': typeof ThingsToDoIndexRoute
   '/wineries/': typeof WineriesIndexRoute
+  '/$category/in/$neighborhood': typeof CategoryInNeighborhoodRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
@@ -435,6 +442,7 @@ export interface FileRoutesByTo {
   '/shopping': typeof ShoppingIndexRoute
   '/things-to-do': typeof ThingsToDoIndexRoute
   '/wineries': typeof WineriesIndexRoute
+  '/$category/in/$neighborhood': typeof CategoryInNeighborhoodRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
@@ -493,6 +501,7 @@ export interface FileRoutesById {
   '/shopping/': typeof ShoppingIndexRoute
   '/things-to-do/': typeof ThingsToDoIndexRoute
   '/wineries/': typeof WineriesIndexRoute
+  '/$category/in/$neighborhood': typeof CategoryInNeighborhoodRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
@@ -552,6 +561,7 @@ export interface FileRouteTypes {
     | '/shopping/'
     | '/things-to-do/'
     | '/wineries/'
+    | '/$category/in/$neighborhood'
     | '/admin/articles/$id'
     | '/admin/articles/new'
     | '/admin/blog/$id'
@@ -606,6 +616,7 @@ export interface FileRouteTypes {
     | '/shopping'
     | '/things-to-do'
     | '/wineries'
+    | '/$category/in/$neighborhood'
     | '/admin/articles/$id'
     | '/admin/articles/new'
     | '/admin/blog/$id'
@@ -663,6 +674,7 @@ export interface FileRouteTypes {
     | '/shopping/'
     | '/things-to-do/'
     | '/wineries/'
+    | '/$category/in/$neighborhood'
     | '/admin/articles/$id'
     | '/admin/articles/new'
     | '/admin/blog/$id'
@@ -712,6 +724,7 @@ export interface RootRouteChildren {
   ShoppingIndexRoute: typeof ShoppingIndexRoute
   ThingsToDoIndexRoute: typeof ThingsToDoIndexRoute
   WineriesIndexRoute: typeof WineriesIndexRoute
+  CategoryInNeighborhoodRoute: typeof CategoryInNeighborhoodRoute
   ApiPublicBlogRoute: typeof ApiPublicBlogRoute
   ApiPublicListingsRoute: typeof ApiPublicListingsRoute
 }
@@ -1089,6 +1102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminArticlesIdRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/$category/in/$neighborhood': {
+      id: '/$category/in/$neighborhood'
+      path: '/$category/in/$neighborhood'
+      fullPath: '/$category/in/$neighborhood'
+      preLoaderRoute: typeof CategoryInNeighborhoodRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/cms/pages/': {
       id: '/admin/cms/pages/'
       path: '/cms/pages'
@@ -1221,6 +1241,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShoppingIndexRoute: ShoppingIndexRoute,
   ThingsToDoIndexRoute: ThingsToDoIndexRoute,
   WineriesIndexRoute: WineriesIndexRoute,
+  CategoryInNeighborhoodRoute: CategoryInNeighborhoodRoute,
   ApiPublicBlogRoute: ApiPublicBlogRoute,
   ApiPublicListingsRoute: ApiPublicListingsRoute,
 }
