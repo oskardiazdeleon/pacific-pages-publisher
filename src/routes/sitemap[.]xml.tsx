@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { neighborhoodHubs } from "@/lib/neighborhoods-data";
 import { CATEGORY_HUBS, hubForCategory } from "@/lib/listing-categories";
 import { allSeoCategoryNeighborhoodPairs } from "@/lib/seo-neighborhoods";
+import { allSeoPillarSlugs } from "@/lib/seo-pillars";
 
 const SITE_URL = process.env.SITE_URL || "https://sandiego.com";
 
@@ -52,6 +53,12 @@ export const Route = createFileRoute("/sitemap.xml")({
         for (const pair of allSeoCategoryNeighborhoodPairs()) {
           urls.push(
             `<url><loc>${SITE_URL}/${pair.category}/in/${pair.neighborhood}</loc><lastmod>${now}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>`,
+          );
+        }
+        // Layer 3 SEO: /save-on/{pillar} benefit pillar pages.
+        for (const slug of allSeoPillarSlugs()) {
+          urls.push(
+            `<url><loc>${SITE_URL}/save-on/${slug}</loc><lastmod>${now}</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>`,
           );
         }
         // Listing detail pages — emit canonical URL only (/{category}/{slug}).
