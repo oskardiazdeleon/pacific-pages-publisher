@@ -256,6 +256,12 @@ export function ListingForm({
         faqs: v.faqs
           .map((f) => ({ q: f.q.trim(), a: f.a.trim() }))
           .filter((f) => f.q && f.a),
+        member_discount: v.member_discount_label.trim()
+          ? {
+              label: v.member_discount_label.trim(),
+              details: v.member_discount_details.trim() || null,
+            }
+          : null,
       };
 
       const res = v.id
