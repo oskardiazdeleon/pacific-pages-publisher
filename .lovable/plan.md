@@ -1,70 +1,52 @@
-## Goal
+# Finish Golf → standalone category
 
-Generate a downloadable **Brand Guidelines PDF** for sandiego.com that documents the visual system (colors, typography, logo) and brand positioning (voice, tagline, audience) — pulled directly from your live site so it stays accurate.
+Golf is already its own DB category with its own hub at `/golf-courses`. The Things To Do hub stays exactly as it is. The only cleanup left is the orphaned `/things-to-do/golf` sub-page from the old structure.
 
-This is a one-off artifact (not a feature added to the app). It will be delivered to `/mnt/documents/sandiego-brand-guidelines.pdf` for download.
+## What to change
 
-## What the document will contain
+### 1. Delete the legacy sub-route
+- Remove `src/routes/things-to-do.golf.tsx` (the old "Things To Do → Golf" filtered list).
+- The auto-generated `src/routeTree.gen.ts` will drop the route on the next build.
 
-**1. Cover** — Logo, "Brand Guidelines", site name, tagline.
+### 2. Add a 301 redirect for SEO continuity
+Any old links / Google index entries pointing at `/things-to-do/golf` should not 404. Add a redirect in `src/routes/things-to-do.golf.tsx` replacement — actually cleaner to handle this in the catch-all by re-creating the file as a redirect-only route:
 
-**2. Brand Positioning**
-- Tagline: *"The Definitive Guide to America's Finest City"*
-- Mission/voice: definitive, local-insider, editorial — *"places to stay, eat, explore and the stories behind them"*
-- Audience: visitors planning trips + locals looking for what's actually good
-- Tone of voice: confident, curated, warm, knowledgeable (with do/don't examples)
-- Pillars: Hotels · Restaurants · Things to Do · Nightlife · Shopping · Cruises · Neighborhoods · Wineries
+```tsx
+// src/routes/things-to-do.golf.tsx
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
-**3. Logo**
-- The existing `sandiego-logo.svg` (rendered on light + dark backgrounds)
-- Clear-space and minimum-size rules
-- Misuse examples (don't stretch, recolor, place on busy photos, etc.)
+export const Route = createFileRoute("/things-to-do/golf")({
+  beforeLoad: () => {
+    throw redirect({ to: "/golf-courses", statusCode: 301 });
+  },
+  component: () => null,
+});
+```
 
-**4. Color System** — pulled from `src/styles.css` "Ocean Deep" palette:
-- Ocean Deep `#0c2340` (primary)
-- Ocean `#1a4a6e`
-- Teal `#2d8a9e` (accent)
-- Teal Soft `#5cbdb9`
-- Sand `#faf8f3`
-- Plus neutrals (background, foreground, border, muted) and the dark-mode variants
-- Each swatch shown with HEX + OKLCH + role/usage
+This preserves the URL slot so crawlers get a real 301 (not a soft 404) and any internal stale `<Link>` still resolves.
 
-**5. Typography**
-- Display: **Outfit** (100–900) — headings, hero copy
-- Body: **Figtree** (300–900) — paragraphs, UI
-- Type scale samples (H1 → caption), letter-spacing rule (`-0.02em` on headings), eyebrow style (`0.72rem`, `0.18em` tracking, accent color, uppercase)
+### 3. Sweep for stale internal links
+Search the codebase for hard-coded references to `/things-to-do/golf` and repoint them to `/golf-courses`:
+- Header nav (`nav_menus` table is already updated, confirmed last turn)
+- Footer
+- Homepage CMS sections (`homepage_sections.draft_content` / `published_content`)
+- Any blog posts / articles bodies (only flag, don't auto-rewrite content)
 
-**6. Imagery & Photography**
-- Style direction: editorial coastal, golden-hour warmth, wide horizons, authentic San Diego (not stock-y)
-- Subject matter: ocean/coastline, neighborhoods, food close-ups, people in places
-- Treatment rules: no heavy filters, avoid oversaturation, prefer natural light
-- A grid of 6 representative hero images sampled from current category hubs (Things to Do, Hotels, Restaurants, Wineries, Nightlife, Shopping)
+If any DB-stored links reference the old URL, I'll list them and update via the insert tool.
 
-**7. UI Patterns** (brief)
-- Border radius `0.75rem`
-- Eyebrow + heading + accent-line pattern (e.g. *"San Diego Wineries / from vine to glass."*)
-- Card/listing visual conventions
+### 4. Sitemap
+`src/routes/sitemap[.]xml.tsx` — make sure it no longer emits `/things-to-do/golf` and does emit `/golf-courses` + each `/golf-courses/{slug}`. I'll check and patch if needed.
 
-**8. Contact / Stewardship**
-- Phone, address, social handles from site settings
-- Note on where the live tokens are maintained (Admin → CMS → Settings)
+## What stays untouched
+- `/things-to-do` hub page and its listings
+- All Attraction and Tour listings
+- The Things To Do nav entry
+- The Golf category, `/golf-courses` hub, listing URLs, golf neighborhood pages
 
-## How it's built
+## Files affected
+- `src/routes/things-to-do.golf.tsx` — replace body with a 301 redirect (or delete if you'd rather rely on the SPA 404 → I recommend the redirect)
+- `src/routes/sitemap[.]xml.tsx` — verify/update
+- Possible DB updates to `homepage_sections` if any tile still points at `/things-to-do/golf`
 
-- A Python script using **ReportLab** (Platypus) renders the PDF.
-- Color values are read directly from `src/styles.css` and the `homepage_sections` / `site_settings` tables so the doc reflects the live brand.
-- The logo is embedded from `src/assets/sandiego-logo.svg` (converted to PNG for ReportLab).
-- 6 hero images are pulled from the seeded `category_hub_hero` rows and downloaded for the imagery grid.
-- After generation, every page is rasterized to JPEG and visually QA'd before delivery.
-
-Output: `/mnt/documents/sandiego-brand-guidelines.pdf` (~10–14 pages, US Letter).
-
-## What I'll need from you
-
-Nothing — I have all the source data. If you'd like, after I generate v1 you can ask for tweaks like:
-- Add a **competitor / "anti-brand"** section (what we're *not*)
-- Add **example headlines** in your voice
-- Swap to a different cover image
-- Produce a **.docx** or **.pptx** version in addition to PDF
-
-Approve and I'll generate the PDF.
+## One question
+Want the old URL to **301 redirect** to `/golf-courses` (recommended for SEO), or just delete the file and let it 404? Default: 301 redirect.
