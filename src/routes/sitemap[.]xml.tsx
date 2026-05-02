@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { neighborhoodHubs } from "@/lib/neighborhoods-data";
 import { CATEGORY_HUBS, hubForCategory } from "@/lib/listing-categories";
+import { allSeoCategoryNeighborhoodPairs } from "@/lib/seo-neighborhoods";
 
 const SITE_URL = process.env.SITE_URL || "https://sandiego.com";
 
