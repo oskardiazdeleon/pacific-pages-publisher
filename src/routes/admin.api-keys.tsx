@@ -262,28 +262,79 @@ function ApiKeysPage() {
 
       {/* Docs */}
       <div className="mt-10">
-        <h2 className="font-display text-2xl font-semibold">How to publish a post</h2>
+        <h2 className="font-display text-2xl font-semibold">How to publish content</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Send a <code>POST</code> request with your API key in the{" "}
           <code>X-API-Key</code> header (or <code>Authorization: Bearer …</code>).
         </p>
 
-        <div className="mt-4">
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Endpoint
-          </div>
-          <pre className="mt-1 overflow-x-auto rounded-lg bg-foreground/95 p-4 text-xs text-background">
-{`POST ${baseUrl}/api/public/blog
-Content-Type: application/json
-X-API-Key: sk_live_…`}
-          </pre>
+        <div className="mt-5 inline-flex rounded-full border border-border bg-card p-1">
+          {(["blog", "listings"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setDocsTab(t)}
+              className={`rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider transition ${
+                docsTab === t
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {t === "blog" ? "Blog posts" : "Listings"}
+            </button>
+          ))}
         </div>
 
-        <div className="mt-5">
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Request body
-          </div>
-          <pre className="mt-1 overflow-x-auto rounded-lg bg-foreground/95 p-4 text-xs text-background">
+        {docsTab === "blog" ? (
+          <BlogDocs baseUrl={baseUrl} />
+        ) : (
+          <ListingsDocs baseUrl={baseUrl} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function DocBlock({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="mt-5">
+      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </div>
+      <pre className="mt-1 overflow-x-auto rounded-lg bg-foreground/95 p-4 text-xs text-background">
+        {children}
+      </pre>
+    </div>
+  );
+}
+
+function ResponseList({ resourceKey }: { resourceKey: string }) {
+  return (
+    <div className="mt-5">
+      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        Responses
+      </div>
+      <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+        <li>
+          <code>201</code> — created. Returns{" "}
+          <code>{`{ ${resourceKey}: { id, slug, url, … } }`}</code>
+        </li>
+        <li><code>400</code> — validation failed (see <code>issues</code>)</li>
+        <li><code>401</code> — missing / invalid / revoked API key (or wrong scope)</li>
+        <li><code>409</code> — slug already exists</li>
+      </ul>
+    </div>
+  );
+}
+
+function BlogDocs({ baseUrl }: { baseUrl: string }) {
+  return (
+    <>
+      <DocBlock label="Endpoint">
+{`POST ${baseUrl}/api/public/blog
+Content-Type: application/json
+X-API-Key: sk_live_…   (scope: blog:write)`}
+      </DocBlock>
+      <DocBlock label="Request body">
 {`{
   "title": "Best Tacos in North Park",         // required, ≤200
   "slug": "best-tacos-north-park",             // optional, [a-z0-9-]
@@ -300,14 +351,8 @@ X-API-Key: sk_live_…`}
   "status": "published",                        // or "draft"
   "ai_generated": false
 }`}
-          </pre>
-        </div>
-
-        <div className="mt-5">
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            cURL example
-          </div>
-          <pre className="mt-1 overflow-x-auto rounded-lg bg-foreground/95 p-4 text-xs text-background">
+      </DocBlock>
+      <DocBlock label="cURL example">
 {`curl -X POST ${baseUrl}/api/public/blog \\
   -H "Content-Type: application/json" \\
   -H "X-API-Key: $SANDIEGO_API_KEY" \\
@@ -318,21 +363,70 @@ X-API-Key: sk_live_…`}
     "tags": ["tacos"],
     "status": "published"
   }'`}
-          </pre>
-        </div>
+      </DocBlock>
+      <ResponseList resourceKey="post" />
+    </>
+  );
+}
 
-        <div className="mt-5">
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Responses
-          </div>
-          <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-            <li><code>201</code> — created. Returns <code>{"{ post: { id, slug, url, … } }"}</code></li>
-            <li><code>400</code> — validation failed (see <code>issues</code>)</li>
-            <li><code>401</code> — missing / invalid / revoked API key</li>
-            <li><code>409</code> — slug already exists</li>
-          </ul>
-        </div>
-      </div>
+function ListingsDocs({ baseUrl }: { baseUrl: string }) {
+  return (
+    <>
+      <DocBlock label="Endpoint">
+{`POST ${baseUrl}/api/public/listings
+Content-Type: application/json
+X-API-Key: sk_live_…   (scope: listings:write)`}
+      </DocBlock>
+      <DocBlock label="Request body">
+{`{
+  "name": "El Carlsbad Cantina",                // required, ≤200
+  "slug": "el-carlsbad-cantina",                // optional, [a-z0-9-]
+  "category": "Restaurant",                     // required: Restaurant | Hotel | Attraction | Tour | Shopping | Nightlife
+  "neighborhood": "Carlsbad",                   // required
+  "short_description": "Coastal tacos & mezcal.",
+  "description": "Long-form description / story.",
+  "hero_image": "https://…/hero.jpg",
+  "gallery": ["https://…/1.jpg", "https://…/2.jpg"],
+  "address": "123 Ocean Ave, Carlsbad, CA",
+  "phone": "+1 760 555 0100",
+  "email": "hi@example.com",
+  "website": "https://example.com",
+  "reservation_url": "https://resy.com/…",
+  "price_range": "$$",                          // $ | $$ | $$$ | $$$$
+  "rating": 4.6,                                // 0–5
+  "hours": {
+    "mon": { "open": "11:00", "close": "22:00" },
+    "tue": { "open": "11:00", "close": "22:00" },
+    "wed": { "closed": true }
+  },
+  "faqs": [
+    { "question": "Do you take walk-ins?", "answer": "Yes, before 6pm." }
+  ],
+  "why_we_picked_it": ["Best mezcal flight in north county", "Sunset patio"],
+  "insider_tip": "Order the off-menu birria taco.",
+  "best_time_to_visit": "Golden hour (5–7pm)",
+  "editor_note": "A neighborhood favorite since 2019.",
+  "tier": "free",                               // free | featured | premium
+  "status": "published"                         // or "draft"
+}`}
+      </DocBlock>
+      <DocBlock label="cURL example">
+{`curl -X POST ${baseUrl}/api/public/listings \\
+  -H "Content-Type: application/json" \\
+  -H "X-API-Key: $SANDIEGO_API_KEY" \\
+  -d '{
+    "name": "El Carlsbad Cantina",
+    "category": "Restaurant",
+    "neighborhood": "Carlsbad",
+    "short_description": "Coastal tacos & mezcal.",
+    "hero_image": "https://example.com/hero.jpg",
+    "status": "published"
+  }'`}
+      </DocBlock>
+      <ResponseList resourceKey="listing" />
+    </>
+  );
+}
     </div>
   );
 }
