@@ -52,8 +52,8 @@ export function reservationCtaForCategory(
     };
   }
 
-  // Golf overrides Tour/Attraction
-  if (isGolf(name, neighborhood)) {
+  // Golf — explicit category, or keyword detection on Tour/Attraction listings
+  if (c.includes("golf") || isGolf(name, neighborhood)) {
     return {
       eyebrow: "Book a tee time",
       prompt: (n) => `Reserve a tee time at ${n}.`,
