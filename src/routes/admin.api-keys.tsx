@@ -40,15 +40,33 @@ function ApiKeysPage() {
     load();
   }, []);
 
+  const withAuth = async <T,>(fn: () => Promise<T>): Promise<T> => {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) throw new Error("Not signed in");
+    const orig = window.fetch;
+    window.fetch = (input, init = {}) => {
+      const headers = new Headers(init.headers || {});
+      headers.set("Authorization", `Bearer ${token}`);
+      return orig(input, { ...init, headers });
+    };
+    try {
+      return await fn();
+    } finally {
+      window.fetch = orig;
+    }
+  };
+
   const handleCreate = async () => {
     if (!name.trim()) return;
     setCreating(true);
     try {
-      const res = await create({ data: { name: name.trim() } });
+      const res = await withAuth(() => create({ data: { name: name.trim() } }));
       setNewKey(res.key);
       setName("");
       await load();
     } catch (e) {
+      console.error("Create API key failed:", e);
       toast.error(e instanceof Error ? e.message : "Failed to create key");
     } finally {
       setCreating(false);
@@ -58,10 +76,11 @@ function ApiKeysPage() {
   const handleRevoke = async (id: string) => {
     if (!confirm("Revoke this key? Existing integrations will break.")) return;
     try {
-      await revoke({ data: { id } });
+      await withAuth(() => revoke({ data: { id } }));
       toast.success("Key revoked");
       await load();
     } catch (e) {
+      console.error("Revoke failed:", e);
       toast.error(e instanceof Error ? e.message : "Failed to revoke");
     }
   };
