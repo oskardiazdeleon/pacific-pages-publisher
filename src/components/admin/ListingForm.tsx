@@ -76,6 +76,8 @@ const empty: ListingFormValues = {
   best_time_to_visit: "", local_context: "", source_url: "",
   verified_visited: false,
   faqs: [],
+  member_discount_label: "",
+  member_discount_details: "",
 };
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
