@@ -215,6 +215,7 @@ export const CATEGORY_HUBS: CategoryHub[] = [
       body: "VIP entry, complimentary drinks and table reservations at top venues.",
     },
     memberBenefit: "💳 SD Insider Members Get VIP Entry & Drink Perks at Top Venues",
+  },
   {
     slug: "golf-courses",
     dbCategories: ["Golf"],
