@@ -504,6 +504,8 @@ export function ListingDetailPage({
           variant="sticky"
           listingId={listing.id}
           name={listing.name}
+          category={listing.category}
+          neighborhood={listing.neighborhood}
           phone={listing.phone}
           website={listing.website}
           address={listing.address}
