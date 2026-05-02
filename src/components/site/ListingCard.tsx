@@ -22,29 +22,40 @@ export interface ListingCardData {
 
 // Lightweight, deterministic "insight" per category to drive engagement
 // without requiring extra DB fields. Replace with real data when available.
-function ctaFor(category: string): string {
+function ctaFor(category: string, name?: string): string {
   const c = (category || "").toLowerCase();
-  if (c.includes("hotel") || c.includes("resort")) return "Book now";
-  if (c.includes("restaurant")) return "Reserve";
+  const n = (name || "").toLowerCase();
+  // Golf overrides — golf can land under Attraction or Tour
+  if (n.includes("golf") || n.includes("tee time") || n.includes("country club")) {
+    return "Book tee time";
+  }
+  if (c.includes("hotel") || c.includes("resort")) return "Book stay";
+  if (c.includes("restaurant")) return "Reserve table";
+  if (c.includes("winery")) return "Book tasting";
+  if (c.includes("spa")) return "Book treatment";
+  if (c.includes("cruise")) return "Book cruise";
   if (c.includes("tour")) return "Book tour";
   if (c.includes("attraction")) return "Get tickets";
-  if (c.includes("nightlife") || c.includes("bar")) return "View details";
-  if (c.includes("shopping")) return "Visit";
+  if (c.includes("nightlife") || c.includes("bar") || c.includes("club")) return "Reserve table";
+  if (c.includes("shopping") || c.includes("store") || c.includes("boutique")) return "Visit store";
+  if (c.includes("event")) return "Get tickets";
   return "View details";
 }
 
-function priceLabel(price?: string | null): string | null {
+function priceLabel(price: string | null | undefined, category: string): string | null {
   if (!price) return null;
-  // Accept "$$", "$$$" or numeric-ish strings
-  if (/^\$+$/.test(price)) return `${price} · per night`;
+  if (!/^\$+$/.test(price)) return price;
+  const c = (category || "").toLowerCase();
+  if (c.includes("hotel") || c.includes("resort")) return `${price} · per night`;
+  if (c.includes("restaurant") || c.includes("winery")) return `${price} · per person`;
   return price;
 }
 
 export function ListingCard({ listing }: { listing: ListingCardData }) {
   const img = listing.hero_image || listing.image || listingFallback;
   const desc = listing.short_description || listing.blurb || "";
-  const cta = ctaFor(listing.category);
-  const price = priceLabel(listing.price_range);
+  const cta = ctaFor(listing.category, listing.name);
+  const price = priceLabel(listing.price_range, listing.category);
   const sponsored =
     !!listing.is_sponsored &&
     (!listing.sponsor_until || new Date(listing.sponsor_until) > new Date());
