@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 
@@ -70,7 +70,21 @@ function AdminArticles() {
               <tr><td colSpan={5} className="px-5 py-10 text-center text-muted-foreground">No articles yet.</td></tr>
             ) : rows.map((r) => (
               <tr key={r.id} className="border-t border-border">
-                <td className="px-5 py-3 font-medium">{r.title}</td>
+                <td className="px-5 py-3 font-medium">
+                  {r.status === "published" ? (
+                    <Link
+                      to="/articles/$slug"
+                      params={{ slug: r.slug }}
+                      target="_blank"
+                      className="inline-flex items-center gap-1.5 hover:text-accent"
+                    >
+                      {r.title}
+                      <ExternalLink className="h-3.5 w-3.5 opacity-60" />
+                    </Link>
+                  ) : (
+                    r.title
+                  )}
+                </td>
                 <td className="px-5 py-3 text-muted-foreground">{r.category}</td>
                 <td className="px-5 py-3">
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
