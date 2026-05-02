@@ -49,6 +49,27 @@ const SECTIONS: { key: string; title: string; fields: { name: string; label: str
       { name: "right_text", label: "Right-side text" },
     ],
   },
+  {
+    key: "listings_hero",
+    title: "Listings Page — Hero",
+    fields: [
+      { name: "eyebrow", label: "Eyebrow (small label above headline)" },
+      { name: "headline", label: "Headline (first line)" },
+      { name: "headline_accent", label: "Headline accent (second line, colored)" },
+      { name: "description", label: "Description paragraph", type: "textarea" },
+      { name: "hero_image", label: "Hero image", type: "image" },
+      { name: "stat1_value", label: "Stat 1 — value (e.g. 1,200+)" },
+      { name: "stat1_label", label: "Stat 1 — label" },
+      { name: "stat2_value", label: "Stat 2 — value" },
+      { name: "stat2_label", label: "Stat 2 — label" },
+      { name: "stat3_value", label: "Stat 3 — value" },
+      { name: "stat3_label", label: "Stat 3 — label" },
+      { name: "cta_title", label: "CTA card — title" },
+      { name: "cta_subtitle", label: "CTA card — subtitle" },
+      { name: "cta_button_label", label: "CTA button label" },
+      { name: "cta_button_url", label: "CTA button URL", type: "url" },
+    ],
+  },
 ];
 
 function SiteSettingsPage() {
