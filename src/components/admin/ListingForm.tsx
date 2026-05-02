@@ -154,24 +154,29 @@ export function ListingForm({
         ? result.why_we_picked_it.filter((s: unknown): s is string => typeof s === "string")
         : [];
       const asStr = (x: unknown) => (typeof x === "string" ? x : x == null ? "" : String(x));
-      setV((prev) => ({
-        ...prev,
-        editor_note:
-          mode === "overwrite" || !prev.editor_note ? asStr(result?.editor_note) : prev.editor_note,
-        why_we_picked_it:
-          mode === "overwrite" || !prev.why_we_picked_it ? safeChips.join(", ") : prev.why_we_picked_it,
-        insider_tip:
-          mode === "overwrite" || !prev.insider_tip ? asStr(result?.insider_tip) : prev.insider_tip,
-        best_time_to_visit:
-          mode === "overwrite" || !prev.best_time_to_visit
-            ? asStr(result?.best_time_to_visit)
-            : prev.best_time_to_visit,
-        local_context:
-          mode === "overwrite" || !prev.local_context
-            ? asStr(result?.local_context)
-            : prev.local_context,
-      }));
-      toast.success(mode === "overwrite" ? "Editorial context regenerated" : "Empty fields filled");
+      setV((prev) => {
+        const pickStr = (key: keyof ListingFormValues, val: string) =>
+          mode === "overwrite" || !String(prev[key] ?? "").trim() ? val : (prev[key] as string);
+        const aiFaqs = Array.isArray(result?.faqs)
+          ? (result.faqs as { q: string; a: string }[]).filter((f) => f.q && f.a)
+          : [];
+        return {
+          ...prev,
+          editor_note: pickStr("editor_note", asStr(result?.editor_note)),
+          why_we_picked_it:
+            mode === "overwrite" || !prev.why_we_picked_it ? safeChips.join(", ") : prev.why_we_picked_it,
+          insider_tip: pickStr("insider_tip", asStr(result?.insider_tip)),
+          best_time_to_visit: pickStr("best_time_to_visit", asStr(result?.best_time_to_visit)),
+          local_context: pickStr("local_context", asStr(result?.local_context)),
+          short_description: pickStr("short_description", asStr(result?.short_description)),
+          description: pickStr("description", asStr(result?.description)),
+          meta_title: pickStr("meta_title", asStr(result?.meta_title)),
+          meta_description: pickStr("meta_description", asStr(result?.meta_description)),
+          faqs:
+            mode === "overwrite" || prev.faqs.length === 0 ? aiFaqs : prev.faqs,
+        };
+      });
+      toast.success(mode === "overwrite" ? "Listing regenerated with AI" : "Empty fields filled");
     } catch (err) {
       console.error("[AI fill] error", err);
       toast.error(err instanceof Error ? err.message : "AI fill failed");
