@@ -199,19 +199,33 @@ function ApiKeysPage() {
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-5 py-10 text-center text-muted-foreground">
+                <td colSpan={6} className="px-5 py-10 text-center text-muted-foreground">
                   No keys yet.
                 </td>
               </tr>
             ) : (
               rows.map((r) => (
                 <tr key={r.id} className="border-t border-border">
-                  <td className="px-5 py-3 font-medium flex items-center gap-2">
-                    <KeyRound className="h-3.5 w-3.5 text-muted-foreground" />
-                    {r.name}
+                  <td className="px-5 py-3 font-medium">
+                    <div className="flex items-center gap-2">
+                      <KeyRound className="h-3.5 w-3.5 text-muted-foreground" />
+                      {r.name}
+                    </div>
                   </td>
                   <td className="px-5 py-3 font-mono text-xs text-muted-foreground">
                     {r.key_prefix}…
+                  </td>
+                  <td className="px-5 py-3">
+                    <div className="flex flex-wrap gap-1">
+                      {r.scopes.map((s) => (
+                        <span
+                          key={s}
+                          className="rounded-full bg-muted px-2 py-0.5 font-mono text-[10px] text-muted-foreground"
+                        >
+                          {s}
+                        </span>
+                      ))}
+                    </div>
                   </td>
                   <td className="px-5 py-3 text-xs text-muted-foreground">
                     {r.last_used_at
