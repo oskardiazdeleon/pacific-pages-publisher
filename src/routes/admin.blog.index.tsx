@@ -95,6 +95,16 @@ function AdminBlog() {
                     className="inline-flex items-center gap-1 text-accent text-xs font-medium">
                     <Pencil className="h-3.5 w-3.5" /> Edit
                   </Link>
+                  {r.status === "published" && (
+                    <Link
+                      to="/blog/$slug"
+                      params={{ slug: r.slug }}
+                      target="_blank"
+                      className="ml-4 inline-flex items-center gap-1 text-muted-foreground hover:text-foreground text-xs font-medium"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" /> View
+                    </Link>
+                  )}
                 </td>
               </tr>
             ))}
