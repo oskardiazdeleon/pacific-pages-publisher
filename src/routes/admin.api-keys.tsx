@@ -105,8 +105,9 @@ function ApiKeysPage() {
       <div className="eyebrow">Integrations</div>
       <h1 className="mt-2 font-display text-4xl font-semibold">API Keys</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Create keys to publish blog posts programmatically via{" "}
-        <code className="rounded bg-muted px-1.5 py-0.5">POST {baseUrl}/api/public/blog</code>
+        Create scoped keys to publish content programmatically. Endpoints:{" "}
+        <code className="rounded bg-muted px-1.5 py-0.5">/api/public/blog</code>{" "}
+        and <code className="rounded bg-muted px-1.5 py-0.5">/api/public/listings</code>.
       </p>
 
       {/* Create */}
