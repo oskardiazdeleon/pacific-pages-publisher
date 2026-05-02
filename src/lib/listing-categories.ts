@@ -114,9 +114,9 @@ export const CATEGORY_HUBS: CategoryHub[] = [
     dbCategories: ["Attraction", "Tour"],
     label: "Things To Do",
     singular: "Thing To Do",
-    metaTitle: "Best Things To Do in San Diego — Attractions & Tours | sandiego.com",
+    metaTitle: "Things to Do in San Diego | Members Save at 200+ Places",
     metaDescription:
-      "1,200+ things to do in San Diego: top attractions, tours, beaches, museums and family activities — curated by locals, updated weekly.",
+      "1,200+ things to do in San Diego: attractions, tours, beaches and museums. SD Insider members save up to 30% at 200+ partner places. Join & save »",
     eyebrow: "What to do",
     heading: "Things To Do in San Diego",
     subheading:
