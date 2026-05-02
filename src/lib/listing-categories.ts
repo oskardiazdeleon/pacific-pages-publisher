@@ -213,6 +213,7 @@ export const CATEGORY_HUBS: CategoryHub[] = [
       title: "Skip the line with Insider",
       body: "VIP entry, complimentary drinks and table reservations at top venues.",
     },
+    memberBenefit: "💳 SD Insider Members Get VIP Entry & Drink Perks at Top Venues",
   },
 ];
 
