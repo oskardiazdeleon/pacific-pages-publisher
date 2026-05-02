@@ -97,8 +97,8 @@ function ListingsPage() {
       {/* SEO + conversion hero */}
       <section className="relative overflow-hidden border-b border-border">
         <img
-          src={listingsHero}
-          alt="Aerial view of San Diego coastline at golden hour with the Hotel del Coronado and downtown skyline"
+          src={hero.hero_image || listingsHero}
+          alt={hero.headline}
           width={1920}
           height={1080}
           className="absolute inset-0 h-full w-full object-cover"
@@ -123,16 +123,14 @@ function ListingsPage() {
             <div>
               <div className="eyebrow flex items-center gap-2">
                 <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
-                The San Diego Directory
+                {hero.eyebrow}
               </div>
               <h1 className="mt-3 font-display text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.02]">
-                The best of San Diego,
-                <span className="block text-accent">editor-vetted.</span>
+                {hero.headline}
+                <span className="block text-accent">{hero.headline_accent}</span>
               </h1>
               <p className="mt-5 max-w-xl text-base md:text-lg text-muted-foreground">
-                Hand-picked restaurants, hotels, beaches, breweries and tours — reviewed by locals,
-                ranked by what's actually worth your time. Insider members save up to 40% at
-                participating partners.
+                {hero.description}
               </p>
 
               <form
