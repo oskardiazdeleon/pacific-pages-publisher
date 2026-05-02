@@ -52,6 +52,19 @@ function ListingsPage() {
   const [active, setActive] = useState<(typeof categories)[number]>("All");
   const [items, setItems] = useState<ListingCardData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hero, setHero] = useState<ListingsHero>(DEFAULT_HERO);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("published_value")
+        .eq("key", "listings_hero")
+        .maybeSingle();
+      const v = (data?.published_value as ListingsHero | null) || null;
+      if (v) setHero({ ...DEFAULT_HERO, ...v });
+    })();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
