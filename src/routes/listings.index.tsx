@@ -196,14 +196,14 @@ function ListingsPage() {
                   <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</div>
                 </div>
               ))}
-              <div className="col-span-3 rounded-2xl border border-accent/30 bg-accent/10 px-5 py-4 flex items-center justify-between gap-4">
+              <div className="col-span-3 rounded-2xl border border-primary/20 bg-primary text-primary-foreground px-5 py-4 flex items-center justify-between gap-4 shadow-lg shadow-primary/20">
                 <div>
                   <div className="text-sm font-semibold">{hero.cta_title}</div>
-                  <div className="text-xs text-muted-foreground">{hero.cta_subtitle}</div>
+                  <div className="text-xs text-primary-foreground/75">{hero.cta_subtitle}</div>
                 </div>
                 <a
                   href={hero.cta_button_url || "/insider"}
-                  className="shrink-0 rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground hover:opacity-90 transition"
+                  className="shrink-0 rounded-full bg-accent px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-accent-foreground hover:opacity-90 shadow-md transition"
                 >
                   {hero.cta_button_label}
                 </a>
