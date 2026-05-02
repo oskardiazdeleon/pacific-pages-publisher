@@ -5,7 +5,25 @@ import { Footer } from "@/components/site/Footer";
 import { ListingCard, type ListingCardData } from "@/components/site/ListingCard";
 import { listings as mockListings } from "@/lib/mock-data";
 import { fetchPublishedListings } from "@/lib/content-queries";
+import { supabase } from "@/integrations/supabase/client";
 import listingsHero from "@/assets/listings-hero.jpg";
+
+type ListingsHero = Record<string, string>;
+const DEFAULT_HERO: ListingsHero = {
+  eyebrow: "The San Diego Directory",
+  headline: "The best of San Diego,",
+  headline_accent: "editor-vetted.",
+  description:
+    "Hand-picked restaurants, hotels, beaches, breweries and tours — reviewed by locals, ranked by what's actually worth your time. Insider members save up to 40% at participating partners.",
+  hero_image: "",
+  stat1_value: "1,200+", stat1_label: "Vetted listings",
+  stat2_value: "75", stat2_label: "Neighborhoods",
+  stat3_value: "40%", stat3_label: "Avg. Insider savings",
+  cta_title: "Unlock member-only deals",
+  cta_subtitle: "Save at 200+ partners across the city.",
+  cta_button_label: "Join Insider",
+  cta_button_url: "/insider",
+};
 
 export const Route = createFileRoute("/listings/")({
   head: () => ({
