@@ -48,6 +48,12 @@ export const Route = createFileRoute("/sitemap.xml")({
             `<url><loc>${SITE_URL}/neighborhoods/${n.slug}</loc><lastmod>${now}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`,
           );
         }
+        // Layer 2 SEO: /[category]/in/[neighborhood] landing pages.
+        for (const pair of allSeoCategoryNeighborhoodPairs()) {
+          urls.push(
+            `<url><loc>${SITE_URL}/${pair.category}/in/${pair.neighborhood}</loc><lastmod>${now}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>`,
+          );
+        }
         // Listing detail pages — emit canonical URL only (/{category}/{slug}).
         // The legacy /listings/{slug} URLs 301-redirect to canonical, so we omit them.
         for (const l of listings ?? []) {
