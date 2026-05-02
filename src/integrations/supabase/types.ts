@@ -633,6 +633,63 @@ export type Database = {
         }
         Relationships: []
       }
+      neighborhood_pages: {
+        Row: {
+          category_slug: string
+          created_at: string
+          created_by: string | null
+          faqs: Json
+          hero_image: string | null
+          id: string
+          insider_tip: string | null
+          intro: string | null
+          meta_description: string | null
+          meta_title: string | null
+          neighborhood_name: string
+          neighborhood_slug: string
+          published_at: string | null
+          status: Database["public"]["Enums"]["content_status"]
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          category_slug: string
+          created_at?: string
+          created_by?: string | null
+          faqs?: Json
+          hero_image?: string | null
+          id?: string
+          insider_tip?: string | null
+          intro?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          neighborhood_name: string
+          neighborhood_slug: string
+          published_at?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category_slug?: string
+          created_at?: string
+          created_by?: string | null
+          faqs?: Json
+          hero_image?: string | null
+          id?: string
+          insider_tip?: string | null
+          intro?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          neighborhood_name?: string
+          neighborhood_slug?: string
+          published_at?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
