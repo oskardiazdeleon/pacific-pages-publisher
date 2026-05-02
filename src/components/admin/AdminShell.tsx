@@ -19,6 +19,7 @@ const navItems: ReadonlyArray<{
   { to: "/admin/cms/navigation", label: "Navigation", icon: MenuIcon, group: "CMS" },
   { to: "/admin/cms/homepage", label: "Homepage", icon: Home, group: "CMS" },
   { to: "/admin/cms/pages", label: "Pages", icon: FileStack, group: "CMS" },
+  { to: "/admin/api-keys", label: "API Keys", icon: KeyRound, group: "CMS" },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
