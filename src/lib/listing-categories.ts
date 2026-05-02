@@ -145,6 +145,7 @@ export const CATEGORY_HUBS: CategoryHub[] = [
       title: "Skip the line with Insider",
       body: "Front-of-line passes, member discounts and exclusive tours at top attractions.",
     },
+    memberBenefit: "💳 SD Insider Members Save Up to 30% at 200+ San Diego Attractions",
   },
   {
     slug: "shopping",
