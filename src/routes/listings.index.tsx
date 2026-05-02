@@ -184,9 +184,9 @@ function ListingsPage() {
 
             <div className="grid grid-cols-3 gap-3 lg:gap-4">
               {[
-                { stat: "1,200+", label: "Vetted listings" },
-                { stat: "75", label: "Neighborhoods" },
-                { stat: "40%", label: "Avg. Insider savings" },
+                { stat: hero.stat1_value, label: hero.stat1_label },
+                { stat: hero.stat2_value, label: hero.stat2_label },
+                { stat: hero.stat3_value, label: hero.stat3_label },
               ].map((s) => (
                 <div
                   key={s.label}
@@ -198,14 +198,14 @@ function ListingsPage() {
               ))}
               <div className="col-span-3 rounded-2xl border border-accent/30 bg-accent/10 px-5 py-4 flex items-center justify-between gap-4">
                 <div>
-                  <div className="text-sm font-semibold">Unlock member-only deals</div>
-                  <div className="text-xs text-muted-foreground">Save at 200+ partners across the city.</div>
+                  <div className="text-sm font-semibold">{hero.cta_title}</div>
+                  <div className="text-xs text-muted-foreground">{hero.cta_subtitle}</div>
                 </div>
                 <a
-                  href="/insider"
+                  href={hero.cta_button_url || "/insider"}
                   className="shrink-0 rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground hover:opacity-90 transition"
                 >
-                  Join Insider
+                  {hero.cta_button_label}
                 </a>
               </div>
             </div>
