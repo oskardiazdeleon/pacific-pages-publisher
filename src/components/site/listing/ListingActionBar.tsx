@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { Phone, Globe, Navigation, Heart, Share2, Check, CalendarCheck } from "lucide-react";
 import { recordImpression } from "@/lib/content-queries";
+import { reservationCtaForCategory } from "@/lib/reservation-cta";
 
 type Props = {
   listingId: string;
   name: string;
+  category?: string | null;
+  neighborhood?: string | null;
   phone?: string | null;
   website?: string | null;
   address?: string | null;
@@ -21,6 +24,8 @@ function directionsUrl(address?: string | null) {
 export function ListingActionBar({
   listingId,
   name,
+  category,
+  neighborhood,
   phone,
   website,
   address,
@@ -30,6 +35,7 @@ export function ListingActionBar({
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
   const dirs = directionsUrl(address);
+  const reserveLabel = reservationCtaForCategory(category, name, neighborhood ?? "").shortLabel;
 
   const handleShare = async () => {
     const url = typeof window !== "undefined" ? window.location.href : "";
@@ -75,7 +81,7 @@ export function ListingActionBar({
           onClick={() => recordImpression(listingId, "reservation_click")}
         >
           <CalendarCheck className={variant === "sticky" ? "h-5 w-5" : "h-4 w-4"} />
-          <span>Reserve</span>
+          <span>{reserveLabel}</span>
         </a>
       )}
       {dirs && (

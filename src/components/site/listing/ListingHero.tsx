@@ -95,6 +95,8 @@ export function ListingHero({ listing, openLabel, openState }: Props) {
             <ListingActionBar
               listingId={listing.id}
               name={listing.name}
+              category={listing.category}
+              neighborhood={listing.neighborhood}
               phone={listing.phone}
               website={listing.website}
               address={listing.address}
