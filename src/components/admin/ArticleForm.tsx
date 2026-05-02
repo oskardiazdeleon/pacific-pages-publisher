@@ -74,15 +74,6 @@ export function ArticleForm({ initial }: { initial?: Partial<ArticleFormValues> 
     }
   };
 
-  const inputCls =
-    "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-accent focus:outline-none";
-  const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <label className="block">
-      <span className="text-xs font-medium text-muted-foreground">{label}</span>
-      <div className="mt-1">{children}</div>
-    </label>
-  );
-
   return (
     <form onSubmit={submit} className="max-w-3xl space-y-8">
       <section className="rounded-2xl border border-border bg-card p-6 space-y-4">
