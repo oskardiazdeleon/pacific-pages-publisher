@@ -8,7 +8,8 @@ export type ListingCategory =
   | "Attraction"
   | "Tour"
   | "Shopping"
-  | "Nightlife";
+  | "Nightlife"
+  | "Golf";
 
 export type CategoryHub = {
   /** URL slug, e.g. "hotels" → /hotels */
@@ -27,7 +28,7 @@ export type CategoryHub = {
   heading: string;
   subheading: string;
   /** Schema.org @type for ItemList breadcrumb context */
-  schemaType: "LodgingBusiness" | "Restaurant" | "TouristAttraction" | "Store" | "BarOrPub";
+  schemaType: "LodgingBusiness" | "Restaurant" | "TouristAttraction" | "Store" | "BarOrPub" | "GolfCourse";
   /** Optional accent line shown beneath heading (e.g. "where locals eat.") */
   headingAccent?: string;
   /** Hero image URL */
