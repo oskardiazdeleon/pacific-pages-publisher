@@ -5,7 +5,25 @@ import { Footer } from "@/components/site/Footer";
 import { ListingCard, type ListingCardData } from "@/components/site/ListingCard";
 import { listings as mockListings } from "@/lib/mock-data";
 import { fetchPublishedListings } from "@/lib/content-queries";
+import { supabase } from "@/integrations/supabase/client";
 import listingsHero from "@/assets/listings-hero.jpg";
+
+type ListingsHero = Record<string, string>;
+const DEFAULT_HERO: ListingsHero = {
+  eyebrow: "The San Diego Directory",
+  headline: "The best of San Diego,",
+  headline_accent: "editor-vetted.",
+  description:
+    "Hand-picked restaurants, hotels, beaches, breweries and tours — reviewed by locals, ranked by what's actually worth your time. Insider members save up to 40% at participating partners.",
+  hero_image: "",
+  stat1_value: "1,200+", stat1_label: "Vetted listings",
+  stat2_value: "75", stat2_label: "Neighborhoods",
+  stat3_value: "40%", stat3_label: "Avg. Insider savings",
+  cta_title: "Unlock member-only deals",
+  cta_subtitle: "Save at 200+ partners across the city.",
+  cta_button_label: "Join Insider",
+  cta_button_url: "/insider",
+};
 
 export const Route = createFileRoute("/listings/")({
   head: () => ({
@@ -34,6 +52,19 @@ function ListingsPage() {
   const [active, setActive] = useState<(typeof categories)[number]>("All");
   const [items, setItems] = useState<ListingCardData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hero, setHero] = useState<ListingsHero>(DEFAULT_HERO);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("published_value")
+        .eq("key", "listings_hero")
+        .maybeSingle();
+      const v = (data?.published_value as ListingsHero | null) || null;
+      if (v) setHero({ ...DEFAULT_HERO, ...v });
+    })();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -66,8 +97,8 @@ function ListingsPage() {
       {/* SEO + conversion hero */}
       <section className="relative overflow-hidden border-b border-border">
         <img
-          src={listingsHero}
-          alt="Aerial view of San Diego coastline at golden hour with the Hotel del Coronado and downtown skyline"
+          src={hero.hero_image || listingsHero}
+          alt={hero.headline}
           width={1920}
           height={1080}
           className="absolute inset-0 h-full w-full object-cover"
@@ -92,16 +123,14 @@ function ListingsPage() {
             <div>
               <div className="eyebrow flex items-center gap-2">
                 <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
-                The San Diego Directory
+                {hero.eyebrow}
               </div>
               <h1 className="mt-3 font-display text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.02]">
-                The best of San Diego,
-                <span className="block text-accent">editor-vetted.</span>
+                {hero.headline}
+                <span className="block text-accent">{hero.headline_accent}</span>
               </h1>
               <p className="mt-5 max-w-xl text-base md:text-lg text-muted-foreground">
-                Hand-picked restaurants, hotels, beaches, breweries and tours — reviewed by locals,
-                ranked by what's actually worth your time. Insider members save up to 40% at
-                participating partners.
+                {hero.description}
               </p>
 
               <form
@@ -155,9 +184,9 @@ function ListingsPage() {
 
             <div className="grid grid-cols-3 gap-3 lg:gap-4">
               {[
-                { stat: "1,200+", label: "Vetted listings" },
-                { stat: "75", label: "Neighborhoods" },
-                { stat: "40%", label: "Avg. Insider savings" },
+                { stat: hero.stat1_value, label: hero.stat1_label },
+                { stat: hero.stat2_value, label: hero.stat2_label },
+                { stat: hero.stat3_value, label: hero.stat3_label },
               ].map((s) => (
                 <div
                   key={s.label}
@@ -169,14 +198,14 @@ function ListingsPage() {
               ))}
               <div className="col-span-3 rounded-2xl border border-accent/30 bg-accent/10 px-5 py-4 flex items-center justify-between gap-4">
                 <div>
-                  <div className="text-sm font-semibold">Unlock member-only deals</div>
-                  <div className="text-xs text-muted-foreground">Save at 200+ partners across the city.</div>
+                  <div className="text-sm font-semibold">{hero.cta_title}</div>
+                  <div className="text-xs text-muted-foreground">{hero.cta_subtitle}</div>
                 </div>
                 <a
-                  href="/insider"
+                  href={hero.cta_button_url || "/insider"}
                   className="shrink-0 rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground hover:opacity-90 transition"
                 >
-                  Join Insider
+                  {hero.cta_button_label}
                 </a>
               </div>
             </div>
