@@ -486,6 +486,7 @@ export type Database = {
           insider_tip: string | null
           is_sponsored: boolean
           local_context: string | null
+          member_discount: Json | null
           meta_description: string | null
           meta_title: string | null
           name: string
@@ -529,6 +530,7 @@ export type Database = {
           insider_tip?: string | null
           is_sponsored?: boolean
           local_context?: string | null
+          member_discount?: Json | null
           meta_description?: string | null
           meta_title?: string | null
           name: string
@@ -572,6 +574,7 @@ export type Database = {
           insider_tip?: string | null
           is_sponsored?: boolean
           local_context?: string | null
+          member_discount?: Json | null
           meta_description?: string | null
           meta_title?: string | null
           name?: string
