@@ -190,6 +190,7 @@ function ApiKeysPage() {
             <tr>
               <th className="text-left px-5 py-3 font-medium">Name</th>
               <th className="text-left px-5 py-3 font-medium">Prefix</th>
+              <th className="text-left px-5 py-3 font-medium">Scopes</th>
               <th className="text-left px-5 py-3 font-medium">Last used</th>
               <th className="text-left px-5 py-3 font-medium">Status</th>
               <th className="px-5 py-3" />
