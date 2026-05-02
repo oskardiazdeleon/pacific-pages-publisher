@@ -57,7 +57,9 @@ function BlogIndex() {
   const [hero, ...rest] = visible;
 
   return (
-    <div className="bg-background">
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="bg-background">
       {/* Hero header */}
       <section className="border-b border-border">
         <div className="container-page py-16 md:py-24">
@@ -165,6 +167,8 @@ function BlogIndex() {
           </>
         )}
       </div>
+    </div>
+      <Footer />
     </div>
   );
 }

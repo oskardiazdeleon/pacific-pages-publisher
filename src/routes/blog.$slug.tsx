@@ -71,7 +71,9 @@ function BlogPostPage() {
   const post = useLoaderData({ from: "/blog/$slug" });
 
   return (
-    <article className="bg-background">
+    <div className="min-h-screen bg-background">
+      <Header />
+      <article className="bg-background">
       {/* Hero */}
       <header className="border-b border-border">
         <div className="container-page max-w-4xl py-12 md:py-20">
@@ -162,5 +164,7 @@ function BlogPostPage() {
         }}
       />
     </article>
+      <Footer />
+    </div>
   );
 }
