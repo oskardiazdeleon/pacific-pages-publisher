@@ -6,6 +6,7 @@ import { Megaphone, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { generateEditorialContext } from "@/utils/import.functions";
+import { SEO_NEIGHBORHOODS } from "@/lib/seo-neighborhoods";
 
 export interface PartnerSpotlightValues {
   enabled: boolean;
@@ -306,8 +307,22 @@ export function ListingForm({
             </select>
           </Field>
           <Field label="Neighborhood">
-            <input className={inputCls} required value={v.neighborhood}
-              onChange={(e) => set("neighborhood", e.target.value)} />
+            <select
+              className={inputCls}
+              required
+              value={v.neighborhood}
+              onChange={(e) => set("neighborhood", e.target.value)}
+            >
+              <option value="">Select a neighborhood…</option>
+              {SEO_NEIGHBORHOODS.map((n) => (
+                <option key={n.slug} value={n.name}>{n.name}</option>
+              ))}
+              {/* Preserve legacy / off-list values so existing rows still display */}
+              {v.neighborhood &&
+                !SEO_NEIGHBORHOODS.some((n) => n.name === v.neighborhood) && (
+                  <option value={v.neighborhood}>{v.neighborhood} (legacy)</option>
+                )}
+            </select>
           </Field>
         </div>
         <Field label="Short description (1 sentence)">
