@@ -206,7 +206,8 @@ function HomePage() {
           {neighborhoods.map((n) => (
             <Link
               key={n.slug}
-              to="/neighborhoods"
+              to="/neighborhoods/$slug"
+              params={{ slug: n.slug }}
               className="group relative overflow-hidden rounded-2xl aspect-[3/4]"
             >
               <img
