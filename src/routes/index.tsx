@@ -10,6 +10,7 @@ import { EmailCapture } from "@/components/site/EmailCapture";
 import { listings as mockListings, articles as mockArticles, neighborhoods } from "@/lib/mock-data";
 import { fetchPublishedListings, fetchPublishedArticles } from "@/lib/content-queries";
 import { fetchPublishedHomepageSections, type HomepageSection } from "@/lib/cms";
+import { supabase } from "@/integrations/supabase/client";
 import hero from "@/assets/hero-sandiego.jpg";
 
 export const Route = createFileRoute("/")({
