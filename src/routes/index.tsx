@@ -221,11 +221,25 @@ function HomePage() {
         <div className="eyebrow flex items-center gap-2"><MapPin className="h-3.5 w-3.5" /> {c("neighborhoods", "eyebrow", "Neighborhoods")}</div>
         <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">{c("neighborhoods", "heading", "Eight cities in one")}</h2>
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {neighborhoods.map((n) => (
-            <Link
-              key={n.slug}
-              to="/neighborhoods/$slug"
-              params={{ slug: n.slug }}
+          {(hoods.length
+            ? hoods.map((n) => ({
+                key: n.id,
+                name: n.name,
+                blurb: n.blurb || "",
+                image: n.image_url || "",
+                href: n.link_to || "/neighborhoods",
+              }))
+            : neighborhoods.map((n) => ({
+                key: n.slug,
+                name: n.name,
+                blurb: n.blurb,
+                image: n.image,
+                href: `/neighborhoods/${n.slug}`,
+              }))
+          ).map((n) => (
+            <a
+              key={n.key}
+              href={n.href}
               className="group relative overflow-hidden rounded-2xl aspect-[3/4]"
             >
               <img
@@ -241,7 +255,7 @@ function HomePage() {
                 <h3 className="font-display text-2xl font-semibold">{n.name}</h3>
                 <p className="mt-1 text-sm text-primary-foreground/80">{n.blurb}</p>
               </div>
-            </Link>
+            </a>
           ))}
         </div>
       </section>
