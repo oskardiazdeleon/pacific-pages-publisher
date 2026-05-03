@@ -74,6 +74,14 @@ function HomePage() {
         setPosts(mockArticles as ArticleCardData[]);
       }
     })();
+    (async () => {
+      const { data } = await supabase
+        .from("home_neighborhoods")
+        .select("id, name, blurb, image_url, link_to")
+        .eq("enabled", true)
+        .order("position");
+      if (data && data.length) setHoods(data as HomeNeighborhood[]);
+    })();
   }, []);
 
   const c = (key: string, field: string, fallback: string): string => (cms[key]?.[field] as string) || fallback;
