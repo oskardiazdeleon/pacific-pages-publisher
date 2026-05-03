@@ -61,6 +61,7 @@ import { Route as AdminListingsIdRouteImport } from './routes/admin.listings.$id
 import { Route as AdminCmsSettingsRouteImport } from './routes/admin.cms.settings'
 import { Route as AdminCmsNavigationRouteImport } from './routes/admin.cms.navigation'
 import { Route as AdminCmsHomepageRouteImport } from './routes/admin.cms.homepage'
+import { Route as AdminCmsHomeNeighborhoodsRouteImport } from './routes/admin.cms.home-neighborhoods'
 import { Route as AdminBlogNewRouteImport } from './routes/admin.blog.new'
 import { Route as AdminBlogIdRouteImport } from './routes/admin.blog.$id'
 import { Route as AdminArticlesNewRouteImport } from './routes/admin.articles.new'
@@ -331,6 +332,12 @@ const AdminCmsHomepageRoute = AdminCmsHomepageRouteImport.update({
   path: '/cms/homepage',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCmsHomeNeighborhoodsRoute =
+  AdminCmsHomeNeighborhoodsRouteImport.update({
+    id: '/cms/home-neighborhoods',
+    path: '/cms/home-neighborhoods',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AdminBlogNewRoute = AdminBlogNewRouteImport.update({
   id: '/blog/new',
   path: '/blog/new',
@@ -426,6 +433,7 @@ export interface FileRoutesByFullPath {
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/admin/blog/new': typeof AdminBlogNewRoute
+  '/admin/cms/home-neighborhoods': typeof AdminCmsHomeNeighborhoodsRoute
   '/admin/cms/homepage': typeof AdminCmsHomepageRoute
   '/admin/cms/navigation': typeof AdminCmsNavigationRoute
   '/admin/cms/settings': typeof AdminCmsSettingsRoute
@@ -486,6 +494,7 @@ export interface FileRoutesByTo {
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/admin/blog/new': typeof AdminBlogNewRoute
+  '/admin/cms/home-neighborhoods': typeof AdminCmsHomeNeighborhoodsRoute
   '/admin/cms/homepage': typeof AdminCmsHomepageRoute
   '/admin/cms/navigation': typeof AdminCmsNavigationRoute
   '/admin/cms/settings': typeof AdminCmsSettingsRoute
@@ -550,6 +559,7 @@ export interface FileRoutesById {
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/admin/blog/new': typeof AdminBlogNewRoute
+  '/admin/cms/home-neighborhoods': typeof AdminCmsHomeNeighborhoodsRoute
   '/admin/cms/homepage': typeof AdminCmsHomepageRoute
   '/admin/cms/navigation': typeof AdminCmsNavigationRoute
   '/admin/cms/settings': typeof AdminCmsSettingsRoute
@@ -615,6 +625,7 @@ export interface FileRouteTypes {
     | '/admin/articles/new'
     | '/admin/blog/$id'
     | '/admin/blog/new'
+    | '/admin/cms/home-neighborhoods'
     | '/admin/cms/homepage'
     | '/admin/cms/navigation'
     | '/admin/cms/settings'
@@ -675,6 +686,7 @@ export interface FileRouteTypes {
     | '/admin/articles/new'
     | '/admin/blog/$id'
     | '/admin/blog/new'
+    | '/admin/cms/home-neighborhoods'
     | '/admin/cms/homepage'
     | '/admin/cms/navigation'
     | '/admin/cms/settings'
@@ -738,6 +750,7 @@ export interface FileRouteTypes {
     | '/admin/articles/new'
     | '/admin/blog/$id'
     | '/admin/blog/new'
+    | '/admin/cms/home-neighborhoods'
     | '/admin/cms/homepage'
     | '/admin/cms/navigation'
     | '/admin/cms/settings'
@@ -1159,6 +1172,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCmsHomepageRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/cms/home-neighborhoods': {
+      id: '/admin/cms/home-neighborhoods'
+      path: '/cms/home-neighborhoods'
+      fullPath: '/admin/cms/home-neighborhoods'
+      preLoaderRoute: typeof AdminCmsHomeNeighborhoodsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/blog/new': {
       id: '/admin/blog/new'
       path: '/blog/new'
@@ -1234,6 +1254,7 @@ interface AdminRouteChildren {
   AdminArticlesNewRoute: typeof AdminArticlesNewRoute
   AdminBlogIdRoute: typeof AdminBlogIdRoute
   AdminBlogNewRoute: typeof AdminBlogNewRoute
+  AdminCmsHomeNeighborhoodsRoute: typeof AdminCmsHomeNeighborhoodsRoute
   AdminCmsHomepageRoute: typeof AdminCmsHomepageRoute
   AdminCmsNavigationRoute: typeof AdminCmsNavigationRoute
   AdminCmsSettingsRoute: typeof AdminCmsSettingsRoute
@@ -1257,6 +1278,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminArticlesNewRoute: AdminArticlesNewRoute,
   AdminBlogIdRoute: AdminBlogIdRoute,
   AdminBlogNewRoute: AdminBlogNewRoute,
+  AdminCmsHomeNeighborhoodsRoute: AdminCmsHomeNeighborhoodsRoute,
   AdminCmsHomepageRoute: AdminCmsHomepageRoute,
   AdminCmsNavigationRoute: AdminCmsNavigationRoute,
   AdminCmsSettingsRoute: AdminCmsSettingsRoute,

@@ -263,6 +263,42 @@ export type Database = {
         }
         Relationships: []
       }
+      home_neighborhoods: {
+        Row: {
+          blurb: string | null
+          created_at: string
+          enabled: boolean
+          id: string
+          image_url: string | null
+          link_to: string
+          name: string
+          position: number
+          updated_at: string
+        }
+        Insert: {
+          blurb?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          image_url?: string | null
+          link_to?: string
+          name: string
+          position?: number
+          updated_at?: string
+        }
+        Update: {
+          blurb?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          image_url?: string | null
+          link_to?: string
+          name?: string
+          position?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       homepage_sections: {
         Row: {
           draft_content: Json

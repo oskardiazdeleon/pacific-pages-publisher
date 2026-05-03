@@ -10,6 +10,7 @@ import { EmailCapture } from "@/components/site/EmailCapture";
 import { listings as mockListings, articles as mockArticles, neighborhoods } from "@/lib/mock-data";
 import { fetchPublishedListings, fetchPublishedArticles } from "@/lib/content-queries";
 import { fetchPublishedHomepageSections, type HomepageSection } from "@/lib/cms";
+import { supabase } from "@/integrations/supabase/client";
 import hero from "@/assets/hero-sandiego.jpg";
 
 export const Route = createFileRoute("/")({
@@ -31,10 +32,19 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
+type HomeNeighborhood = {
+  id: string;
+  name: string;
+  blurb: string | null;
+  image_url: string | null;
+  link_to: string;
+};
+
 function HomePage() {
   const [featured, setFeatured] = useState<ListingCardData[]>([]);
   const [posts, setPosts] = useState<ArticleCardData[]>([]);
   const [cms, setCms] = useState<Record<string, Record<string, unknown>>>({});
+  const [hoods, setHoods] = useState<HomeNeighborhood[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -64,6 +74,14 @@ function HomePage() {
         setFeatured(mockListings.filter((m) => m.tier !== "free").slice(0, 3) as ListingCardData[]);
         setPosts(mockArticles as ArticleCardData[]);
       }
+    })();
+    (async () => {
+      const { data } = await supabase
+        .from("home_neighborhoods")
+        .select("id, name, blurb, image_url, link_to")
+        .eq("enabled", true)
+        .order("position");
+      if (data && data.length) setHoods(data as HomeNeighborhood[]);
     })();
   }, []);
 
@@ -203,11 +221,25 @@ function HomePage() {
         <div className="eyebrow flex items-center gap-2"><MapPin className="h-3.5 w-3.5" /> {c("neighborhoods", "eyebrow", "Neighborhoods")}</div>
         <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">{c("neighborhoods", "heading", "Eight cities in one")}</h2>
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {neighborhoods.map((n) => (
-            <Link
-              key={n.slug}
-              to="/neighborhoods/$slug"
-              params={{ slug: n.slug }}
+          {(hoods.length
+            ? hoods.map((n) => ({
+                key: n.id,
+                name: n.name,
+                blurb: n.blurb || "",
+                image: n.image_url || "",
+                href: n.link_to || "/neighborhoods",
+              }))
+            : neighborhoods.map((n) => ({
+                key: n.slug,
+                name: n.name,
+                blurb: n.blurb,
+                image: n.image,
+                href: `/neighborhoods/${n.slug}`,
+              }))
+          ).map((n) => (
+            <a
+              key={n.key}
+              href={n.href}
               className="group relative overflow-hidden rounded-2xl aspect-[3/4]"
             >
               <img
@@ -223,7 +255,7 @@ function HomePage() {
                 <h3 className="font-display text-2xl font-semibold">{n.name}</h3>
                 <p className="mt-1 text-sm text-primary-foreground/80">{n.blurb}</p>
               </div>
-            </Link>
+            </a>
           ))}
         </div>
       </section>
