@@ -31,10 +31,19 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
+type HomeNeighborhood = {
+  id: string;
+  name: string;
+  blurb: string | null;
+  image_url: string | null;
+  link_to: string;
+};
+
 function HomePage() {
   const [featured, setFeatured] = useState<ListingCardData[]>([]);
   const [posts, setPosts] = useState<ArticleCardData[]>([]);
   const [cms, setCms] = useState<Record<string, Record<string, unknown>>>({});
+  const [hoods, setHoods] = useState<HomeNeighborhood[]>([]);
 
   useEffect(() => {
     (async () => {
