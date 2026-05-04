@@ -333,3 +333,120 @@ function HomeNeighborhoodsAdmin() {
     </div>
   );
 }
+
+function LinkPicker({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (link: string, suggestedName?: string) => void;
+}) {
+  const parsed = useMemo(() => parseLinkTo(value), [value]);
+  const [hood, setHood] = useState(parsed.hood);
+  const [category, setCategory] = useState(parsed.category);
+  const [custom, setCustom] = useState(parsed.custom);
+  const [showCustom, setShowCustom] = useState(!parsed.hood && !!parsed.custom);
+
+  // Re-sync if value changes externally
+  useEffect(() => {
+    const p = parseLinkTo(value);
+    setHood(p.hood);
+    setCategory(p.category);
+    setCustom(p.custom);
+    if (!p.hood && p.custom) setShowCustom(true);
+  }, [value]);
+
+  const hoodObj = SEO_NEIGHBORHOODS.find((n) => n.slug === hood);
+  const cls =
+    "mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm";
+
+  const emit = (h: string, c: string, cu: string) => {
+    onChange(buildLinkTo(h, c, cu), h ? SEO_NEIGHBORHOODS.find((n) => n.slug === h)?.name : undefined);
+  };
+
+  if (showCustom) {
+    return (
+      <div className="space-y-2">
+        <input
+          value={custom}
+          onChange={(e) => {
+            setCustom(e.target.value);
+            emit("", "__custom__", e.target.value);
+          }}
+          placeholder="/any/path or https://example.com"
+          className={cls}
+        />
+        <button
+          type="button"
+          onClick={() => {
+            setShowCustom(false);
+            setCustom("");
+            emit(hood, category, "");
+          }}
+          className="text-[11px] text-accent hover:underline"
+        >
+          ← Use neighborhood picker instead
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="grid gap-2 grid-cols-2">
+        <select
+          value={hood}
+          onChange={(e) => {
+            const h = e.target.value;
+            const newHoodObj = SEO_NEIGHBORHOODS.find((n) => n.slug === h);
+            // Reset category if not valid for new hood
+            const newCat =
+              category === "__overview__" || newHoodObj?.categories.includes(category as any)
+                ? category
+                : "__overview__";
+            setHood(h);
+            setCategory(newCat);
+            emit(h, newCat, "");
+          }}
+          className={cls}
+        >
+          <option value="">— Pick a neighborhood —</option>
+          {SEO_NEIGHBORHOODS.map((n) => (
+            <option key={n.slug} value={n.slug}>
+              {n.name}
+            </option>
+          ))}
+        </select>
+        <select
+          value={category}
+          onChange={(e) => {
+            const c = e.target.value;
+            setCategory(c);
+            emit(hood, c, "");
+          }}
+          disabled={!hood}
+          className={cls}
+        >
+          <option value="__overview__">Neighborhood overview</option>
+          {hoodObj?.categories.map((c) => (
+            <option key={c} value={c}>
+              {CATEGORY_LABELS[c]} in {hoodObj.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="flex items-center justify-between gap-2">
+        <code className="text-[11px] text-muted-foreground truncate">
+          → {buildLinkTo(hood, category, custom) || "(no link)"}
+        </code>
+        <button
+          type="button"
+          onClick={() => setShowCustom(true)}
+          className="text-[11px] text-accent hover:underline shrink-0"
+        >
+          Use custom URL
+        </button>
+      </div>
+    </div>
+  );
+}
