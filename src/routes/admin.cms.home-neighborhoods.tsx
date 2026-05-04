@@ -264,25 +264,27 @@ function HomeNeighborhoodsAdmin() {
                 <div className="bg-muted/30 px-4 py-5 space-y-4 border-t border-border">
                   <div className="grid gap-4 md:grid-cols-2">
                     <label className="block">
-                      <span className="text-xs font-medium text-foreground/70">Name</span>
+                      <span className="text-xs font-medium text-foreground/70">Name (shown on card)</span>
                       <input
                         value={draft.name}
                         onChange={(e) => updateDraft({ name: e.target.value })}
                         className={inputCls}
                       />
                     </label>
-                    <label className="block">
-                      <span className="text-xs font-medium text-foreground/70">Link to (URL or path)</span>
-                      <input
+                    <div className="block">
+                      <span className="text-xs font-medium text-foreground/70">Links to</span>
+                      <LinkPicker
                         value={draft.link_to}
-                        onChange={(e) => updateDraft({ link_to: e.target.value })}
-                        placeholder="/neighborhoods/la-jolla"
-                        className={inputCls}
+                        onChange={(link, suggestedName) => {
+                          const patch: Partial<Row> = { link_to: link };
+                          // Only auto-fill name if user hasn't customized it yet
+                          if (suggestedName && (!draft.name || draft.name === "New neighborhood")) {
+                            patch.name = suggestedName;
+                          }
+                          updateDraft(patch);
+                        }}
                       />
-                      <span className="text-[11px] text-muted-foreground mt-1 block">
-                        e.g. <code>/neighborhoods/la-jolla</code> or <code>/restaurants/in/little-italy</code>
-                      </span>
-                    </label>
+                    </div>
                   </div>
 
                   <label className="block">
