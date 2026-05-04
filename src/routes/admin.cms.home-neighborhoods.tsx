@@ -1,8 +1,40 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, ChevronDown, Edit3, Plus, Save, Trash2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CmsImageUpload } from "@/components/admin/CmsImageUpload";
+import { SEO_NEIGHBORHOODS } from "@/lib/seo-neighborhoods";
+
+const CATEGORY_LABELS: Record<string, string> = {
+  hotels: "Hotels",
+  restaurants: "Restaurants",
+  "things-to-do": "Things to do",
+  shopping: "Shopping",
+  nightlife: "Nightlife",
+};
+
+/** Parse a stored link_to back into picker state. */
+function parseLinkTo(link: string): { hood: string; category: string; custom: string } {
+  const seo = link.match(/^\/([^/]+)\/in\/([^/]+)\/?$/);
+  if (seo) {
+    const [, category, hood] = seo;
+    if (SEO_NEIGHBORHOODS.some((n) => n.slug === hood) && CATEGORY_LABELS[category]) {
+      return { hood, category, custom: "" };
+    }
+  }
+  const overview = link.match(/^\/neighborhoods\/([^/]+)\/?$/);
+  if (overview && SEO_NEIGHBORHOODS.some((n) => n.slug === overview[1])) {
+    return { hood: overview[1], category: "__overview__", custom: "" };
+  }
+  return { hood: "", category: "", custom: link };
+}
+
+function buildLinkTo(hood: string, category: string, custom: string): string {
+  if (category === "__custom__") return custom.trim();
+  if (!hood) return custom.trim() || "/neighborhoods";
+  if (category === "__overview__" || !category) return `/neighborhoods/${hood}`;
+  return `/${category}/in/${hood}`;
+}
 
 export const Route = createFileRoute("/admin/cms/home-neighborhoods")({
   head: () => ({
