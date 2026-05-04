@@ -1,8 +1,40 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, ChevronDown, Edit3, Plus, Save, Trash2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CmsImageUpload } from "@/components/admin/CmsImageUpload";
+import { SEO_NEIGHBORHOODS } from "@/lib/seo-neighborhoods";
+
+const CATEGORY_LABELS: Record<string, string> = {
+  hotels: "Hotels",
+  restaurants: "Restaurants",
+  "things-to-do": "Things to do",
+  shopping: "Shopping",
+  nightlife: "Nightlife",
+};
+
+/** Parse a stored link_to back into picker state. */
+function parseLinkTo(link: string): { hood: string; category: string; custom: string } {
+  const seo = link.match(/^\/([^/]+)\/in\/([^/]+)\/?$/);
+  if (seo) {
+    const [, category, hood] = seo;
+    if (SEO_NEIGHBORHOODS.some((n) => n.slug === hood) && CATEGORY_LABELS[category]) {
+      return { hood, category, custom: "" };
+    }
+  }
+  const overview = link.match(/^\/neighborhoods\/([^/]+)\/?$/);
+  if (overview && SEO_NEIGHBORHOODS.some((n) => n.slug === overview[1])) {
+    return { hood: overview[1], category: "__overview__", custom: "" };
+  }
+  return { hood: "", category: "", custom: link };
+}
+
+function buildLinkTo(hood: string, category: string, custom: string): string {
+  if (category === "__custom__") return custom.trim();
+  if (!hood) return custom.trim() || "/neighborhoods";
+  if (category === "__overview__" || !category) return `/neighborhoods/${hood}`;
+  return `/${category}/in/${hood}`;
+}
 
 export const Route = createFileRoute("/admin/cms/home-neighborhoods")({
   head: () => ({
@@ -232,25 +264,27 @@ function HomeNeighborhoodsAdmin() {
                 <div className="bg-muted/30 px-4 py-5 space-y-4 border-t border-border">
                   <div className="grid gap-4 md:grid-cols-2">
                     <label className="block">
-                      <span className="text-xs font-medium text-foreground/70">Name</span>
+                      <span className="text-xs font-medium text-foreground/70">Name (shown on card)</span>
                       <input
                         value={draft.name}
                         onChange={(e) => updateDraft({ name: e.target.value })}
                         className={inputCls}
                       />
                     </label>
-                    <label className="block">
-                      <span className="text-xs font-medium text-foreground/70">Link to (URL or path)</span>
-                      <input
+                    <div className="block">
+                      <span className="text-xs font-medium text-foreground/70">Links to</span>
+                      <LinkPicker
                         value={draft.link_to}
-                        onChange={(e) => updateDraft({ link_to: e.target.value })}
-                        placeholder="/neighborhoods/la-jolla"
-                        className={inputCls}
+                        onChange={(link, suggestedName) => {
+                          const patch: Partial<Row> = { link_to: link };
+                          // Only auto-fill name if user hasn't customized it yet
+                          if (suggestedName && (!draft.name || draft.name === "New neighborhood")) {
+                            patch.name = suggestedName;
+                          }
+                          updateDraft(patch);
+                        }}
                       />
-                      <span className="text-[11px] text-muted-foreground mt-1 block">
-                        e.g. <code>/neighborhoods/la-jolla</code> or <code>/restaurants/in/little-italy</code>
-                      </span>
-                    </label>
+                    </div>
                   </div>
 
                   <label className="block">
@@ -295,6 +329,123 @@ function HomeNeighborhoodsAdmin() {
             No neighborhood cards yet. Click "Add card" to create one.
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function LinkPicker({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (link: string, suggestedName?: string) => void;
+}) {
+  const parsed = useMemo(() => parseLinkTo(value), [value]);
+  const [hood, setHood] = useState(parsed.hood);
+  const [category, setCategory] = useState(parsed.category);
+  const [custom, setCustom] = useState(parsed.custom);
+  const [showCustom, setShowCustom] = useState(!parsed.hood && !!parsed.custom);
+
+  // Re-sync if value changes externally
+  useEffect(() => {
+    const p = parseLinkTo(value);
+    setHood(p.hood);
+    setCategory(p.category);
+    setCustom(p.custom);
+    if (!p.hood && p.custom) setShowCustom(true);
+  }, [value]);
+
+  const hoodObj = SEO_NEIGHBORHOODS.find((n) => n.slug === hood);
+  const cls =
+    "mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm";
+
+  const emit = (h: string, c: string, cu: string) => {
+    onChange(buildLinkTo(h, c, cu), h ? SEO_NEIGHBORHOODS.find((n) => n.slug === h)?.name : undefined);
+  };
+
+  if (showCustom) {
+    return (
+      <div className="space-y-2">
+        <input
+          value={custom}
+          onChange={(e) => {
+            setCustom(e.target.value);
+            emit("", "__custom__", e.target.value);
+          }}
+          placeholder="/any/path or https://example.com"
+          className={cls}
+        />
+        <button
+          type="button"
+          onClick={() => {
+            setShowCustom(false);
+            setCustom("");
+            emit(hood, category, "");
+          }}
+          className="text-[11px] text-accent hover:underline"
+        >
+          ← Use neighborhood picker instead
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="grid gap-2 grid-cols-2">
+        <select
+          value={hood}
+          onChange={(e) => {
+            const h = e.target.value;
+            const newHoodObj = SEO_NEIGHBORHOODS.find((n) => n.slug === h);
+            // Reset category if not valid for new hood
+            const newCat =
+              category === "__overview__" || newHoodObj?.categories.includes(category as any)
+                ? category
+                : "__overview__";
+            setHood(h);
+            setCategory(newCat);
+            emit(h, newCat, "");
+          }}
+          className={cls}
+        >
+          <option value="">— Pick a neighborhood —</option>
+          {SEO_NEIGHBORHOODS.map((n) => (
+            <option key={n.slug} value={n.slug}>
+              {n.name}
+            </option>
+          ))}
+        </select>
+        <select
+          value={category}
+          onChange={(e) => {
+            const c = e.target.value;
+            setCategory(c);
+            emit(hood, c, "");
+          }}
+          disabled={!hood}
+          className={cls}
+        >
+          <option value="__overview__">Neighborhood overview</option>
+          {hoodObj?.categories.map((c) => (
+            <option key={c} value={c}>
+              {CATEGORY_LABELS[c]} in {hoodObj.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="flex items-center justify-between gap-2">
+        <code className="text-[11px] text-muted-foreground truncate">
+          → {buildLinkTo(hood, category, custom) || "(no link)"}
+        </code>
+        <button
+          type="button"
+          onClick={() => setShowCustom(true)}
+          className="text-[11px] text-accent hover:underline shrink-0"
+        >
+          Use custom URL
+        </button>
       </div>
     </div>
   );
