@@ -229,13 +229,25 @@ function HomePage() {
                 image: n.image_url || "",
                 href: n.link_to || "/neighborhoods",
               }))
-            : neighborhoods.map((n) => ({
-                key: n.slug,
-                name: n.name,
-                blurb: n.blurb,
-                image: n.image,
-                href: `/neighborhoods/${n.slug}`,
-              }))
+            : neighborhoods.map((n) => {
+                const seoDefault: Record<string, string> = {
+                  "la-jolla": "/things-to-do/in/la-jolla",
+                  "gaslamp-quarter": "/nightlife/in/gaslamp-quarter",
+                  "coronado": "/hotels/in/coronado",
+                  "balboa-park": "/things-to-do/in/balboa-park",
+                  "little-italy": "/restaurants/in/little-italy",
+                  "pacific-beach": "/things-to-do/in/pacific-beach",
+                  "ocean-beach": "/restaurants/in/ocean-beach",
+                  "mission-beach": "/things-to-do/in/mission-beach",
+                };
+                return {
+                  key: n.slug,
+                  name: n.name,
+                  blurb: n.blurb,
+                  image: n.image,
+                  href: seoDefault[n.slug] || `/neighborhoods/${n.slug}`,
+                };
+              })
           ).map((n) => (
             <a
               key={n.key}
