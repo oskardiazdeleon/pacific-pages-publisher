@@ -4,7 +4,7 @@ import { Search, Anchor } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Breadcrumbs, breadcrumbJsonLd } from "@/components/site/Breadcrumbs";
-import { CRUISE_LINES } from "@/lib/cruise-lines";
+import { fetchCruiseLines, type CruiseLine } from "@/lib/cruise-lines";
 import { fetchPublishedHomepageSections, type HomepageSection } from "@/lib/cms";
 
 const SITE_URL = "https://sandiego.com";
