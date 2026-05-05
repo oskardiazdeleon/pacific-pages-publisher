@@ -22,6 +22,7 @@ import { Route as ArticlesRouteImport } from './routes/articles'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WineriesIndexRouteImport } from './routes/wineries.index'
+import { Route as WeddingVenuesIndexRouteImport } from './routes/wedding-venues.index'
 import { Route as ThingsToDoIndexRouteImport } from './routes/things-to-do.index'
 import { Route as ShoppingIndexRouteImport } from './routes/shopping.index'
 import { Route as RestaurantsIndexRouteImport } from './routes/restaurants.index'
@@ -34,6 +35,7 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as ArticlesIndexRouteImport } from './routes/articles.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as WineriesSlugRouteImport } from './routes/wineries.$slug'
+import { Route as WeddingVenuesSlugRouteImport } from './routes/wedding-venues.$slug'
 import { Route as ThingsToDoGolfRouteImport } from './routes/things-to-do.golf'
 import { Route as ThingsToDoSlugRouteImport } from './routes/things-to-do.$slug'
 import { Route as ShoppingSlugRouteImport } from './routes/shopping.$slug'
@@ -137,6 +139,11 @@ const WineriesIndexRoute = WineriesIndexRouteImport.update({
   path: '/wineries/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WeddingVenuesIndexRoute = WeddingVenuesIndexRouteImport.update({
+  id: '/wedding-venues/',
+  path: '/wedding-venues/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ThingsToDoIndexRoute = ThingsToDoIndexRouteImport.update({
   id: '/things-to-do/',
   path: '/things-to-do/',
@@ -195,6 +202,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const WineriesSlugRoute = WineriesSlugRouteImport.update({
   id: '/wineries/$slug',
   path: '/wineries/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WeddingVenuesSlugRoute = WeddingVenuesSlugRouteImport.update({
+  id: '/wedding-venues/$slug',
+  path: '/wedding-venues/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ThingsToDoGolfRoute = ThingsToDoGolfRouteImport.update({
@@ -415,6 +427,7 @@ export interface FileRoutesByFullPath {
   '/shopping/$slug': typeof ShoppingSlugRoute
   '/things-to-do/$slug': typeof ThingsToDoSlugRoute
   '/things-to-do/golf': typeof ThingsToDoGolfRoute
+  '/wedding-venues/$slug': typeof WeddingVenuesSlugRoute
   '/wineries/$slug': typeof WineriesSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/articles/': typeof ArticlesIndexRoute
@@ -427,6 +440,7 @@ export interface FileRoutesByFullPath {
   '/restaurants/': typeof RestaurantsIndexRoute
   '/shopping/': typeof ShoppingIndexRoute
   '/things-to-do/': typeof ThingsToDoIndexRoute
+  '/wedding-venues/': typeof WeddingVenuesIndexRoute
   '/wineries/': typeof WineriesIndexRoute
   '/$category/in/$neighborhood': typeof CategoryInNeighborhoodRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
@@ -476,6 +490,7 @@ export interface FileRoutesByTo {
   '/shopping/$slug': typeof ShoppingSlugRoute
   '/things-to-do/$slug': typeof ThingsToDoSlugRoute
   '/things-to-do/golf': typeof ThingsToDoGolfRoute
+  '/wedding-venues/$slug': typeof WeddingVenuesSlugRoute
   '/wineries/$slug': typeof WineriesSlugRoute
   '/admin': typeof AdminIndexRoute
   '/articles': typeof ArticlesIndexRoute
@@ -488,6 +503,7 @@ export interface FileRoutesByTo {
   '/restaurants': typeof RestaurantsIndexRoute
   '/shopping': typeof ShoppingIndexRoute
   '/things-to-do': typeof ThingsToDoIndexRoute
+  '/wedding-venues': typeof WeddingVenuesIndexRoute
   '/wineries': typeof WineriesIndexRoute
   '/$category/in/$neighborhood': typeof CategoryInNeighborhoodRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
@@ -541,6 +557,7 @@ export interface FileRoutesById {
   '/shopping/$slug': typeof ShoppingSlugRoute
   '/things-to-do/$slug': typeof ThingsToDoSlugRoute
   '/things-to-do/golf': typeof ThingsToDoGolfRoute
+  '/wedding-venues/$slug': typeof WeddingVenuesSlugRoute
   '/wineries/$slug': typeof WineriesSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/articles/': typeof ArticlesIndexRoute
@@ -553,6 +570,7 @@ export interface FileRoutesById {
   '/restaurants/': typeof RestaurantsIndexRoute
   '/shopping/': typeof ShoppingIndexRoute
   '/things-to-do/': typeof ThingsToDoIndexRoute
+  '/wedding-venues/': typeof WeddingVenuesIndexRoute
   '/wineries/': typeof WineriesIndexRoute
   '/$category/in/$neighborhood': typeof CategoryInNeighborhoodRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
@@ -607,6 +625,7 @@ export interface FileRouteTypes {
     | '/shopping/$slug'
     | '/things-to-do/$slug'
     | '/things-to-do/golf'
+    | '/wedding-venues/$slug'
     | '/wineries/$slug'
     | '/admin/'
     | '/articles/'
@@ -619,6 +638,7 @@ export interface FileRouteTypes {
     | '/restaurants/'
     | '/shopping/'
     | '/things-to-do/'
+    | '/wedding-venues/'
     | '/wineries/'
     | '/$category/in/$neighborhood'
     | '/admin/articles/$id'
@@ -668,6 +688,7 @@ export interface FileRouteTypes {
     | '/shopping/$slug'
     | '/things-to-do/$slug'
     | '/things-to-do/golf'
+    | '/wedding-venues/$slug'
     | '/wineries/$slug'
     | '/admin'
     | '/articles'
@@ -680,6 +701,7 @@ export interface FileRouteTypes {
     | '/restaurants'
     | '/shopping'
     | '/things-to-do'
+    | '/wedding-venues'
     | '/wineries'
     | '/$category/in/$neighborhood'
     | '/admin/articles/$id'
@@ -732,6 +754,7 @@ export interface FileRouteTypes {
     | '/shopping/$slug'
     | '/things-to-do/$slug'
     | '/things-to-do/golf'
+    | '/wedding-venues/$slug'
     | '/wineries/$slug'
     | '/admin/'
     | '/articles/'
@@ -744,6 +767,7 @@ export interface FileRouteTypes {
     | '/restaurants/'
     | '/shopping/'
     | '/things-to-do/'
+    | '/wedding-venues/'
     | '/wineries/'
     | '/$category/in/$neighborhood'
     | '/admin/articles/$id'
@@ -791,6 +815,7 @@ export interface RootRouteChildren {
   ShoppingSlugRoute: typeof ShoppingSlugRoute
   ThingsToDoSlugRoute: typeof ThingsToDoSlugRoute
   ThingsToDoGolfRoute: typeof ThingsToDoGolfRoute
+  WeddingVenuesSlugRoute: typeof WeddingVenuesSlugRoute
   WineriesSlugRoute: typeof WineriesSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
   CruisesIndexRoute: typeof CruisesIndexRoute
@@ -800,6 +825,7 @@ export interface RootRouteChildren {
   RestaurantsIndexRoute: typeof RestaurantsIndexRoute
   ShoppingIndexRoute: typeof ShoppingIndexRoute
   ThingsToDoIndexRoute: typeof ThingsToDoIndexRoute
+  WeddingVenuesIndexRoute: typeof WeddingVenuesIndexRoute
   WineriesIndexRoute: typeof WineriesIndexRoute
   CategoryInNeighborhoodRoute: typeof CategoryInNeighborhoodRoute
   ApiPublicBlogRoute: typeof ApiPublicBlogRoute
@@ -899,6 +925,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WineriesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/wedding-venues/': {
+      id: '/wedding-venues/'
+      path: '/wedding-venues'
+      fullPath: '/wedding-venues/'
+      preLoaderRoute: typeof WeddingVenuesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/things-to-do/': {
       id: '/things-to-do/'
       path: '/things-to-do'
@@ -981,6 +1014,13 @@ declare module '@tanstack/react-router' {
       path: '/wineries/$slug'
       fullPath: '/wineries/$slug'
       preLoaderRoute: typeof WineriesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wedding-venues/$slug': {
+      id: '/wedding-venues/$slug'
+      path: '/wedding-venues/$slug'
+      fullPath: '/wedding-venues/$slug'
+      preLoaderRoute: typeof WeddingVenuesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/things-to-do/golf': {
@@ -1359,6 +1399,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShoppingSlugRoute: ShoppingSlugRoute,
   ThingsToDoSlugRoute: ThingsToDoSlugRoute,
   ThingsToDoGolfRoute: ThingsToDoGolfRoute,
+  WeddingVenuesSlugRoute: WeddingVenuesSlugRoute,
   WineriesSlugRoute: WineriesSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
   CruisesIndexRoute: CruisesIndexRoute,
@@ -1368,6 +1409,7 @@ const rootRouteChildren: RootRouteChildren = {
   RestaurantsIndexRoute: RestaurantsIndexRoute,
   ShoppingIndexRoute: ShoppingIndexRoute,
   ThingsToDoIndexRoute: ThingsToDoIndexRoute,
+  WeddingVenuesIndexRoute: WeddingVenuesIndexRoute,
   WineriesIndexRoute: WineriesIndexRoute,
   CategoryInNeighborhoodRoute: CategoryInNeighborhoodRoute,
   ApiPublicBlogRoute: ApiPublicBlogRoute,
@@ -1376,12 +1418,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
