@@ -74,6 +74,20 @@ function AdminListings() {
   const isActiveSponsor = (r: Row) =>
     r.is_sponsored && (!r.sponsor_until || new Date(r.sponsor_until) > new Date());
 
+  const categories = Array.from(new Set(rows.map((r) => r.category).filter(Boolean))).sort();
+  const q = query.trim().toLowerCase();
+  const filteredRows = rows.filter((r) => {
+    if (categoryFilter !== "all" && r.category !== categoryFilter) return false;
+    if (statusFilter !== "all" && r.status !== statusFilter) return false;
+    if (!q) return true;
+    return (
+      r.name.toLowerCase().includes(q) ||
+      (r.neighborhood ?? "").toLowerCase().includes(q) ||
+      (r.category ?? "").toLowerCase().includes(q) ||
+      (r.sponsor_name ?? "").toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div>
       <div className="flex items-end justify-between gap-4">
