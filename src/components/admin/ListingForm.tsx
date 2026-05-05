@@ -306,7 +306,7 @@ export function ListingForm({
           <Field label="Category">
             <select className={inputCls} value={v.category}
               onChange={(e) => set("category", e.target.value as ListingFormValues["category"])}>
-              {["Restaurant", "Hotel", "Attraction", "Tour", "Shopping", "Nightlife", "Golf"].map((c) => (
+              {["Restaurant", "Hotel", "Attraction", "Tour", "Shopping", "Nightlife", "Golf", "WeddingVenue"].map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
