@@ -106,7 +106,7 @@ function PillarPage() {
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: pillar.faqs.map((f) => ({
+    mainEntity: pillar.faqs.map((f: { q: string; a: string }) => ({
       "@type": "Question",
       name: f.q,
       acceptedAnswer: { "@type": "Answer", text: f.a },
