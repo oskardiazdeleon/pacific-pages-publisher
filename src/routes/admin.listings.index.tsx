@@ -172,14 +172,16 @@ function AdminListings() {
                   Loading…
                 </td>
               </tr>
-            ) : rows.length === 0 ? (
+            ) : filteredRows.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-5 py-10 text-center text-muted-foreground">
-                  No listings yet. Create your first one.
+                  {rows.length === 0
+                    ? "No listings yet. Create your first one."
+                    : "No listings match your search."}
                 </td>
               </tr>
             ) : (
-              rows.map((r) => {
+              filteredRows.map((r) => {
                 const active = isActiveSponsor(r);
                 return (
                   <tr key={r.id} className={`border-t border-border ${active ? "bg-accent/5" : ""}`}>
