@@ -286,6 +286,40 @@ export const CATEGORY_HUBS: CategoryHub[] = [
     },
     memberBenefit: "💳 SD Insider Members Save 10–20% at Top San Diego Wedding Venues",
   },
+  {
+    slug: "wineries",
+    dbCategories: ["Winery"],
+    label: "Wineries",
+    singular: "Winery",
+    metaTitle: "Best Wineries in San Diego | Insider Members Save on Tastings",
+    metaDescription:
+      "Discover San Diego's best wineries — boutique tasting rooms, hillside vineyards and urban wineries. SD Insider members save on tastings and bottles at participating wineries. Join & save »",
+    eyebrow: "Sip & swirl",
+    heading: "San Diego Wineries",
+    subheading:
+      "Boutique tasting rooms, hillside vineyards and urban wineries — every label vetted by our editors. Insider members save on tastings and bottles.",
+    schemaType: "Winery",
+    headingAccent: "where good times pour.",
+    heroImage:
+      "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1600&q=80",
+    searchPlaceholder: "Search wineries, varietals, neighborhoods…",
+    popularChips: [
+      { label: "Tasting Room", keyword: "tasting" },
+      { label: "Vineyard", keyword: "vineyard" },
+      { label: "Urban", keyword: "urban" },
+      { label: "Reserve", keyword: "reserve" },
+    ],
+    stats: [
+      { value: "60+", label: "Wineries" },
+      { value: "20%", label: "Insider Save" },
+      { value: "$15", label: "Avg Tasting" },
+    ],
+    insiderCta: {
+      title: "Sip smarter with Insider",
+      body: "Member-only flights, complimentary upgrades and reserved tastings at participating wineries.",
+    },
+    memberBenefit: "💳 SD Insider Members Save 10–20% at Top San Diego Wineries",
+  },
 ];
 
 const BY_DB_CATEGORY = new Map<ListingCategory, CategoryHub>();
