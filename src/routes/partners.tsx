@@ -147,29 +147,16 @@ function PartnersPage() {
                 </li>
               ))}
             </ul>
-            {t.external ? (
-              <a
-                href={t.href}
-                className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition ${
-                  t.highlight
-                    ? "bg-accent text-accent-foreground hover:opacity-90"
-                    : "bg-primary text-primary-foreground hover:opacity-90"
-                }`}
-              >
-                {t.cta} <ArrowRight className="h-4 w-4" />
-              </a>
-            ) : (
-              <Link
-                to={t.href}
-                className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition ${
-                  t.highlight
-                    ? "bg-accent text-accent-foreground hover:opacity-90"
-                    : "bg-primary text-primary-foreground hover:opacity-90"
-                }`}
-              >
-                {t.cta} <ArrowRight className="h-4 w-4" />
-              </Link>
-            )}
+            <a
+              href={t.href}
+              className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition ${
+                t.highlight
+                  ? "bg-accent text-accent-foreground hover:opacity-90"
+                  : "bg-primary text-primary-foreground hover:opacity-90"
+              }`}
+            >
+              {t.cta} <ArrowRight className="h-4 w-4" />
+            </a>
           </div>
         ))}
       </section>
