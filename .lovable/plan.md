@@ -1,57 +1,96 @@
+# Listing Claim Flow
 
-## Goal
+A self-serve way for business owners to claim their listing, verify ownership, and get partner access — with an admin review queue as the trust gate.
 
-Make home-page neighborhood cards funnel into SEO Layer 2 pages (`/{category}/in/{neighborhood}`) instead of generic editorial hubs, and replace the free-text link field in admin with a smart dropdown built from `SEO_NEIGHBORHOODS`.
+## User flow
 
-## Background — two page systems
+```text
+Listing page                  Submitter                     Admin
+-----------                   ---------                     -----
+[Claim this listing] ──▶  Sign in / sign up
+                          Fill claim form
+                          (role at business,
+                           work email, notes)
+                                  │
+                                  ▼
+                          Auto-verify if work
+                          email domain matches
+                          listing website domain
+                                  │
+                                  ▼
+                          Status: pending  ───────────▶  Admin queue
+                                                         /admin/claims
+                                                              │
+                                                              ▼
+                                                         Approve / Reject
+                                                              │
+                          ◀──────────────────────────────────┘
+                          On approve:
+                            - listings.partner_id = user
+                            - grant 'partner' role
+                            - email submitter
+                          On reject:
+                            - email submitter w/ reason
+```
 
-- **`/neighborhoods/{slug}`** — generic editorial hub (intro, FAQs, mixed-category listings). Source: `src/lib/neighborhoods-data.ts`.
-- **`/{category}/in/{neighborhood}`** — SEO Layer 2 (e.g. `/hotels/in/balboa-park`). Source: `src/lib/seo-neighborhoods.ts` + CMS overrides in `neighborhood_pages` table + AI generator. **This is what the home should link to.**
+## What gets built
 
-## Changes
+### 1. Database (`listing_claims` table)
 
-### 1. Admin: smart link picker (`src/routes/admin.cms.home-neighborhoods.tsx`)
+Columns: `id`, `listing_id`, `user_id`, `claimant_name`, `claimant_email`, `claimant_role` (Owner / Manager / Marketing / Other), `notes`, `status` (pending / approved / rejected), `email_domain_match` (bool — auto-set on insert), `reviewed_by`, `review_notes`, `created_at`, `reviewed_at`.
 
-Replace the free-text "Link to" input with **two dropdowns**:
+- Unique partial index: one pending claim per (listing_id, user_id).
+- RLS:
+  - INSERT: any authenticated user, with `user_id = auth.uid()`.
+  - SELECT: claimant sees own claims; admins see all.
+  - UPDATE: admins only (status, review_notes, reviewed_by, reviewed_at).
+- Trigger on approve: set `listings.partner_id = user_id`, insert `('partner')` into `user_roles` (idempotent).
 
-- **Neighborhood** — populated from `SEO_NEIGHBORHOODS` (slug + name).
-- **Category** — populated from the selected neighborhood's `categories` array (only valid combos shown). Includes a "Neighborhood overview" option that maps to `/neighborhoods/{slug}`.
+### 2. "Claim this listing" CTA on listing pages
 
-On change, compute and store `link_to`:
-- Category selected → `/{category}/in/{neighborhoodSlug}`
-- "Overview" selected → `/neighborhoods/{neighborhoodSlug}`
+Added to `ListingDetailPage.tsx` sidebar, shown when `listings.partner_id IS NULL`. If signed-in user already has a pending or approved claim on the listing, button shows that state instead.
 
-Keep a small "Custom URL" escape hatch (collapsed) for edge cases (external links, themed hubs, etc.). Existing rows with non-matching `link_to` values fall through to the custom field automatically.
+Unauthenticated click → redirect to `/auth?next=/{category}/{slug}?claim=1`.
 
-Also auto-suggest the **name** field from the chosen neighborhood when adding a new card (still editable).
+### 3. Claim form (`/claim/$slug`)
 
-### 2. Seed defaults toward SEO pages
+- Auth-gated (redirect to `/auth` if signed out).
+- Zod-validated form: name (≤100), work email (valid email, ≤255), role (enum), notes (≤500).
+- On submit: insert into `listing_claims`. Server compares email domain to listing's website host — sets `email_domain_match = true` if equal (helps admin triage but doesn't auto-approve).
+- Success screen: "We'll review within 1–2 business days."
 
-When the admin table is empty, the home page falls back to mock neighborhoods linking at `/neighborhoods/{slug}`. Update the fallback in `src/routes/index.tsx` so each mock card maps to a sensible SEO Layer 2 default:
+### 4. Admin review queue (`/admin/claims`)
 
-| Neighborhood | Default destination |
-|---|---|
-| La Jolla | `/things-to-do/in/la-jolla` |
-| Gaslamp Quarter | `/nightlife/in/gaslamp-quarter` |
-| Coronado | `/hotels/in/coronado` |
-| Little Italy | `/restaurants/in/little-italy` |
-| Balboa Park | `/things-to-do/in/balboa-park` |
-| Pacific Beach | `/things-to-do/in/pacific-beach` |
-| Ocean Beach | `/restaurants/in/ocean-beach` |
-| Mission Beach | `/things-to-do/in/mission-beach` |
+- New entry in admin nav.
+- Table: listing, claimant, role, email (with green "domain match" badge if true), submitted date, status filter.
+- Detail drawer with claimant info + listing preview + Approve / Reject buttons.
+- Approve runs the trigger logic (link partner_id, grant role). Reject takes a required reason.
 
-(These can be overridden any time from admin.)
+### 5. Partner dashboard empty state
 
-### 3. No DB changes
+Update `/partner` empty state to link to "Find your listing" with a search, plus "Submit a claim" copy. Removes the current dead-end.
 
-The existing `home_neighborhoods.link_to text` column already supports any URL — no migration needed.
+### 6. `/partners` marketing page CTAs
 
-## Files touched
+Wire the inactive "Claim listing" / "Start Featured" / etc. buttons to either the claim flow (Free tier) or a "Contact sales" mailto for paid tiers (Stripe checkout is out of scope for this round — noted as next step).
 
-- `src/routes/admin.cms.home-neighborhoods.tsx` — replace text input with neighborhood + category dropdowns; add custom-URL fallback.
-- `src/routes/index.tsx` — update mock-fallback `href` mapping.
+### 7. Email notifications
 
-## Out of scope
+Three transactional emails via the project's email infra:
+- Claim submitted (to claimant): "We got it, review in 1–2 days."
+- Claim approved (to claimant): link to `/partner`.
+- Claim rejected (to claimant): with admin's reason.
 
-- Changing the `/neighborhoods/{slug}` editorial hub itself (still useful as a secondary destination).
-- Bulk-rewriting existing `home_neighborhoods` rows in the database — admin UI will surface them and let you pick new targets.
+## Out of scope (can follow up)
+
+- Stripe checkout for paid tiers
+- Phone/postcard verification fallback when email domain doesn't match
+- Partner-facing analytics dashboard (currently mocked)
+- Bulk claim approval
+
+## Technical notes
+
+- Schema change via migration; data writes via standard insert tooling.
+- The auto-link-on-approve runs as a Postgres trigger using `SECURITY DEFINER` so the admin UI doesn't need service-role calls.
+- Claim form input validated with zod on both client and server (server function with `requireSupabaseAuth`).
+- Domain comparison normalizes (`lowercase`, strip `www.`, drop port) and only checks exact match — subdomains don't auto-match.
