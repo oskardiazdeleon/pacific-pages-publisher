@@ -168,7 +168,7 @@ function prettyKey(key: string) {
 type LocationKey = "homepage" | "category_hubs" | "cruises" | "themed_hubs";
 const LOCATIONS: Record<LocationKey, { label: string; hint: string; path: string }> = {
   homepage: { label: "Homepage", hint: "Renders on the homepage ( / )", path: "/" },
-  category_hubs: { label: "Category hubs", hint: "Hero on Hotels, Restaurants, Things To Do, Shopping, Nightlife, and Weddings pages", path: "/things-to-do" },
+  category_hubs: { label: "Category hubs", hint: "Hero on Hotels, Restaurants, Things To Do, Shopping, Nightlife, Weddings, and Wineries pages", path: "/things-to-do" },
   cruises: { label: "Cruises hub", hint: "Renders on the Cruises category page", path: "/cruises" },
   themed_hubs: { label: "Themed hubs", hint: "Renders on themed category hubs (e.g. Wineries, Golf)", path: "/wineries" },
 };
