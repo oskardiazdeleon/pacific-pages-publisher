@@ -43,7 +43,7 @@ export const Route = createFileRoute("/cruises/$slug")({
 });
 
 function CruiseLinePage() {
-  const { line } = Route.useLoaderData();
+  const { line, others } = Route.useLoaderData() as { line: CruiseLine; others: CruiseLine[] };
   const breadcrumbs = [
     { label: "Home", to: "/" },
     { label: "Cruises", to: "/cruises" },
@@ -62,7 +62,6 @@ function CruiseLinePage() {
     breadcrumbJsonLd(breadcrumbs),
   ];
 
-  const others = CRUISE_LINES.filter((c) => c.slug !== line.slug).slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background">
