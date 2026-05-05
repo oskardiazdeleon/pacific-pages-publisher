@@ -32,6 +32,7 @@ export const Route = createFileRoute("/cruises/")({
 
 function CruisesHub() {
   const [cms, setCms] = useState<Record<string, Record<string, unknown>>>({});
+  const [cruiseLines, setCruiseLines] = useState<CruiseLine[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -44,6 +45,13 @@ function CruisesHub() {
         setCms(map);
       } catch {
         // ignore — fall through to defaults
+      }
+    })();
+    (async () => {
+      try {
+        setCruiseLines(await fetchCruiseLines());
+      } catch {
+        // ignore
       }
     })();
   }, []);
