@@ -13,6 +13,9 @@ export const Route = createFileRoute("/auth")({
       { name: "robots", content: "noindex" },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    next: typeof search.next === "string" ? search.next : undefined,
+  }),
   component: AuthPage,
 });
 
@@ -21,6 +24,7 @@ type Mode = "signin" | "signup" | "forgot";
 function AuthPage() {
   const { signIn, signUp, user, loading } = useAuth();
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,8 +34,12 @@ function AuthPage() {
 
   useEffect(() => {
     // Don't bounce away while the user is mid-reset flow.
-    if (!loading && user && mode !== "forgot") navigate({ to: "/admin" });
-  }, [loading, user, navigate, mode]);
+    if (!loading && user && mode !== "forgot") {
+      // Only allow internal redirects (must start with /).
+      const safeNext = next && next.startsWith("/") ? next : "/admin";
+      navigate({ to: safeNext });
+    }
+  }, [loading, user, navigate, mode, next]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

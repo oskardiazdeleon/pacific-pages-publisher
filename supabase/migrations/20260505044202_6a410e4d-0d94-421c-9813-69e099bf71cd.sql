@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.handle_claim_approved() FROM PUBLIC, anon, authenticated;

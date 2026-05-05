@@ -499,6 +499,57 @@ export type Database = {
         }
         Relationships: []
       }
+      listing_claims: {
+        Row: {
+          claimant_email: string
+          claimant_name: string
+          claimant_role: Database["public"]["Enums"]["claimant_role"]
+          created_at: string
+          email_domain_match: boolean
+          id: string
+          listing_id: string
+          notes: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["claim_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          claimant_email: string
+          claimant_name: string
+          claimant_role?: Database["public"]["Enums"]["claimant_role"]
+          created_at?: string
+          email_domain_match?: boolean
+          id?: string
+          listing_id: string
+          notes?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["claim_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          claimant_email?: string
+          claimant_name?: string
+          claimant_role?: Database["public"]["Enums"]["claimant_role"]
+          created_at?: string
+          email_domain_match?: boolean
+          id?: string
+          listing_id?: string
+          notes?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["claim_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       listing_impressions: {
         Row: {
           created_at: string
@@ -873,6 +924,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "editor" | "partner" | "user"
+      claim_status: "pending" | "approved" | "rejected"
+      claimant_role: "owner" | "manager" | "marketing" | "other"
       content_status: "draft" | "published" | "archived"
       import_item_status: "pending" | "processing" | "done" | "failed"
       import_job_status:
@@ -1026,6 +1079,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "editor", "partner", "user"],
+      claim_status: ["pending", "approved", "rejected"],
+      claimant_role: ["owner", "manager", "marketing", "other"],
       content_status: ["draft", "published", "archived"],
       import_item_status: ["pending", "processing", "done", "failed"],
       import_job_status: [

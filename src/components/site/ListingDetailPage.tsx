@@ -25,6 +25,7 @@ import {
   CuratorByline,
 } from "./listing/EditorialContext";
 import { PairThisWith } from "./listing/PairThisWith";
+import { ClaimListingCard } from "./listing/ClaimListingCard";
 import { toSchemaOpeningHours } from "@/lib/hours";
 import { reservationCtaForCategory, reservationProvider } from "@/lib/reservation-cta";
 
@@ -60,6 +61,7 @@ type Listing = {
   verified_visited?: boolean | null;
   updated_at?: string | null;
   faqs?: unknown;
+  partner_id?: string | null;
 };
 
 // reservationProvider() now lives in @/lib/reservation-cta
@@ -467,6 +469,13 @@ export function ListingDetailPage({
                 )}
               </div>
             </div>
+
+            <ClaimListingCard
+              listingId={listing.id}
+              listingSlug={listing.slug}
+              listingName={listing.name}
+              hasPartner={!!listing.partner_id}
+            />
 
             {/* Insider perk card — also doubles as a sponsorship slot */}
             <div className="rounded-3xl border border-accent/30 bg-gradient-to-br from-accent/10 via-background to-background p-5">

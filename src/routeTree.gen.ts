@@ -48,10 +48,12 @@ import { Route as ListingsSlugRouteImport } from './routes/listings.$slug'
 import { Route as HotelsSlugRouteImport } from './routes/hotels.$slug'
 import { Route as GolfCoursesSlugRouteImport } from './routes/golf-courses.$slug'
 import { Route as CruisesSlugRouteImport } from './routes/cruises.$slug'
+import { Route as ClaimSlugRouteImport } from './routes/claim.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ArticlesSlugRouteImport } from './routes/articles.$slug'
 import { Route as AdminImpressionsRouteImport } from './routes/admin.impressions'
 import { Route as AdminImportRouteImport } from './routes/admin.import'
+import { Route as AdminClaimsRouteImport } from './routes/admin.claims'
 import { Route as AdminApiKeysRouteImport } from './routes/admin.api-keys'
 import { Route as AdminListingsIndexRouteImport } from './routes/admin.listings.index'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin.blog.index'
@@ -269,6 +271,11 @@ const CruisesSlugRoute = CruisesSlugRouteImport.update({
   path: '/cruises/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClaimSlugRoute = ClaimSlugRouteImport.update({
+  id: '/claim/$slug',
+  path: '/claim/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
@@ -287,6 +294,11 @@ const AdminImpressionsRoute = AdminImpressionsRouteImport.update({
 const AdminImportRoute = AdminImportRouteImport.update({
   id: '/import',
   path: '/import',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminClaimsRoute = AdminClaimsRouteImport.update({
+  id: '/claims',
+  path: '/claims',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminApiKeysRoute = AdminApiKeysRouteImport.update({
@@ -411,10 +423,12 @@ export interface FileRoutesByFullPath {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/api-keys': typeof AdminApiKeysRoute
+  '/admin/claims': typeof AdminClaimsRoute
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/claim/$slug': typeof ClaimSlugRoute
   '/cruises/$slug': typeof CruisesSlugRoute
   '/golf-courses/$slug': typeof GolfCoursesSlugRoute
   '/hotels/$slug': typeof HotelsSlugRoute
@@ -474,10 +488,12 @@ export interface FileRoutesByTo {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/api-keys': typeof AdminApiKeysRoute
+  '/admin/claims': typeof AdminClaimsRoute
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/claim/$slug': typeof ClaimSlugRoute
   '/cruises/$slug': typeof CruisesSlugRoute
   '/golf-courses/$slug': typeof GolfCoursesSlugRoute
   '/hotels/$slug': typeof HotelsSlugRoute
@@ -541,10 +557,12 @@ export interface FileRoutesById {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/api-keys': typeof AdminApiKeysRoute
+  '/admin/claims': typeof AdminClaimsRoute
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/claim/$slug': typeof ClaimSlugRoute
   '/cruises/$slug': typeof CruisesSlugRoute
   '/golf-courses/$slug': typeof GolfCoursesSlugRoute
   '/hotels/$slug': typeof HotelsSlugRoute
@@ -609,10 +627,12 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/api-keys'
+    | '/admin/claims'
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
     | '/blog/$slug'
+    | '/claim/$slug'
     | '/cruises/$slug'
     | '/golf-courses/$slug'
     | '/hotels/$slug'
@@ -672,10 +692,12 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/api-keys'
+    | '/admin/claims'
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
     | '/blog/$slug'
+    | '/claim/$slug'
     | '/cruises/$slug'
     | '/golf-courses/$slug'
     | '/hotels/$slug'
@@ -738,10 +760,12 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/api-keys'
+    | '/admin/claims'
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
     | '/blog/$slug'
+    | '/claim/$slug'
     | '/cruises/$slug'
     | '/golf-courses/$slug'
     | '/hotels/$slug'
@@ -805,6 +829,7 @@ export interface RootRouteChildren {
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  ClaimSlugRoute: typeof ClaimSlugRoute
   CruisesSlugRoute: typeof CruisesSlugRoute
   GolfCoursesSlugRoute: typeof GolfCoursesSlugRoute
   HotelsSlugRoute: typeof HotelsSlugRoute
@@ -1107,6 +1132,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CruisesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/claim/$slug': {
+      id: '/claim/$slug'
+      path: '/claim/$slug'
+      fullPath: '/claim/$slug'
+      preLoaderRoute: typeof ClaimSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/$slug': {
       id: '/blog/$slug'
       path: '/blog/$slug'
@@ -1133,6 +1165,13 @@ declare module '@tanstack/react-router' {
       path: '/import'
       fullPath: '/admin/import'
       preLoaderRoute: typeof AdminImportRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/claims': {
+      id: '/admin/claims'
+      path: '/claims'
+      fullPath: '/admin/claims'
+      preLoaderRoute: typeof AdminClaimsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/api-keys': {
@@ -1287,6 +1326,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminApiKeysRoute: typeof AdminApiKeysRoute
+  AdminClaimsRoute: typeof AdminClaimsRoute
   AdminImportRoute: typeof AdminImportRoute
   AdminImpressionsRoute: typeof AdminImpressionsRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -1311,6 +1351,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminApiKeysRoute: AdminApiKeysRoute,
+  AdminClaimsRoute: AdminClaimsRoute,
   AdminImportRoute: AdminImportRoute,
   AdminImpressionsRoute: AdminImpressionsRoute,
   AdminIndexRoute: AdminIndexRoute,
@@ -1389,6 +1430,7 @@ const rootRouteChildren: RootRouteChildren = {
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   BlogSlugRoute: BlogSlugRoute,
+  ClaimSlugRoute: ClaimSlugRoute,
   CruisesSlugRoute: CruisesSlugRoute,
   GolfCoursesSlugRoute: GolfCoursesSlugRoute,
   HotelsSlugRoute: HotelsSlugRoute,

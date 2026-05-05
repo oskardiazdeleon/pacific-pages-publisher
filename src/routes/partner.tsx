@@ -122,8 +122,18 @@ function PartnerDashboard() {
             <div key={i} className="aspect-[4/3] animate-pulse rounded-2xl bg-muted" />
           ))
         ) : listings.length === 0 ? (
-          <div className="col-span-full rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground">
-            No listings linked to your account yet.
+          <div className="col-span-full rounded-2xl border border-dashed border-border p-10 text-center">
+            <p className="text-muted-foreground">No listings linked to your account yet.</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Find your business in our directory and submit a claim — once approved by our team,
+              it'll show up here.
+            </p>
+            <Link
+              to="/listings"
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background hover:opacity-90"
+            >
+              Browse listings
+            </Link>
           </div>
         ) : (
           listings.map((l) => {
