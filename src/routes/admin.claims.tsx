@@ -45,7 +45,7 @@ function AdminClaims() {
     let q = supabase
       .from("listing_claims")
       .select(
-        "id, listing_id, user_id, claimant_name, claimant_email, claimant_role, notes, status, email_domain_match, review_notes, created_at, reviewed_at, listing:listings(name, slug, category, neighborhood, website, partner_id)"
+        "id, listing_id, user_id, claimant_name, claimant_email, claimant_role, notes, status, email_domain_match, review_notes, created_at, reviewed_at"
       )
       .order("created_at", { ascending: false });
     if (filter !== "all") q = q.eq("status", filter);
@@ -54,7 +54,33 @@ function AdminClaims() {
       toast.error(error.message);
       return;
     }
-    setClaims((data as unknown as Claim[]) ?? []);
+    const rows = (data as Omit<Claim, "listing">[]) ?? [];
+    const ids = Array.from(new Set(rows.map((r) => r.listing_id)));
+    let listingMap: Record<string, Claim["listing"]> = {};
+    if (ids.length) {
+      const { data: ldata, error: lerr } = await supabase
+        .from("listings")
+        .select("id, name, slug, category, neighborhood, website, partner_id")
+        .in("id", ids);
+      if (lerr) {
+        toast.error(lerr.message);
+        return;
+      }
+      listingMap = Object.fromEntries(
+        (ldata ?? []).map((l) => [
+          l.id,
+          {
+            name: l.name,
+            slug: l.slug,
+            category: l.category as string,
+            neighborhood: l.neighborhood,
+            website: l.website,
+            partner_id: l.partner_id,
+          },
+        ])
+      );
+    }
+    setClaims(rows.map((r) => ({ ...r, listing: listingMap[r.listing_id] })));
   };
 
   useEffect(() => {
