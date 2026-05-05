@@ -5,7 +5,7 @@ import { hubForSlug } from "@/lib/listing-categories";
 
 const HUB = hubForSlug("wedding-venues")!;
 
-export const Route = createFileRoute("/wedding-venues/$slug")({
+export const Route = createFileRoute("/weddings/$slug")({
   loader: async ({ params }) => {
     const listing = await fetchListingBySlug(params.slug);
     if (!listing) throw notFound();

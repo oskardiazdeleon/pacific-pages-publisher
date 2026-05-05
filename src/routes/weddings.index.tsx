@@ -4,7 +4,7 @@ import { hubForSlug } from "@/lib/listing-categories";
 
 const HUB = hubForSlug("wedding-venues")!;
 
-export const Route = createFileRoute("/wedding-venues/")({
+export const Route = createFileRoute("/weddings/")({
   head: () => ({
     meta: [
       { title: HUB.metaTitle },
