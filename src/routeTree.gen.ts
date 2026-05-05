@@ -22,6 +22,7 @@ import { Route as ArticlesRouteImport } from './routes/articles'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WineriesIndexRouteImport } from './routes/wineries.index'
+import { Route as WeddingVenuesIndexRouteImport } from './routes/wedding-venues.index'
 import { Route as ThingsToDoIndexRouteImport } from './routes/things-to-do.index'
 import { Route as ShoppingIndexRouteImport } from './routes/shopping.index'
 import { Route as RestaurantsIndexRouteImport } from './routes/restaurants.index'
@@ -135,6 +136,11 @@ const IndexRoute = IndexRouteImport.update({
 const WineriesIndexRoute = WineriesIndexRouteImport.update({
   id: '/wineries/',
   path: '/wineries/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WeddingVenuesIndexRoute = WeddingVenuesIndexRouteImport.update({
+  id: '/wedding-venues/',
+  path: '/wedding-venues/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ThingsToDoIndexRoute = ThingsToDoIndexRouteImport.update({
@@ -427,6 +433,7 @@ export interface FileRoutesByFullPath {
   '/restaurants/': typeof RestaurantsIndexRoute
   '/shopping/': typeof ShoppingIndexRoute
   '/things-to-do/': typeof ThingsToDoIndexRoute
+  '/wedding-venues/': typeof WeddingVenuesIndexRoute
   '/wineries/': typeof WineriesIndexRoute
   '/$category/in/$neighborhood': typeof CategoryInNeighborhoodRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
@@ -488,6 +495,7 @@ export interface FileRoutesByTo {
   '/restaurants': typeof RestaurantsIndexRoute
   '/shopping': typeof ShoppingIndexRoute
   '/things-to-do': typeof ThingsToDoIndexRoute
+  '/wedding-venues': typeof WeddingVenuesIndexRoute
   '/wineries': typeof WineriesIndexRoute
   '/$category/in/$neighborhood': typeof CategoryInNeighborhoodRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
@@ -553,6 +561,7 @@ export interface FileRoutesById {
   '/restaurants/': typeof RestaurantsIndexRoute
   '/shopping/': typeof ShoppingIndexRoute
   '/things-to-do/': typeof ThingsToDoIndexRoute
+  '/wedding-venues/': typeof WeddingVenuesIndexRoute
   '/wineries/': typeof WineriesIndexRoute
   '/$category/in/$neighborhood': typeof CategoryInNeighborhoodRoute
   '/admin/articles/$id': typeof AdminArticlesIdRoute
@@ -619,6 +628,7 @@ export interface FileRouteTypes {
     | '/restaurants/'
     | '/shopping/'
     | '/things-to-do/'
+    | '/wedding-venues/'
     | '/wineries/'
     | '/$category/in/$neighborhood'
     | '/admin/articles/$id'
@@ -680,6 +690,7 @@ export interface FileRouteTypes {
     | '/restaurants'
     | '/shopping'
     | '/things-to-do'
+    | '/wedding-venues'
     | '/wineries'
     | '/$category/in/$neighborhood'
     | '/admin/articles/$id'
@@ -744,6 +755,7 @@ export interface FileRouteTypes {
     | '/restaurants/'
     | '/shopping/'
     | '/things-to-do/'
+    | '/wedding-venues/'
     | '/wineries/'
     | '/$category/in/$neighborhood'
     | '/admin/articles/$id'
@@ -800,6 +812,7 @@ export interface RootRouteChildren {
   RestaurantsIndexRoute: typeof RestaurantsIndexRoute
   ShoppingIndexRoute: typeof ShoppingIndexRoute
   ThingsToDoIndexRoute: typeof ThingsToDoIndexRoute
+  WeddingVenuesIndexRoute: typeof WeddingVenuesIndexRoute
   WineriesIndexRoute: typeof WineriesIndexRoute
   CategoryInNeighborhoodRoute: typeof CategoryInNeighborhoodRoute
   ApiPublicBlogRoute: typeof ApiPublicBlogRoute
@@ -897,6 +910,13 @@ declare module '@tanstack/react-router' {
       path: '/wineries'
       fullPath: '/wineries/'
       preLoaderRoute: typeof WineriesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wedding-venues/': {
+      id: '/wedding-venues/'
+      path: '/wedding-venues'
+      fullPath: '/wedding-venues/'
+      preLoaderRoute: typeof WeddingVenuesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/things-to-do/': {
@@ -1368,6 +1388,7 @@ const rootRouteChildren: RootRouteChildren = {
   RestaurantsIndexRoute: RestaurantsIndexRoute,
   ShoppingIndexRoute: ShoppingIndexRoute,
   ThingsToDoIndexRoute: ThingsToDoIndexRoute,
+  WeddingVenuesIndexRoute: WeddingVenuesIndexRoute,
   WineriesIndexRoute: WineriesIndexRoute,
   CategoryInNeighborhoodRoute: CategoryInNeighborhoodRoute,
   ApiPublicBlogRoute: ApiPublicBlogRoute,
