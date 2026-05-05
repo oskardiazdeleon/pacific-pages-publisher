@@ -4,7 +4,7 @@ import { Search, Anchor } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Breadcrumbs, breadcrumbJsonLd } from "@/components/site/Breadcrumbs";
-import { CRUISE_LINES } from "@/lib/cruise-lines";
+import { fetchCruiseLines, type CruiseLine } from "@/lib/cruise-lines";
 import { fetchPublishedHomepageSections, type HomepageSection } from "@/lib/cms";
 
 const SITE_URL = "https://sandiego.com";
@@ -32,6 +32,7 @@ export const Route = createFileRoute("/cruises/")({
 
 function CruisesHub() {
   const [cms, setCms] = useState<Record<string, Record<string, unknown>>>({});
+  const [cruiseLines, setCruiseLines] = useState<CruiseLine[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -44,6 +45,13 @@ function CruisesHub() {
         setCms(map);
       } catch {
         // ignore — fall through to defaults
+      }
+    })();
+    (async () => {
+      try {
+        setCruiseLines(await fetchCruiseLines());
+      } catch {
+        // ignore
       }
     })();
   }, []);
@@ -111,7 +119,7 @@ function CruisesHub() {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Cruise Lines Sailing from San Diego",
-    itemListElement: CRUISE_LINES.map((c, i) => ({
+    itemListElement: cruiseLines.map((c: CruiseLine, i: number) => ({
       "@type": "ListItem",
       position: i + 1,
       url: `${SITE_URL}/cruises/${c.slug}`,
@@ -259,7 +267,7 @@ function CruisesHub() {
 
       <section className="container-page py-12">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {CRUISE_LINES.map((c) => (
+          {cruiseLines.map((c: CruiseLine) => (
             <Link
               key={c.slug}
               to="/cruises/$slug"

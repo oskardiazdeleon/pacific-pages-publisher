@@ -263,6 +263,78 @@ export type Database = {
         }
         Relationships: []
       }
+      cruise_lines: {
+        Row: {
+          best_for: string | null
+          booking_url: string | null
+          created_at: string
+          description: string | null
+          enabled: boolean
+          hero_image: string | null
+          highlights: Json
+          home_port: string | null
+          id: string
+          logo_letter: string | null
+          meta_description: string | null
+          meta_title: string | null
+          name: string
+          position: number
+          price_from: string | null
+          seasonality: string | null
+          ships_from_sd: string[]
+          slug: string
+          tagline: string | null
+          typical_itineraries: string[]
+          updated_at: string
+        }
+        Insert: {
+          best_for?: string | null
+          booking_url?: string | null
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          hero_image?: string | null
+          highlights?: Json
+          home_port?: string | null
+          id?: string
+          logo_letter?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          name: string
+          position?: number
+          price_from?: string | null
+          seasonality?: string | null
+          ships_from_sd?: string[]
+          slug: string
+          tagline?: string | null
+          typical_itineraries?: string[]
+          updated_at?: string
+        }
+        Update: {
+          best_for?: string | null
+          booking_url?: string | null
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          hero_image?: string | null
+          highlights?: Json
+          home_port?: string | null
+          id?: string
+          logo_letter?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          name?: string
+          position?: number
+          price_from?: string | null
+          seasonality?: string | null
+          ships_from_sd?: string[]
+          slug?: string
+          tagline?: string | null
+          typical_itineraries?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_leads: {
         Row: {
           created_at: string

@@ -56,12 +56,15 @@ import { Route as AdminImportRouteImport } from './routes/admin.import'
 import { Route as AdminClaimsRouteImport } from './routes/admin.claims'
 import { Route as AdminApiKeysRouteImport } from './routes/admin.api-keys'
 import { Route as AdminListingsIndexRouteImport } from './routes/admin.listings.index'
+import { Route as AdminCruisesIndexRouteImport } from './routes/admin.cruises.index'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin.blog.index'
 import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
 import { Route as ApiPublicListingsRouteImport } from './routes/api/public/listings'
 import { Route as ApiPublicBlogRouteImport } from './routes/api/public/blog'
 import { Route as AdminListingsNewRouteImport } from './routes/admin.listings.new'
 import { Route as AdminListingsIdRouteImport } from './routes/admin.listings.$id'
+import { Route as AdminCruisesNewRouteImport } from './routes/admin.cruises.new'
+import { Route as AdminCruisesIdRouteImport } from './routes/admin.cruises.$id'
 import { Route as AdminCmsSettingsRouteImport } from './routes/admin.cms.settings'
 import { Route as AdminCmsNavigationRouteImport } from './routes/admin.cms.navigation'
 import { Route as AdminCmsHomepageRouteImport } from './routes/admin.cms.homepage'
@@ -311,6 +314,11 @@ const AdminListingsIndexRoute = AdminListingsIndexRouteImport.update({
   path: '/listings/',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCruisesIndexRoute = AdminCruisesIndexRouteImport.update({
+  id: '/cruises/',
+  path: '/cruises/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminBlogIndexRoute = AdminBlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -339,6 +347,16 @@ const AdminListingsNewRoute = AdminListingsNewRouteImport.update({
 const AdminListingsIdRoute = AdminListingsIdRouteImport.update({
   id: '/listings/$id',
   path: '/listings/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCruisesNewRoute = AdminCruisesNewRouteImport.update({
+  id: '/cruises/new',
+  path: '/cruises/new',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCruisesIdRoute = AdminCruisesIdRouteImport.update({
+  id: '/cruises/$id',
+  path: '/cruises/$id',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminCmsSettingsRoute = AdminCmsSettingsRouteImport.update({
@@ -465,12 +483,15 @@ export interface FileRoutesByFullPath {
   '/admin/cms/homepage': typeof AdminCmsHomepageRoute
   '/admin/cms/navigation': typeof AdminCmsNavigationRoute
   '/admin/cms/settings': typeof AdminCmsSettingsRoute
+  '/admin/cruises/$id': typeof AdminCruisesIdRoute
+  '/admin/cruises/new': typeof AdminCruisesNewRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
   '/api/public/blog': typeof ApiPublicBlogRoute
   '/api/public/listings': typeof ApiPublicListingsRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
+  '/admin/cruises/': typeof AdminCruisesIndexRoute
   '/admin/listings/': typeof AdminListingsIndexRoute
   '/admin/cms/neighborhoods/$id': typeof AdminCmsNeighborhoodsIdRoute
   '/admin/cms/pages/$id': typeof AdminCmsPagesIdRoute
@@ -530,12 +551,15 @@ export interface FileRoutesByTo {
   '/admin/cms/homepage': typeof AdminCmsHomepageRoute
   '/admin/cms/navigation': typeof AdminCmsNavigationRoute
   '/admin/cms/settings': typeof AdminCmsSettingsRoute
+  '/admin/cruises/$id': typeof AdminCruisesIdRoute
+  '/admin/cruises/new': typeof AdminCruisesNewRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
   '/api/public/blog': typeof ApiPublicBlogRoute
   '/api/public/listings': typeof ApiPublicListingsRoute
   '/admin/articles': typeof AdminArticlesIndexRoute
   '/admin/blog': typeof AdminBlogIndexRoute
+  '/admin/cruises': typeof AdminCruisesIndexRoute
   '/admin/listings': typeof AdminListingsIndexRoute
   '/admin/cms/neighborhoods/$id': typeof AdminCmsNeighborhoodsIdRoute
   '/admin/cms/pages/$id': typeof AdminCmsPagesIdRoute
@@ -599,12 +623,15 @@ export interface FileRoutesById {
   '/admin/cms/homepage': typeof AdminCmsHomepageRoute
   '/admin/cms/navigation': typeof AdminCmsNavigationRoute
   '/admin/cms/settings': typeof AdminCmsSettingsRoute
+  '/admin/cruises/$id': typeof AdminCruisesIdRoute
+  '/admin/cruises/new': typeof AdminCruisesNewRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
   '/api/public/blog': typeof ApiPublicBlogRoute
   '/api/public/listings': typeof ApiPublicListingsRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
+  '/admin/cruises/': typeof AdminCruisesIndexRoute
   '/admin/listings/': typeof AdminListingsIndexRoute
   '/admin/cms/neighborhoods/$id': typeof AdminCmsNeighborhoodsIdRoute
   '/admin/cms/pages/$id': typeof AdminCmsPagesIdRoute
@@ -669,12 +696,15 @@ export interface FileRouteTypes {
     | '/admin/cms/homepage'
     | '/admin/cms/navigation'
     | '/admin/cms/settings'
+    | '/admin/cruises/$id'
+    | '/admin/cruises/new'
     | '/admin/listings/$id'
     | '/admin/listings/new'
     | '/api/public/blog'
     | '/api/public/listings'
     | '/admin/articles/'
     | '/admin/blog/'
+    | '/admin/cruises/'
     | '/admin/listings/'
     | '/admin/cms/neighborhoods/$id'
     | '/admin/cms/pages/$id'
@@ -734,12 +764,15 @@ export interface FileRouteTypes {
     | '/admin/cms/homepage'
     | '/admin/cms/navigation'
     | '/admin/cms/settings'
+    | '/admin/cruises/$id'
+    | '/admin/cruises/new'
     | '/admin/listings/$id'
     | '/admin/listings/new'
     | '/api/public/blog'
     | '/api/public/listings'
     | '/admin/articles'
     | '/admin/blog'
+    | '/admin/cruises'
     | '/admin/listings'
     | '/admin/cms/neighborhoods/$id'
     | '/admin/cms/pages/$id'
@@ -802,12 +835,15 @@ export interface FileRouteTypes {
     | '/admin/cms/homepage'
     | '/admin/cms/navigation'
     | '/admin/cms/settings'
+    | '/admin/cruises/$id'
+    | '/admin/cruises/new'
     | '/admin/listings/$id'
     | '/admin/listings/new'
     | '/api/public/blog'
     | '/api/public/listings'
     | '/admin/articles/'
     | '/admin/blog/'
+    | '/admin/cruises/'
     | '/admin/listings/'
     | '/admin/cms/neighborhoods/$id'
     | '/admin/cms/pages/$id'
@@ -1188,6 +1224,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminListingsIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/cruises/': {
+      id: '/admin/cruises/'
+      path: '/cruises'
+      fullPath: '/admin/cruises/'
+      preLoaderRoute: typeof AdminCruisesIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/blog/': {
       id: '/admin/blog/'
       path: '/blog'
@@ -1228,6 +1271,20 @@ declare module '@tanstack/react-router' {
       path: '/listings/$id'
       fullPath: '/admin/listings/$id'
       preLoaderRoute: typeof AdminListingsIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/cruises/new': {
+      id: '/admin/cruises/new'
+      path: '/cruises/new'
+      fullPath: '/admin/cruises/new'
+      preLoaderRoute: typeof AdminCruisesNewRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/cruises/$id': {
+      id: '/admin/cruises/$id'
+      path: '/cruises/$id'
+      fullPath: '/admin/cruises/$id'
+      preLoaderRoute: typeof AdminCruisesIdRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/cms/settings': {
@@ -1338,10 +1395,13 @@ interface AdminRouteChildren {
   AdminCmsHomepageRoute: typeof AdminCmsHomepageRoute
   AdminCmsNavigationRoute: typeof AdminCmsNavigationRoute
   AdminCmsSettingsRoute: typeof AdminCmsSettingsRoute
+  AdminCruisesIdRoute: typeof AdminCruisesIdRoute
+  AdminCruisesNewRoute: typeof AdminCruisesNewRoute
   AdminListingsIdRoute: typeof AdminListingsIdRoute
   AdminListingsNewRoute: typeof AdminListingsNewRoute
   AdminArticlesIndexRoute: typeof AdminArticlesIndexRoute
   AdminBlogIndexRoute: typeof AdminBlogIndexRoute
+  AdminCruisesIndexRoute: typeof AdminCruisesIndexRoute
   AdminListingsIndexRoute: typeof AdminListingsIndexRoute
   AdminCmsNeighborhoodsIdRoute: typeof AdminCmsNeighborhoodsIdRoute
   AdminCmsPagesIdRoute: typeof AdminCmsPagesIdRoute
@@ -1363,10 +1423,13 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCmsHomepageRoute: AdminCmsHomepageRoute,
   AdminCmsNavigationRoute: AdminCmsNavigationRoute,
   AdminCmsSettingsRoute: AdminCmsSettingsRoute,
+  AdminCruisesIdRoute: AdminCruisesIdRoute,
+  AdminCruisesNewRoute: AdminCruisesNewRoute,
   AdminListingsIdRoute: AdminListingsIdRoute,
   AdminListingsNewRoute: AdminListingsNewRoute,
   AdminArticlesIndexRoute: AdminArticlesIndexRoute,
   AdminBlogIndexRoute: AdminBlogIndexRoute,
+  AdminCruisesIndexRoute: AdminCruisesIndexRoute,
   AdminListingsIndexRoute: AdminListingsIndexRoute,
   AdminCmsNeighborhoodsIdRoute: AdminCmsNeighborhoodsIdRoute,
   AdminCmsPagesIdRoute: AdminCmsPagesIdRoute,
@@ -1460,12 +1523,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

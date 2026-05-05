@@ -2,15 +2,17 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Breadcrumbs, breadcrumbJsonLd } from "@/components/site/Breadcrumbs";
-import { CRUISE_LINES, getCruiseLine } from "@/lib/cruise-lines";
+import { fetchCruiseLineBySlug, fetchCruiseLines, type CruiseLine } from "@/lib/cruise-lines";
 
 const SITE_URL = "https://sandiego.com";
 
 export const Route = createFileRoute("/cruises/$slug")({
-  loader: ({ params }) => {
-    const line = getCruiseLine(params.slug);
+  loader: async ({ params }) => {
+    const line = await fetchCruiseLineBySlug(params.slug);
     if (!line) throw notFound();
-    return { line };
+    const all = await fetchCruiseLines();
+    const others = all.filter((c) => c.slug !== line.slug).slice(0, 3);
+    return { line, others };
   },
   head: ({ loaderData }) => {
     const l = loaderData?.line;
@@ -41,7 +43,7 @@ export const Route = createFileRoute("/cruises/$slug")({
 });
 
 function CruiseLinePage() {
-  const { line } = Route.useLoaderData();
+  const { line, others } = Route.useLoaderData() as { line: CruiseLine; others: CruiseLine[] };
   const breadcrumbs = [
     { label: "Home", to: "/" },
     { label: "Cruises", to: "/cruises" },
@@ -60,7 +62,6 @@ function CruiseLinePage() {
     breadcrumbJsonLd(breadcrumbs),
   ];
 
-  const others = CRUISE_LINES.filter((c) => c.slug !== line.slug).slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background">
