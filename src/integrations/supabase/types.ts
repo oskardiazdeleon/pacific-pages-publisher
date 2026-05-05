@@ -55,55 +55,91 @@ export type Database = {
       }
       articles: {
         Row: {
+          author_avatar: string | null
+          author_bio: string | null
           author_id: string | null
+          author_name: string | null
+          author_title: string | null
           body: string | null
+          canonical_url: string | null
           category: string
           created_at: string
           excerpt: string | null
+          faqs: Json
+          hero_caption: string | null
+          hero_credit: string | null
           hero_image: string | null
           id: string
+          key_takeaways: Json
           meta_description: string | null
           meta_title: string | null
+          og_image: string | null
           published_at: string | null
+          pull_quote: string | null
           read_time_minutes: number | null
           slug: string
           status: Database["public"]["Enums"]["content_status"]
+          subtitle: string | null
           tags: string[] | null
           title: string
           updated_at: string
         }
         Insert: {
+          author_avatar?: string | null
+          author_bio?: string | null
           author_id?: string | null
+          author_name?: string | null
+          author_title?: string | null
           body?: string | null
+          canonical_url?: string | null
           category: string
           created_at?: string
           excerpt?: string | null
+          faqs?: Json
+          hero_caption?: string | null
+          hero_credit?: string | null
           hero_image?: string | null
           id?: string
+          key_takeaways?: Json
           meta_description?: string | null
           meta_title?: string | null
+          og_image?: string | null
           published_at?: string | null
+          pull_quote?: string | null
           read_time_minutes?: number | null
           slug: string
           status?: Database["public"]["Enums"]["content_status"]
+          subtitle?: string | null
           tags?: string[] | null
           title: string
           updated_at?: string
         }
         Update: {
+          author_avatar?: string | null
+          author_bio?: string | null
           author_id?: string | null
+          author_name?: string | null
+          author_title?: string | null
           body?: string | null
+          canonical_url?: string | null
           category?: string
           created_at?: string
           excerpt?: string | null
+          faqs?: Json
+          hero_caption?: string | null
+          hero_credit?: string | null
           hero_image?: string | null
           id?: string
+          key_takeaways?: Json
           meta_description?: string | null
           meta_title?: string | null
+          og_image?: string | null
           published_at?: string | null
+          pull_quote?: string | null
           read_time_minutes?: number | null
           slug?: string
           status?: Database["public"]["Enums"]["content_status"]
+          subtitle?: string | null
           tags?: string[] | null
           title?: string
           updated_at?: string

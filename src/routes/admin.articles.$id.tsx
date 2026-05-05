@@ -20,15 +20,34 @@ function EditArticle() {
         id: row.id,
         title: row.title,
         slug: row.slug,
+        subtitle: row.subtitle ?? "",
         excerpt: row.excerpt ?? "",
         body: row.body ?? "",
         hero_image: row.hero_image ?? "",
+        hero_caption: row.hero_caption ?? "",
+        hero_credit: row.hero_credit ?? "",
         category: row.category,
         tags: (row.tags ?? []).join(", "),
         status: row.status,
         read_time_minutes: row.read_time_minutes?.toString() ?? "",
         meta_title: row.meta_title ?? "",
         meta_description: row.meta_description ?? "",
+        canonical_url: row.canonical_url ?? "",
+        og_image: row.og_image ?? "",
+        pull_quote: row.pull_quote ?? "",
+        author_name: row.author_name ?? "",
+        author_title: row.author_title ?? "",
+        author_avatar: row.author_avatar ?? "",
+        author_bio: row.author_bio ?? "",
+        key_takeaways: Array.isArray(row.key_takeaways)
+          ? (row.key_takeaways as unknown[]).filter((x): x is string => typeof x === "string")
+          : [],
+        faqs: Array.isArray(row.faqs)
+          ? (row.faqs as unknown[])
+              .map((f) => f as { q?: string; a?: string })
+              .filter((f) => f && typeof f.q === "string" && typeof f.a === "string")
+              .map((f) => ({ q: f.q!, a: f.a! }))
+          : [],
       });
     };
     load();
