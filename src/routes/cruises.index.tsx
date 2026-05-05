@@ -58,15 +58,53 @@ function CruisesHub() {
   const DEFAULT_HERO = {
     eyebrow: "Set sail from the port",
     heading: "Cruises from San Diego",
+    heading_accent: "from the Port.",
     subheading:
       "Seven major cruise lines homeport in San Diego — from 3-night Baja weekenders under $250 to 17-day Panama Canal transits. Here's every line sailing from B Street Pier, and which one fits your trip.",
+    hero_image_url:
+      "https://images.unsplash.com/photo-1548574505-5e239809ee19?w=1600&q=80",
   };
+  const DEFAULT_CHIPS = [
+    { label: "Mexican Riviera", to: "/cruises/princess" },
+    { label: "Baja Weekenders", to: "/cruises/carnival" },
+    { label: "Family Cruises", to: "/cruises/disney" },
+    { label: "Panama Canal", to: "/cruises/holland-america" },
+  ];
+  const DEFAULT_STATS = [
+    { value: "7", label: "Cruise Lines" },
+    { value: "20+", label: "Ships Sailing" },
+    { value: "$199", label: "Starting From" },
+  ];
+
+  // CMS overrides win when present, regardless of sponsor mode.
   const heroVal = (field: keyof typeof DEFAULT_HERO): string => {
-    if (sponsorActive) {
-      return ((heroCms[field] as string) || "").trim() || DEFAULT_HERO[field];
-    }
-    return DEFAULT_HERO[field];
+    const v = ((heroCms[field] as string) || "").trim();
+    return v || DEFAULT_HERO[field];
   };
+  const chips = (() => {
+    const raw = heroCms["popular_chips"];
+    if (Array.isArray(raw) && raw.length) {
+      return raw
+        .map((c: Record<string, unknown>) => ({
+          label: (c.label as string) || "",
+          to: (c.to as string) || "",
+        }))
+        .filter((c) => c.label && c.to);
+    }
+    return DEFAULT_CHIPS;
+  })();
+  const stats = (() => {
+    const raw = heroCms["stats"];
+    if (Array.isArray(raw) && raw.length) {
+      return raw
+        .map((s: Record<string, unknown>) => ({
+          value: (s.value as string) || "",
+          label: (s.label as string) || "",
+        }))
+        .filter((s) => s.value && s.label);
+    }
+    return DEFAULT_STATS;
+  })();
 
   const breadcrumbs = [{ label: "Home", to: "/" }, { label: "Cruises" }];
   const itemListJsonLd = {
