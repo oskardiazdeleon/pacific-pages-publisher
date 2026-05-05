@@ -3,7 +3,7 @@ import { ListingDetailPage, listingHeadMeta } from "@/components/site/ListingDet
 import { fetchListingBySlug } from "@/lib/content-queries";
 import { hubForSlug } from "@/lib/listing-categories";
 
-const HUB = hubForSlug("wedding-venues")!;
+const HUB = hubForSlug("weddings")!;
 
 export const Route = createFileRoute("/weddings/$slug")({
   loader: async ({ params }) => {
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/weddings/$slug")({
     <div className="min-h-screen grid place-items-center px-4 text-center">
       <div>
         <h1 className="font-display text-3xl font-semibold">Wedding venue not found</h1>
-        <a href="/wedding-venues" className="mt-4 inline-block text-accent">Back to all wedding venues</a>
+        <a href="/weddings" className="mt-4 inline-block text-accent">Back to all wedding venues</a>
       </div>
     </div>
   ),
