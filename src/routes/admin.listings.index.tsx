@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Megaphone, ExternalLink } from "lucide-react";
+import { Plus, Pencil, Megaphone, ExternalLink, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -30,6 +30,9 @@ function AdminListings() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const load = async () => {
     const { data } = await supabase
@@ -71,6 +74,20 @@ function AdminListings() {
   const isActiveSponsor = (r: Row) =>
     r.is_sponsored && (!r.sponsor_until || new Date(r.sponsor_until) > new Date());
 
+  const categories = Array.from(new Set(rows.map((r) => r.category).filter(Boolean))).sort();
+  const q = query.trim().toLowerCase();
+  const filteredRows = rows.filter((r) => {
+    if (categoryFilter !== "all" && r.category !== categoryFilter) return false;
+    if (statusFilter !== "all" && r.status !== statusFilter) return false;
+    if (!q) return true;
+    return (
+      r.name.toLowerCase().includes(q) ||
+      (r.neighborhood ?? "").toLowerCase().includes(q) ||
+      (r.category ?? "").toLowerCase().includes(q) ||
+      (r.sponsor_name ?? "").toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div>
       <div className="flex items-end justify-between gap-4">
@@ -91,7 +108,51 @@ function AdminListings() {
         )}
       </div>
 
-      <div className="mt-8 overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="mt-6 flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[240px]">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by name, neighborhood, category, sponsor…"
+            className="w-full rounded-full border border-border bg-card pl-10 pr-10 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+          />
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="rounded-full border border-border bg-card px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+        >
+          <option value="all">All categories</option>
+          {categories.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="rounded-full border border-border bg-card px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+        >
+          <option value="all">All statuses</option>
+          <option value="published">Published</option>
+          <option value="draft">Draft</option>
+        </select>
+        <span className="text-xs text-muted-foreground">
+          {loading ? "" : `${filteredRows.length} of ${rows.length}`}
+        </span>
+      </div>
+
+      <div className="mt-4 overflow-hidden rounded-2xl border border-border bg-card">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
             <tr>
@@ -111,14 +172,16 @@ function AdminListings() {
                   Loading…
                 </td>
               </tr>
-            ) : rows.length === 0 ? (
+            ) : filteredRows.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-5 py-10 text-center text-muted-foreground">
-                  No listings yet. Create your first one.
+                  {rows.length === 0
+                    ? "No listings yet. Create your first one."
+                    : "No listings match your search."}
                 </td>
               </tr>
             ) : (
-              rows.map((r) => {
+              filteredRows.map((r) => {
                 const active = isActiveSponsor(r);
                 return (
                   <tr key={r.id} className={`border-t border-border ${active ? "bg-accent/5" : ""}`}>
