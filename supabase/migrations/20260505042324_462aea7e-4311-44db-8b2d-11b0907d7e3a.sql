@@ -1,0 +1,10 @@
+INSERT INTO public.homepage_sections (section_key, section_type, position, enabled, draft_content, published_content)
+VALUES (
+  'weddings_hero',
+  'category_hub_hero',
+  105,
+  true,
+  '{"eyebrow":"Say I do","heading":"San Diego Wedding Venues","heading_accent":"where forever begins.","subheading":"Beachfront estates, garden ballrooms, vineyard barns and rooftop ceremonies — every venue toured by our editors. Insider members save on premium bookings.","hero_image_url":"https://images.unsplash.com/photo-1519741497674-611481863552?w=1600&q=80","search_placeholder":"Search venues, neighborhoods, styles…","popular_chips":[{"label":"Beachfront","keyword":"beach"},{"label":"Garden","keyword":"garden"},{"label":"Vineyard","keyword":"vineyard"},{"label":"Rooftop","keyword":"rooftop"}],"stats":[{"value":"80+","label":"Venues"},{"value":"20%","label":"Insider Save"},{"value":"300","label":"Max Capacity"}],"insider_cta_title":"Save on your big day with Insider","insider_cta_body":"Member-only rates, complimentary upgrades and priority dates at participating wedding venues."}'::jsonb,
+  '{"eyebrow":"Say I do","heading":"San Diego Wedding Venues","heading_accent":"where forever begins.","subheading":"Beachfront estates, garden ballrooms, vineyard barns and rooftop ceremonies — every venue toured by our editors. Insider members save on premium bookings.","hero_image_url":"https://images.unsplash.com/photo-1519741497674-611481863552?w=1600&q=80","search_placeholder":"Search venues, neighborhoods, styles…","popular_chips":[{"label":"Beachfront","keyword":"beach"},{"label":"Garden","keyword":"garden"},{"label":"Vineyard","keyword":"vineyard"},{"label":"Rooftop","keyword":"rooftop"}],"stats":[{"value":"80+","label":"Venues"},{"value":"20%","label":"Insider Save"},{"value":"300","label":"Max Capacity"}],"insider_cta_title":"Save on your big day with Insider","insider_cta_body":"Member-only rates, complimentary upgrades and priority dates at participating wedding venues."}'::jsonb
+)
+ON CONFLICT (section_key) DO NOTHING;
