@@ -58,15 +58,53 @@ function CruisesHub() {
   const DEFAULT_HERO = {
     eyebrow: "Set sail from the port",
     heading: "Cruises from San Diego",
+    heading_accent: "from the Port.",
     subheading:
       "Seven major cruise lines homeport in San Diego — from 3-night Baja weekenders under $250 to 17-day Panama Canal transits. Here's every line sailing from B Street Pier, and which one fits your trip.",
+    hero_image_url:
+      "https://images.unsplash.com/photo-1548574505-5e239809ee19?w=1600&q=80",
   };
+  const DEFAULT_CHIPS = [
+    { label: "Mexican Riviera", to: "/cruises/princess" },
+    { label: "Baja Weekenders", to: "/cruises/carnival" },
+    { label: "Family Cruises", to: "/cruises/disney" },
+    { label: "Panama Canal", to: "/cruises/holland-america" },
+  ];
+  const DEFAULT_STATS = [
+    { value: "7", label: "Cruise Lines" },
+    { value: "20+", label: "Ships Sailing" },
+    { value: "$199", label: "Starting From" },
+  ];
+
+  // CMS overrides win when present, regardless of sponsor mode.
   const heroVal = (field: keyof typeof DEFAULT_HERO): string => {
-    if (sponsorActive) {
-      return ((heroCms[field] as string) || "").trim() || DEFAULT_HERO[field];
-    }
-    return DEFAULT_HERO[field];
+    const v = ((heroCms[field] as string) || "").trim();
+    return v || DEFAULT_HERO[field];
   };
+  const chips = (() => {
+    const raw = heroCms["popular_chips"];
+    if (Array.isArray(raw) && raw.length) {
+      return raw
+        .map((c: Record<string, unknown>) => ({
+          label: (c.label as string) || "",
+          to: (c.to as string) || "",
+        }))
+        .filter((c) => c.label && c.to);
+    }
+    return DEFAULT_CHIPS;
+  })();
+  const stats = (() => {
+    const raw = heroCms["stats"];
+    if (Array.isArray(raw) && raw.length) {
+      return raw
+        .map((s: Record<string, unknown>) => ({
+          value: (s.value as string) || "",
+          label: (s.label as string) || "",
+        }))
+        .filter((s) => s.value && s.label);
+    }
+    return DEFAULT_STATS;
+  })();
 
   const breadcrumbs = [{ label: "Home", to: "/" }, { label: "Cruises" }];
   const itemListJsonLd = {
@@ -124,7 +162,9 @@ function CruisesHub() {
 
               <h1 className="font-display text-5xl md:text-6xl xl:text-7xl font-semibold tracking-tight leading-[1.02] text-foreground">
                 {heroVal("heading")}
-                <span className="block text-accent">from the Port.</span>
+                {heroVal("heading_accent") ? (
+                  <span className="block text-accent">{heroVal("heading_accent")}</span>
+                ) : null}
               </h1>
 
               <p className="mt-6 max-w-xl text-base md:text-lg text-muted-foreground">
@@ -155,29 +195,23 @@ function CruisesHub() {
               {/* Popular chips */}
               <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
                 <span className="text-muted-foreground mr-1">Popular:</span>
-                {[
-                  { label: "Mexican Riviera", slug: "princess" },
-                  { label: "Baja Weekenders", slug: "carnival" },
-                  { label: "Family Cruises", slug: "disney" },
-                  { label: "Panama Canal", slug: "holland-america" },
-                ].map((chip) => (
-                  <Link
+                {chips.map((chip) => (
+                  <a
                     key={chip.label}
-                    to="/cruises/$slug"
-                    params={{ slug: chip.slug }}
+                    href={chip.to}
                     className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground/85 hover:bg-secondary transition"
                   >
                     {chip.label}
-                  </Link>
+                  </a>
                 ))}
               </div>
             </div>
 
-            {/* Right: image with floating stat cards + sponsor/CTA */}
+            {/* Right: image with floating stat cards */}
             <div className="relative">
               <div className="relative aspect-[5/4] w-full overflow-hidden rounded-3xl bg-muted shadow-xl">
                 <img
-                  src="https://images.unsplash.com/photo-1548574505-5e239809ee19?w=1600&q=80"
+                  src={heroVal("hero_image_url")}
                   alt="Cruise ship sailing from the Port of San Diego"
                   className="h-full w-full object-cover"
                   loading="eager"
@@ -187,11 +221,7 @@ function CruisesHub() {
 
               {/* Floating stat cards */}
               <div className="absolute -bottom-6 left-4 right-4 hidden md:flex gap-3">
-                {[
-                  { value: "7", label: "Cruise Lines" },
-                  { value: "20+", label: "Ships Sailing" },
-                  { value: "$199", label: "Starting From" },
-                ].map((s) => (
+                {stats.slice(0, 3).map((s) => (
                   <div
                     key={s.label}
                     className="flex-1 rounded-2xl border border-border bg-card/95 backdrop-blur px-4 py-4 text-center shadow-lg"
