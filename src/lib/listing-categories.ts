@@ -29,7 +29,7 @@ export type CategoryHub = {
   heading: string;
   subheading: string;
   /** Schema.org @type for ItemList breadcrumb context */
-  schemaType: "LodgingBusiness" | "Restaurant" | "TouristAttraction" | "Store" | "BarOrPub" | "GolfCourse";
+  schemaType: "LodgingBusiness" | "Restaurant" | "TouristAttraction" | "Store" | "BarOrPub" | "GolfCourse" | "EventVenue";
   /** Optional accent line shown beneath heading (e.g. "where locals eat.") */
   headingAccent?: string;
   /** Hero image URL */
