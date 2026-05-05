@@ -36,7 +36,7 @@ function EditCruiseLine() {
         seasonality: data.seasonality ?? "",
         price_from: data.price_from ?? "",
         description: data.description ?? "",
-        highlights: Array.isArray(data.highlights) ? data.highlights : [],
+        highlights: Array.isArray(data.highlights) ? (data.highlights as unknown as { title: string; body: string }[]) : [],
         meta_title: data.meta_title ?? "",
         meta_description: data.meta_description ?? "",
         position: data.position ?? 0,
