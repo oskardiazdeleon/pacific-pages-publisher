@@ -162,7 +162,9 @@ function CruisesHub() {
 
               <h1 className="font-display text-5xl md:text-6xl xl:text-7xl font-semibold tracking-tight leading-[1.02] text-foreground">
                 {heroVal("heading")}
-                <span className="block text-accent">from the Port.</span>
+                {heroVal("heading_accent") ? (
+                  <span className="block text-accent">{heroVal("heading_accent")}</span>
+                ) : null}
               </h1>
 
               <p className="mt-6 max-w-xl text-base md:text-lg text-muted-foreground">
@@ -193,29 +195,23 @@ function CruisesHub() {
               {/* Popular chips */}
               <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
                 <span className="text-muted-foreground mr-1">Popular:</span>
-                {[
-                  { label: "Mexican Riviera", slug: "princess" },
-                  { label: "Baja Weekenders", slug: "carnival" },
-                  { label: "Family Cruises", slug: "disney" },
-                  { label: "Panama Canal", slug: "holland-america" },
-                ].map((chip) => (
-                  <Link
+                {chips.map((chip) => (
+                  <a
                     key={chip.label}
-                    to="/cruises/$slug"
-                    params={{ slug: chip.slug }}
+                    href={chip.to}
                     className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground/85 hover:bg-secondary transition"
                   >
                     {chip.label}
-                  </Link>
+                  </a>
                 ))}
               </div>
             </div>
 
-            {/* Right: image with floating stat cards + sponsor/CTA */}
+            {/* Right: image with floating stat cards */}
             <div className="relative">
               <div className="relative aspect-[5/4] w-full overflow-hidden rounded-3xl bg-muted shadow-xl">
                 <img
-                  src="https://images.unsplash.com/photo-1548574505-5e239809ee19?w=1600&q=80"
+                  src={heroVal("hero_image_url")}
                   alt="Cruise ship sailing from the Port of San Diego"
                   className="h-full w-full object-cover"
                   loading="eager"
@@ -225,11 +221,7 @@ function CruisesHub() {
 
               {/* Floating stat cards */}
               <div className="absolute -bottom-6 left-4 right-4 hidden md:flex gap-3">
-                {[
-                  { value: "7", label: "Cruise Lines" },
-                  { value: "20+", label: "Ships Sailing" },
-                  { value: "$199", label: "Starting From" },
-                ].map((s) => (
+                {stats.slice(0, 3).map((s) => (
                   <div
                     key={s.label}
                     className="flex-1 rounded-2xl border border-border bg-card/95 backdrop-blur px-4 py-4 text-center shadow-lg"
