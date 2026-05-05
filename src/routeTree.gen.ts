@@ -48,6 +48,7 @@ import { Route as ListingsSlugRouteImport } from './routes/listings.$slug'
 import { Route as HotelsSlugRouteImport } from './routes/hotels.$slug'
 import { Route as GolfCoursesSlugRouteImport } from './routes/golf-courses.$slug'
 import { Route as CruisesSlugRouteImport } from './routes/cruises.$slug'
+import { Route as ClaimSlugRouteImport } from './routes/claim.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ArticlesSlugRouteImport } from './routes/articles.$slug'
 import { Route as AdminImpressionsRouteImport } from './routes/admin.impressions'
@@ -269,6 +270,11 @@ const CruisesSlugRoute = CruisesSlugRouteImport.update({
   path: '/cruises/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClaimSlugRoute = ClaimSlugRouteImport.update({
+  id: '/claim/$slug',
+  path: '/claim/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
@@ -415,6 +421,7 @@ export interface FileRoutesByFullPath {
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/claim/$slug': typeof ClaimSlugRoute
   '/cruises/$slug': typeof CruisesSlugRoute
   '/golf-courses/$slug': typeof GolfCoursesSlugRoute
   '/hotels/$slug': typeof HotelsSlugRoute
@@ -478,6 +485,7 @@ export interface FileRoutesByTo {
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/claim/$slug': typeof ClaimSlugRoute
   '/cruises/$slug': typeof CruisesSlugRoute
   '/golf-courses/$slug': typeof GolfCoursesSlugRoute
   '/hotels/$slug': typeof HotelsSlugRoute
@@ -545,6 +553,7 @@ export interface FileRoutesById {
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/claim/$slug': typeof ClaimSlugRoute
   '/cruises/$slug': typeof CruisesSlugRoute
   '/golf-courses/$slug': typeof GolfCoursesSlugRoute
   '/hotels/$slug': typeof HotelsSlugRoute
@@ -613,6 +622,7 @@ export interface FileRouteTypes {
     | '/admin/impressions'
     | '/articles/$slug'
     | '/blog/$slug'
+    | '/claim/$slug'
     | '/cruises/$slug'
     | '/golf-courses/$slug'
     | '/hotels/$slug'
@@ -676,6 +686,7 @@ export interface FileRouteTypes {
     | '/admin/impressions'
     | '/articles/$slug'
     | '/blog/$slug'
+    | '/claim/$slug'
     | '/cruises/$slug'
     | '/golf-courses/$slug'
     | '/hotels/$slug'
@@ -742,6 +753,7 @@ export interface FileRouteTypes {
     | '/admin/impressions'
     | '/articles/$slug'
     | '/blog/$slug'
+    | '/claim/$slug'
     | '/cruises/$slug'
     | '/golf-courses/$slug'
     | '/hotels/$slug'
@@ -805,6 +817,7 @@ export interface RootRouteChildren {
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  ClaimSlugRoute: typeof ClaimSlugRoute
   CruisesSlugRoute: typeof CruisesSlugRoute
   GolfCoursesSlugRoute: typeof GolfCoursesSlugRoute
   HotelsSlugRoute: typeof HotelsSlugRoute
@@ -1107,6 +1120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CruisesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/claim/$slug': {
+      id: '/claim/$slug'
+      path: '/claim/$slug'
+      fullPath: '/claim/$slug'
+      preLoaderRoute: typeof ClaimSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/$slug': {
       id: '/blog/$slug'
       path: '/blog/$slug'
@@ -1389,6 +1409,7 @@ const rootRouteChildren: RootRouteChildren = {
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   BlogSlugRoute: BlogSlugRoute,
+  ClaimSlugRoute: ClaimSlugRoute,
   CruisesSlugRoute: CruisesSlugRoute,
   GolfCoursesSlugRoute: GolfCoursesSlugRoute,
   HotelsSlugRoute: HotelsSlugRoute,
