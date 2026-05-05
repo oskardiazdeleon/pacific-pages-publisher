@@ -106,7 +106,7 @@ function PillarPage() {
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: pillar.faqs.map((f) => ({
+    mainEntity: pillar.faqs.map((f: { q: string; a: string }) => ({
       "@type": "Question",
       name: f.q,
       acceptedAnswer: { "@type": "Answer", text: f.a },
@@ -184,7 +184,7 @@ function PillarPage() {
                 Most {pillar.benefit.toLowerCase()} members earn back the $149 annual fee in a single booking.
               </p>
               <ul className="mt-5 space-y-2 text-sm">
-                {pillar.bullets.map((b) => (
+                {pillar.bullets.map((b: string) => (
                   <li key={b} className="flex items-start gap-2">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                     <span className="text-primary-foreground/90">{b}</span>
@@ -276,7 +276,7 @@ function PillarPage() {
             Questions members ask before joining
           </h2>
           <div className="mt-8 divide-y divide-border rounded-2xl border border-border bg-card">
-            {pillar.faqs.map((f) => (
+            {pillar.faqs.map((f: { q: string; a: string }) => (
               <details key={f.q} className="group p-6">
                 <summary className="cursor-pointer list-none font-medium flex items-start justify-between gap-4">
                   <span>{f.q}</span>
