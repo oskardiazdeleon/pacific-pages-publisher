@@ -184,7 +184,7 @@ function PillarPage() {
                 Most {pillar.benefit.toLowerCase()} members earn back the $149 annual fee in a single booking.
               </p>
               <ul className="mt-5 space-y-2 text-sm">
-                {pillar.bullets.map((b) => (
+                {pillar.bullets.map((b: string) => (
                   <li key={b} className="flex items-start gap-2">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                     <span className="text-primary-foreground/90">{b}</span>
