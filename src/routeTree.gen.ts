@@ -53,6 +53,7 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ArticlesSlugRouteImport } from './routes/articles.$slug'
 import { Route as AdminImpressionsRouteImport } from './routes/admin.impressions'
 import { Route as AdminImportRouteImport } from './routes/admin.import'
+import { Route as AdminClaimsRouteImport } from './routes/admin.claims'
 import { Route as AdminApiKeysRouteImport } from './routes/admin.api-keys'
 import { Route as AdminListingsIndexRouteImport } from './routes/admin.listings.index'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin.blog.index'
@@ -295,6 +296,11 @@ const AdminImportRoute = AdminImportRouteImport.update({
   path: '/import',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminClaimsRoute = AdminClaimsRouteImport.update({
+  id: '/claims',
+  path: '/claims',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminApiKeysRoute = AdminApiKeysRouteImport.update({
   id: '/api-keys',
   path: '/api-keys',
@@ -417,6 +423,7 @@ export interface FileRoutesByFullPath {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/api-keys': typeof AdminApiKeysRoute
+  '/admin/claims': typeof AdminClaimsRoute
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
@@ -481,6 +488,7 @@ export interface FileRoutesByTo {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/api-keys': typeof AdminApiKeysRoute
+  '/admin/claims': typeof AdminClaimsRoute
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
@@ -549,6 +557,7 @@ export interface FileRoutesById {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/api-keys': typeof AdminApiKeysRoute
+  '/admin/claims': typeof AdminClaimsRoute
   '/admin/import': typeof AdminImportRoute
   '/admin/impressions': typeof AdminImpressionsRoute
   '/articles/$slug': typeof ArticlesSlugRoute
@@ -618,6 +627,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/api-keys'
+    | '/admin/claims'
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
@@ -682,6 +692,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/api-keys'
+    | '/admin/claims'
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
@@ -749,6 +760,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/api-keys'
+    | '/admin/claims'
     | '/admin/import'
     | '/admin/impressions'
     | '/articles/$slug'
@@ -1155,6 +1167,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminImportRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/claims': {
+      id: '/admin/claims'
+      path: '/claims'
+      fullPath: '/admin/claims'
+      preLoaderRoute: typeof AdminClaimsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/api-keys': {
       id: '/admin/api-keys'
       path: '/api-keys'
@@ -1307,6 +1326,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminApiKeysRoute: typeof AdminApiKeysRoute
+  AdminClaimsRoute: typeof AdminClaimsRoute
   AdminImportRoute: typeof AdminImportRoute
   AdminImpressionsRoute: typeof AdminImpressionsRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -1331,6 +1351,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminApiKeysRoute: AdminApiKeysRoute,
+  AdminClaimsRoute: AdminClaimsRoute,
   AdminImportRoute: AdminImportRoute,
   AdminImpressionsRoute: AdminImpressionsRoute,
   AdminIndexRoute: AdminIndexRoute,
