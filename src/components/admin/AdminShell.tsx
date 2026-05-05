@@ -1,9 +1,9 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LogOut, LayoutDashboard, FileText, Building2, BarChart3, Download, Settings, Menu as MenuIcon, Home, FileStack, Sparkles, KeyRound, MapPin, ShieldCheck } from "lucide-react";
+import { LogOut, LayoutDashboard, FileText, Building2, BarChart3, Download, Settings, Menu as MenuIcon, Home, FileStack, Sparkles, KeyRound, MapPin, ShieldCheck, Ship } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
 const navItems: ReadonlyArray<{
-  to: "/admin" | "/admin/listings" | "/admin/articles" | "/admin/blog" | "/admin/claims" | "/admin/impressions" | "/admin/import" | "/admin/cms/settings" | "/admin/cms/navigation" | "/admin/cms/homepage" | "/admin/cms/home-neighborhoods" | "/admin/cms/pages" | "/admin/cms/neighborhoods" | "/admin/api-keys";
+  to: "/admin" | "/admin/listings" | "/admin/articles" | "/admin/blog" | "/admin/claims" | "/admin/impressions" | "/admin/import" | "/admin/cms/settings" | "/admin/cms/navigation" | "/admin/cms/homepage" | "/admin/cms/home-neighborhoods" | "/admin/cms/pages" | "/admin/cms/neighborhoods" | "/admin/api-keys" | "/admin/cruises";
   label: string;
   icon: typeof LayoutDashboard;
   exact?: boolean;
@@ -11,6 +11,7 @@ const navItems: ReadonlyArray<{
 }> = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/listings", label: "Listings", icon: Building2 },
+  { to: "/admin/cruises", label: "Cruise Lines", icon: Ship },
   { to: "/admin/claims", label: "Claims", icon: ShieldCheck },
   { to: "/admin/articles", label: "Articles", icon: FileText },
   { to: "/admin/blog", label: "Blog", icon: Sparkles },
