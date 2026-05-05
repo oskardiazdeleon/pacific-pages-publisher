@@ -24,7 +24,19 @@ export const Route = createFileRoute("/partners")({
   component: PartnersPage,
 });
 
-const tiers = [
+type Tier = {
+  name: string;
+  price: string;
+  suffix?: string;
+  desc: string;
+  features: string[];
+  cta: string;
+  highlight: boolean;
+  href: string;
+  external?: boolean;
+};
+
+const tiers: Tier[] = [
   {
     name: "Free",
     price: "$0",
@@ -32,6 +44,7 @@ const tiers = [
     features: ["Verified listing", "Basic info & one photo", "Indexed for SEO"],
     cta: "Claim listing",
     highlight: false,
+    href: "/listings",
   },
   {
     name: "Featured",
@@ -47,6 +60,8 @@ const tiers = [
     ],
     cta: "Start Featured",
     highlight: false,
+    href: `mailto:${SALES_EMAIL}?subject=${encodeURIComponent("Featured tier inquiry")}`,
+    external: true,
   },
   {
     name: "Premium",
@@ -63,6 +78,8 @@ const tiers = [
     ],
     cta: "Go Premium",
     highlight: true,
+    href: `mailto:${SALES_EMAIL}?subject=${encodeURIComponent("Premium tier inquiry")}`,
+    external: true,
   },
   {
     name: "Founding Partner",
@@ -79,6 +96,8 @@ const tiers = [
     ],
     cta: "Apply for Founding",
     highlight: false,
+    href: `mailto:${SALES_EMAIL}?subject=${encodeURIComponent("Founding Partner application")}`,
+    external: true,
   },
 ];
 
