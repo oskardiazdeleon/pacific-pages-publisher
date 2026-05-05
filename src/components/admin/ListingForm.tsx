@@ -22,7 +22,7 @@ export interface ListingFormValues {
   id?: string;
   name: string;
   slug: string;
-  category: "Restaurant" | "Hotel" | "Attraction" | "Tour" | "Shopping" | "Nightlife" | "Golf" | "WeddingVenue";
+  category: "Restaurant" | "Hotel" | "Attraction" | "Tour" | "Shopping" | "Nightlife" | "Golf" | "WeddingVenue" | "Winery";
   neighborhood: string;
   short_description: string;
   description: string;
@@ -306,7 +306,7 @@ export function ListingForm({
           <Field label="Category">
             <select className={inputCls} value={v.category}
               onChange={(e) => set("category", e.target.value as ListingFormValues["category"])}>
-              {["Restaurant", "Hotel", "Attraction", "Tour", "Shopping", "Nightlife", "Golf", "WeddingVenue"].map((c) => (
+              {["Restaurant", "Hotel", "Attraction", "Tour", "Shopping", "Nightlife", "Golf", "WeddingVenue", "Winery"].map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
