@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CategoryHubPage } from "@/components/site/CategoryHubPage";
 import { hubForSlug } from "@/lib/listing-categories";
 
-const HUB = hubForSlug("wedding-venues")!;
+const HUB = hubForSlug("weddings")!;
 
 export const Route = createFileRoute("/weddings/")({
   head: () => ({
