@@ -9,7 +9,8 @@ export type ListingCategory =
   | "Tour"
   | "Shopping"
   | "Nightlife"
-  | "Golf";
+  | "Golf"
+  | "WeddingVenue";
 
 export type CategoryHub = {
   /** URL slug, e.g. "hotels" → /hotels */
