@@ -251,6 +251,40 @@ export const CATEGORY_HUBS: CategoryHub[] = [
     },
     memberBenefit: "💳 SD Insider Members Save on Tee Times at Top San Diego Courses",
   },
+  {
+    slug: "wedding-venues",
+    dbCategories: ["WeddingVenue"],
+    label: "Wedding Venues",
+    singular: "Wedding Venue",
+    metaTitle: "Best Wedding Venues in San Diego | Insider Members Save on Bookings",
+    metaDescription:
+      "Discover San Diego's most stunning wedding venues — beachfront estates, garden ballrooms, vineyard barns and rooftop ceremonies. SD Insider members save on bookings at participating venues. Join & save »",
+    eyebrow: "Say I do",
+    heading: "San Diego Wedding Venues",
+    subheading:
+      "Beachfront estates, garden ballrooms, vineyard barns and rooftop ceremonies — every venue toured by our editors. Insider members save on premium bookings.",
+    schemaType: "EventVenue",
+    headingAccent: "where forever begins.",
+    heroImage:
+      "https://images.unsplash.com/photo-1519741497674-611481863552?w=1600&q=80",
+    searchPlaceholder: "Search venues, neighborhoods, styles…",
+    popularChips: [
+      { label: "Beachfront", keyword: "beach" },
+      { label: "Garden", keyword: "garden" },
+      { label: "Vineyard", keyword: "vineyard" },
+      { label: "Rooftop", keyword: "rooftop" },
+    ],
+    stats: [
+      { value: "80+", label: "Venues" },
+      { value: "20%", label: "Insider Save" },
+      { value: "300", label: "Max Capacity" },
+    ],
+    insiderCta: {
+      title: "Save on your big day with Insider",
+      body: "Member-only rates, complimentary upgrades and priority dates at participating wedding venues.",
+    },
+    memberBenefit: "💳 SD Insider Members Save 10–20% at Top San Diego Wedding Venues",
+  },
 ];
 
 const BY_DB_CATEGORY = new Map<ListingCategory, CategoryHub>();
