@@ -22,7 +22,7 @@ export interface ListingFormValues {
   id?: string;
   name: string;
   slug: string;
-  category: "Restaurant" | "Hotel" | "Attraction" | "Tour" | "Shopping" | "Nightlife" | "Golf" | "WeddingVenue";
+  category: "Restaurant" | "Hotel" | "Attraction" | "Tour" | "Shopping" | "Nightlife" | "Golf" | "WeddingVenue" | "Winery";
   neighborhood: string;
   short_description: string;
   description: string;
