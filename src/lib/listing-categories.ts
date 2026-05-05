@@ -252,9 +252,9 @@ export const CATEGORY_HUBS: CategoryHub[] = [
     memberBenefit: "💳 SD Insider Members Save on Tee Times at Top San Diego Courses",
   },
   {
-    slug: "wedding-venues",
+    slug: "weddings",
     dbCategories: ["WeddingVenue"],
-    label: "Wedding Venues",
+    label: "Weddings",
     singular: "Wedding Venue",
     metaTitle: "Best Wedding Venues in San Diego | Insider Members Save on Bookings",
     metaDescription:
