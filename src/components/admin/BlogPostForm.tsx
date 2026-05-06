@@ -138,7 +138,7 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
         ai_generated: true,
         ai_prompt: aiPrompt,
       }));
-      if (d.body_markdown) setEditorHtml(marked.parse(d.body_markdown, { async: false }) as string);
+      if (d.body_markdown) setEditorHtml(mdToHtml(d.body_markdown));
       toast.success("Draft generated — review and refine below");
       setAiOpen(false);
     } catch (e) {
@@ -168,7 +168,7 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
       const skipped = Array.isArray(result?.skipped) ? result.skipped : [];
       const newBody = typeof result?.body === "string" ? result.body : v.body;
       setV((p) => ({ ...p, body: newBody }));
-      setEditorHtml(marked.parse(newBody, { async: false }) as string);
+      setEditorHtml(mdToHtml(newBody));
       setLinkReport({ applied, skipped });
       if (applied.length === 0) {
         toast.warning(result?.message ?? "No internal links could be inserted — see report below");
