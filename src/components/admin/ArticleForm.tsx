@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Plus, Trash2, Sparkles, HelpCircle, User, Image as ImageIcon, Search } from "lucide-react";
+import { Plus, Trash2, Sparkles, HelpCircle, User, Image as ImageIcon, Search, Link2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { fetchLinkTargets, autoLinkHtml } from "@/lib/auto-internal-links";
 
 export interface ArticleFormValues {
   id?: string;
