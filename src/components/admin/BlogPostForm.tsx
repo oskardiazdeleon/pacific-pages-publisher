@@ -277,91 +277,32 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
           </div>
 
           <div>
-            <div className="flex items-center justify-between gap-3">
-              <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Body (Markdown)</label>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={openManualLink}
-                  title="Manually insert a link at the cursor or around the selected text"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-foreground hover:bg-muted"
-                >
-                  <Link2 className="h-3 w-3" />
-                  Insert link
-                </button>
-                <button
-                  type="button"
-                  onClick={handleInsertLinks}
-                  disabled={linkBusy}
-                  title="Scan the body and insert relevant internal links to listings, neighborhoods, and other posts"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent hover:bg-accent/20 disabled:opacity-50"
-                >
-                  {linkBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
-                  {linkBusy ? "Inserting links…" : "AI internal links"}
-                </button>
-              </div>
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Body</label>
+              <button
+                type="button"
+                onClick={handleInsertLinks}
+                disabled={linkBusy}
+                title="Scan the body and insert relevant internal links to listings, neighborhoods, and other posts"
+                className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent hover:bg-accent/20 disabled:opacity-50"
+              >
+                {linkBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                {linkBusy ? "Inserting links…" : "AI internal links"}
+              </button>
             </div>
-            {manualOpen && (
-              <div className="mt-2 rounded-xl border border-accent/30 bg-accent/5 p-4 space-y-3">
-                <div className="text-xs font-semibold text-foreground">Insert link</div>
-                <div>
-                  <label className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">Anchor text</label>
-                  <input
-                    value={manualAnchor}
-                    onChange={(e) => setManualAnchor(e.target.value)}
-                    placeholder="The visible text"
-                    className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">URL</label>
-                  <input
-                    value={manualUrl}
-                    onChange={(e) => setManualUrl(e.target.value)}
-                    placeholder="/listings/balboa-park  or  https://example.com"
-                    className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-accent/30"
-                  />
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    Use a path like <code>/listings/slug</code> for internal links, or a full URL for external.
-                  </p>
-                </div>
-                <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <input
-                    type="checkbox"
-                    checked={manualNewTab}
-                    onChange={(e) => setManualNewTab(e.target.checked)}
-                  />
-                  Open in new tab (external link)
-                </label>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={insertManualLink}
-                    className="rounded-full bg-accent px-4 py-1.5 text-xs font-semibold text-accent-foreground hover:opacity-90"
-                  >
-                    Insert
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setManualOpen(false)}
-                    className="rounded-full border border-border bg-background px-4 py-1.5 text-xs font-semibold hover:bg-muted"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-            <textarea
-              ref={bodyRef}
-              value={v.body}
-              onChange={(e) => set("body", e.target.value)}
-              rows={22}
-              placeholder="Write in Markdown. ## Heading, **bold**, [link](url), ![image](url)…"
-              className="mt-1 w-full rounded-xl border border-border bg-background px-4 py-3 font-mono text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-accent/30"
+            <RichTextEditor
+              value={editorHtml}
+              onChange={(html) => {
+                setEditorHtml(html);
+                set("body", turndown.turndown(html));
+              }}
+              uploadFolder="blog"
+              placeholder="Write your post — use the toolbar to add headings, links, and images…"
             />
             <p className="mt-1 text-xs text-muted-foreground">
-              Markdown supported — headings, bold/italic, lists, links, images, blockquotes, code.
+              Use the toolbar to format text, insert links, and upload images directly into the article.
             </p>
+
             {linkReport && (
               <div className="mt-3 rounded-xl border border-border bg-card p-4 text-xs">
                 <div className="font-semibold text-foreground">Internal link report</div>
