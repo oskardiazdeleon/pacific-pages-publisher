@@ -5,7 +5,7 @@ import { Search, Shield, ShieldCheck, UserCog, ExternalLink, UserPlus, X } from 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { hubForCategory } from "@/lib/listing-categories";
-import { adminCreateUser } from "@/server/users.functions";
+import { adminCreateUser, adminListAuthUsers, type AdminAuthUser } from "@/server/users.functions";
 import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/admin/users")({
