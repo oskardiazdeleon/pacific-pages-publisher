@@ -20,10 +20,11 @@ interface ApiKeyRow {
   created_at: string;
 }
 
-type Scope = "blog:write" | "listings:write";
+type Scope = "blog:write" | "listings:write" | "articles:write";
 const ALL_SCOPES: { value: Scope; label: string }[] = [
   { value: "blog:write", label: "Blog posts" },
   { value: "listings:write", label: "Listings" },
+  { value: "articles:write", label: "Articles" },
 ];
 
 function ApiKeysPage() {
@@ -32,7 +33,7 @@ function ApiKeysPage() {
   const [scopes, setScopes] = useState<Scope[]>(["blog:write"]);
   const [creating, setCreating] = useState(false);
   const [newKey, setNewKey] = useState<string | null>(null);
-  const [docsTab, setDocsTab] = useState<"blog" | "listings">("blog");
+  const [docsTab, setDocsTab] = useState<"blog" | "listings" | "articles">("blog");
   const create = useServerFn(createApiKey);
   const revoke = useServerFn(revokeApiKey);
 
@@ -106,8 +107,9 @@ function ApiKeysPage() {
       <h1 className="mt-2 font-display text-4xl font-semibold">API Keys</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Create scoped keys to publish content programmatically. Endpoints:{" "}
-        <code className="rounded bg-muted px-1.5 py-0.5">/api/public/blog</code>{" "}
-        and <code className="rounded bg-muted px-1.5 py-0.5">/api/public/listings</code>.
+        <code className="rounded bg-muted px-1.5 py-0.5">/api/public/blog</code>,{" "}
+        <code className="rounded bg-muted px-1.5 py-0.5">/api/public/articles</code>, and{" "}
+        <code className="rounded bg-muted px-1.5 py-0.5">/api/public/listings</code>.
       </p>
 
       {/* Create */}
@@ -269,7 +271,7 @@ function ApiKeysPage() {
         </p>
 
         <div className="mt-5 inline-flex rounded-full border border-border bg-card p-1">
-          {(["blog", "listings"] as const).map((t) => (
+          {(["blog", "listings", "articles"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setDocsTab(t)}
@@ -279,15 +281,17 @@ function ApiKeysPage() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {t === "blog" ? "Blog posts" : "Listings"}
+              {t === "blog" ? "Blog posts" : t === "listings" ? "Listings" : "Articles"}
             </button>
           ))}
         </div>
 
         {docsTab === "blog" ? (
           <BlogDocs baseUrl={baseUrl} />
-        ) : (
+        ) : docsTab === "listings" ? (
           <ListingsDocs baseUrl={baseUrl} />
+        ) : (
+          <ArticlesDocs baseUrl={baseUrl} />
         )}
       </div>
     </div>
@@ -428,3 +432,54 @@ X-API-Key: sk_live_…   (scope: listings:write)`}
   );
 }
 
+
+function ArticlesDocs({ baseUrl }: { baseUrl: string }) {
+  return (
+    <>
+      <DocBlock label="Endpoint">
+{`POST ${baseUrl}/api/public/articles
+Content-Type: application/json
+X-API-Key: sk_live_…   (scope: articles:write)`}
+      </DocBlock>
+      <DocBlock label="Request body">
+{`{
+  "title": "The Insider's Guide to La Jolla Coves",   // required, ≤200
+  "slug": "insiders-guide-la-jolla-coves",            // optional, [a-z0-9-]
+  "subtitle": "Tide pools, sea caves, and sunset.",
+  "excerpt": "A short summary for previews.",         // ≤500
+  "body": "<p>HTML body…</p>",                        // required, HTML
+  "hero_image": "https://…/hero.jpg",
+  "hero_caption": "Photo caption",
+  "hero_credit": "Photo: Jane Doe",
+  "category": "Guides",                               // required
+  "tags": ["la-jolla", "outdoors"],
+  "author_name": "Jane Doe",
+  "author_title": "Senior editor",
+  "author_avatar": "https://…/jane.jpg",
+  "author_bio": "Jane writes about coastal SD.",
+  "key_takeaways": ["Best at low tide", "Park early"],
+  "faqs": [{ "q": "Is parking free?", "a": "On weekdays, yes." }],
+  "pull_quote": "The coves at golden hour are unmatched.",
+  "read_time_minutes": 6,
+  "meta_title": "Insider's Guide to La Jolla Coves",
+  "meta_description": "≤160 char description",
+  "canonical_url": "https://example.com/canonical",
+  "og_image": "https://…/og.jpg",
+  "status": "published"                                // or "draft"
+}`}
+      </DocBlock>
+      <DocBlock label="cURL example">
+{`curl -X POST ${baseUrl}/api/public/articles \\
+  -H "Content-Type: application/json" \\
+  -H "X-API-Key: $SANDIEGO_API_KEY" \\
+  -d '{
+    "title": "Insider Guide to La Jolla",
+    "category": "Guides",
+    "body": "<p>Full article HTML…</p>",
+    "status": "published"
+  }'`}
+      </DocBlock>
+      <ResponseList resourceKey="article" />
+    </>
+  );
+}

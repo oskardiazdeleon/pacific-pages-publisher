@@ -62,6 +62,7 @@ import { Route as AdminBlogIndexRouteImport } from './routes/admin.blog.index'
 import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
 import { Route as ApiPublicListingsRouteImport } from './routes/api/public/listings'
 import { Route as ApiPublicBlogRouteImport } from './routes/api/public/blog'
+import { Route as ApiPublicArticlesRouteImport } from './routes/api/public/articles'
 import { Route as AdminListingsNewRouteImport } from './routes/admin.listings.new'
 import { Route as AdminListingsIdRouteImport } from './routes/admin.listings.$id'
 import { Route as AdminCruisesNewRouteImport } from './routes/admin.cruises.new'
@@ -345,6 +346,11 @@ const ApiPublicBlogRoute = ApiPublicBlogRouteImport.update({
   path: '/api/public/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicArticlesRoute = ApiPublicArticlesRouteImport.update({
+  id: '/api/public/articles',
+  path: '/api/public/articles',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminListingsNewRoute = AdminListingsNewRouteImport.update({
   id: '/listings/new',
   path: '/listings/new',
@@ -494,6 +500,7 @@ export interface FileRoutesByFullPath {
   '/admin/cruises/new': typeof AdminCruisesNewRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
+  '/api/public/articles': typeof ApiPublicArticlesRoute
   '/api/public/blog': typeof ApiPublicBlogRoute
   '/api/public/listings': typeof ApiPublicListingsRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
@@ -563,6 +570,7 @@ export interface FileRoutesByTo {
   '/admin/cruises/new': typeof AdminCruisesNewRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
+  '/api/public/articles': typeof ApiPublicArticlesRoute
   '/api/public/blog': typeof ApiPublicBlogRoute
   '/api/public/listings': typeof ApiPublicListingsRoute
   '/admin/articles': typeof AdminArticlesIndexRoute
@@ -636,6 +644,7 @@ export interface FileRoutesById {
   '/admin/cruises/new': typeof AdminCruisesNewRoute
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
+  '/api/public/articles': typeof ApiPublicArticlesRoute
   '/api/public/blog': typeof ApiPublicBlogRoute
   '/api/public/listings': typeof ApiPublicListingsRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
@@ -710,6 +719,7 @@ export interface FileRouteTypes {
     | '/admin/cruises/new'
     | '/admin/listings/$id'
     | '/admin/listings/new'
+    | '/api/public/articles'
     | '/api/public/blog'
     | '/api/public/listings'
     | '/admin/articles/'
@@ -779,6 +789,7 @@ export interface FileRouteTypes {
     | '/admin/cruises/new'
     | '/admin/listings/$id'
     | '/admin/listings/new'
+    | '/api/public/articles'
     | '/api/public/blog'
     | '/api/public/listings'
     | '/admin/articles'
@@ -851,6 +862,7 @@ export interface FileRouteTypes {
     | '/admin/cruises/new'
     | '/admin/listings/$id'
     | '/admin/listings/new'
+    | '/api/public/articles'
     | '/api/public/blog'
     | '/api/public/listings'
     | '/admin/articles/'
@@ -901,6 +913,7 @@ export interface RootRouteChildren {
   WeddingsIndexRoute: typeof WeddingsIndexRoute
   WineriesIndexRoute: typeof WineriesIndexRoute
   CategoryInNeighborhoodRoute: typeof CategoryInNeighborhoodRoute
+  ApiPublicArticlesRoute: typeof ApiPublicArticlesRoute
   ApiPublicBlogRoute: typeof ApiPublicBlogRoute
   ApiPublicListingsRoute: typeof ApiPublicListingsRoute
 }
@@ -1278,6 +1291,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicBlogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/articles': {
+      id: '/api/public/articles'
+      path: '/api/public/articles'
+      fullPath: '/api/public/articles'
+      preLoaderRoute: typeof ApiPublicArticlesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/listings/new': {
       id: '/admin/listings/new'
       path: '/listings/new'
@@ -1538,6 +1558,7 @@ const rootRouteChildren: RootRouteChildren = {
   WeddingsIndexRoute: WeddingsIndexRoute,
   WineriesIndexRoute: WineriesIndexRoute,
   CategoryInNeighborhoodRoute: CategoryInNeighborhoodRoute,
+  ApiPublicArticlesRoute: ApiPublicArticlesRoute,
   ApiPublicBlogRoute: ApiPublicBlogRoute,
   ApiPublicListingsRoute: ApiPublicListingsRoute,
 }
