@@ -1,11 +1,14 @@
-import { useState, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Sparkles, Loader2, Wand2, Link2 } from "lucide-react";
+import { Sparkles, Loader2, Wand2 } from "lucide-react";
+import { marked } from "marked";
+import TurndownService from "turndown";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { aiInsertInternalLinks } from "@/utils/import.functions";
 
 export interface BlogFormValues {
@@ -50,56 +53,25 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
   const [aiBusy, setAiBusy] = useState(false);
   const [linkBusy, setLinkBusy] = useState(false);
   const [linkReport, setLinkReport] = useState<{ applied: { anchor: string; url: string }[]; skipped: { anchor: string; url: string; reason: string }[] } | null>(null);
-  const bodyRef = useRef<HTMLTextAreaElement | null>(null);
-  const [manualOpen, setManualOpen] = useState(false);
-  const [manualAnchor, setManualAnchor] = useState("");
-  const [manualUrl, setManualUrl] = useState("");
-  const [manualNewTab, setManualNewTab] = useState(false);
-  const [manualSelStart, setManualSelStart] = useState<number | null>(null);
-  const [manualSelEnd, setManualSelEnd] = useState<number | null>(null);
 
-  const openManualLink = () => {
-    const ta = bodyRef.current;
-    const start = ta?.selectionStart ?? v.body.length;
-    const end = ta?.selectionEnd ?? v.body.length;
-    const selected = v.body.slice(start, end);
-    setManualSelStart(start);
-    setManualSelEnd(end);
-    setManualAnchor(selected);
-    setManualUrl("");
-    setManualNewTab(false);
-    setManualOpen(true);
-  };
-
-  const insertManualLink = () => {
-    const anchor = manualAnchor.trim();
-    let url = manualUrl.trim();
-    if (!anchor) { toast.error("Anchor text is required"); return; }
-    if (!url) { toast.error("URL is required"); return; }
-    // Allow internal "/path" or full URLs; auto-prefix bare domains
-    if (!/^(https?:\/\/|\/|mailto:|tel:|#)/i.test(url)) url = `https://${url}`;
-    const md = manualNewTab
-      ? `[${anchor}](${url}){:target="_blank" rel="noopener"}`
-      : `[${anchor}](${url})`;
-    const start = manualSelStart ?? v.body.length;
-    const end = manualSelEnd ?? v.body.length;
-    const newBody = v.body.slice(0, start) + md + v.body.slice(end);
-    setV((p) => ({ ...p, body: newBody }));
-    setManualOpen(false);
-    toast.success("Link inserted");
-    // Restore focus & caret after the inserted markdown
-    requestAnimationFrame(() => {
-      const ta = bodyRef.current;
-      if (ta) {
-        const pos = start + md.length;
-        ta.focus();
-        ta.setSelectionRange(pos, pos);
-      }
-    });
-  };
+  // Markdown <-> HTML bridge for the rich editor
+  const turndown = useMemo(() => {
+    const td = new TurndownService({ headingStyle: "atx", codeBlockStyle: "fenced", bulletListMarker: "-" });
+    return td;
+  }, []);
+  const [editorHtml, setEditorHtml] = useState<string>(() =>
+    v.body ? (marked.parse(v.body, { async: false }) as string) : ""
+  );
+  // When body changes externally (AI generate, initial load), refresh the editor HTML
+  useEffect(() => {
+    const html = v.body ? (marked.parse(v.body, { async: false }) as string) : "";
+    setEditorHtml(html);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initial?.id]);
 
   const set = <K extends keyof BlogFormValues>(k: K, val: BlogFormValues[K]) =>
     setV((p) => ({ ...p, [k]: val }));
+
 
   const handleGenerate = async () => {
     if (!aiPrompt.trim()) { toast.error("Tell the AI what to write about"); return; }
@@ -126,6 +98,7 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
         ai_generated: true,
         ai_prompt: aiPrompt,
       }));
+      if (d.body_markdown) setEditorHtml(marked.parse(d.body_markdown, { async: false }) as string);
       toast.success("Draft generated — review and refine below");
       setAiOpen(false);
     } catch (e) {
@@ -155,6 +128,7 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
       const skipped = Array.isArray(result?.skipped) ? result.skipped : [];
       const newBody = typeof result?.body === "string" ? result.body : v.body;
       setV((p) => ({ ...p, body: newBody }));
+      setEditorHtml(marked.parse(newBody, { async: false }) as string);
       setLinkReport({ applied, skipped });
       if (applied.length === 0) {
         toast.warning(result?.message ?? "No internal links could be inserted — see report below");
@@ -305,91 +279,32 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
           </div>
 
           <div>
-            <div className="flex items-center justify-between gap-3">
-              <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Body (Markdown)</label>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={openManualLink}
-                  title="Manually insert a link at the cursor or around the selected text"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-foreground hover:bg-muted"
-                >
-                  <Link2 className="h-3 w-3" />
-                  Insert link
-                </button>
-                <button
-                  type="button"
-                  onClick={handleInsertLinks}
-                  disabled={linkBusy}
-                  title="Scan the body and insert relevant internal links to listings, neighborhoods, and other posts"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent hover:bg-accent/20 disabled:opacity-50"
-                >
-                  {linkBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
-                  {linkBusy ? "Inserting links…" : "AI internal links"}
-                </button>
-              </div>
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Body</label>
+              <button
+                type="button"
+                onClick={handleInsertLinks}
+                disabled={linkBusy}
+                title="Scan the body and insert relevant internal links to listings, neighborhoods, and other posts"
+                className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent hover:bg-accent/20 disabled:opacity-50"
+              >
+                {linkBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                {linkBusy ? "Inserting links…" : "AI internal links"}
+              </button>
             </div>
-            {manualOpen && (
-              <div className="mt-2 rounded-xl border border-accent/30 bg-accent/5 p-4 space-y-3">
-                <div className="text-xs font-semibold text-foreground">Insert link</div>
-                <div>
-                  <label className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">Anchor text</label>
-                  <input
-                    value={manualAnchor}
-                    onChange={(e) => setManualAnchor(e.target.value)}
-                    placeholder="The visible text"
-                    className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">URL</label>
-                  <input
-                    value={manualUrl}
-                    onChange={(e) => setManualUrl(e.target.value)}
-                    placeholder="/listings/balboa-park  or  https://example.com"
-                    className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-accent/30"
-                  />
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    Use a path like <code>/listings/slug</code> for internal links, or a full URL for external.
-                  </p>
-                </div>
-                <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <input
-                    type="checkbox"
-                    checked={manualNewTab}
-                    onChange={(e) => setManualNewTab(e.target.checked)}
-                  />
-                  Open in new tab (external link)
-                </label>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={insertManualLink}
-                    className="rounded-full bg-accent px-4 py-1.5 text-xs font-semibold text-accent-foreground hover:opacity-90"
-                  >
-                    Insert
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setManualOpen(false)}
-                    className="rounded-full border border-border bg-background px-4 py-1.5 text-xs font-semibold hover:bg-muted"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-            <textarea
-              ref={bodyRef}
-              value={v.body}
-              onChange={(e) => set("body", e.target.value)}
-              rows={22}
-              placeholder="Write in Markdown. ## Heading, **bold**, [link](url), ![image](url)…"
-              className="mt-1 w-full rounded-xl border border-border bg-background px-4 py-3 font-mono text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-accent/30"
+            <RichTextEditor
+              value={editorHtml}
+              onChange={(html) => {
+                setEditorHtml(html);
+                set("body", turndown.turndown(html));
+              }}
+              uploadFolder="blog"
+              placeholder="Write your post — use the toolbar to add headings, links, and images…"
             />
             <p className="mt-1 text-xs text-muted-foreground">
-              Markdown supported — headings, bold/italic, lists, links, images, blockquotes, code.
+              Use the toolbar to format text, insert links, and upload images directly into the article.
             </p>
+
             {linkReport && (
               <div className="mt-3 rounded-xl border border-border bg-card p-4 text-xs">
                 <div className="font-semibold text-foreground">Internal link report</div>
