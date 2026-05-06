@@ -53,6 +53,31 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
   const [aiBusy, setAiBusy] = useState(false);
   const [linkBusy, setLinkBusy] = useState(false);
   const [linkReport, setLinkReport] = useState<{ applied: { anchor: string; url: string }[]; skipped: { anchor: string; url: string; reason: string }[] } | null>(null);
+  const [authors, setAuthors] = useState<{ user_id: string; display_name: string | null }[]>([]);
+  const [authorId, setAuthorId] = useState<string>(initial?.id ? "" : (user?.id ?? ""));
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("user_id, display_name")
+        .order("display_name", { ascending: true });
+      if (data) setAuthors(data);
+    })();
+  }, []);
+
+  // Load existing post's author_id
+  useEffect(() => {
+    if (!initial?.id) return;
+    (async () => {
+      const { data } = await supabase
+        .from("blog_posts")
+        .select("author_id")
+        .eq("id", initial.id!)
+        .maybeSingle();
+      if (data?.author_id) setAuthorId(data.author_id);
+    })();
+  }, [initial?.id]);
 
   // Markdown <-> HTML bridge for the rich editor
   const turndown = useMemo(() => {
