@@ -201,6 +201,19 @@ export function ArticleForm({ initial }: { initial?: Partial<ArticleFormValues> 
             uploadFolder={v.slug || "inline"}
             onChange={(html) => set("body", html)}
           />
+          <div className="mt-2 flex items-center justify-between gap-3 flex-wrap">
+            <p className="text-[11px] text-muted-foreground/80">
+              Auto-link scans the body for mentions of your other articles, listings, cruise lines, blog posts, and neighborhoods, then links them for SEO.
+            </p>
+            <button
+              type="button"
+              onClick={runAutoLink}
+              disabled={linking}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-1.5 text-xs font-medium hover:bg-secondary/70 disabled:opacity-50"
+            >
+              <Link2 className="h-3.5 w-3.5" /> {linking ? "Linking…" : "Auto-link internal pages"}
+            </button>
+          </div>
         </Field>
         <Field label="Pull quote" hint="A standout sentence rendered as a large editorial callout in the article.">
           <textarea className={inputCls} rows={2} value={v.pull_quote}
