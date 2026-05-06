@@ -53,56 +53,25 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
   const [aiBusy, setAiBusy] = useState(false);
   const [linkBusy, setLinkBusy] = useState(false);
   const [linkReport, setLinkReport] = useState<{ applied: { anchor: string; url: string }[]; skipped: { anchor: string; url: string; reason: string }[] } | null>(null);
-  const bodyRef = useRef<HTMLTextAreaElement | null>(null);
-  const [manualOpen, setManualOpen] = useState(false);
-  const [manualAnchor, setManualAnchor] = useState("");
-  const [manualUrl, setManualUrl] = useState("");
-  const [manualNewTab, setManualNewTab] = useState(false);
-  const [manualSelStart, setManualSelStart] = useState<number | null>(null);
-  const [manualSelEnd, setManualSelEnd] = useState<number | null>(null);
 
-  const openManualLink = () => {
-    const ta = bodyRef.current;
-    const start = ta?.selectionStart ?? v.body.length;
-    const end = ta?.selectionEnd ?? v.body.length;
-    const selected = v.body.slice(start, end);
-    setManualSelStart(start);
-    setManualSelEnd(end);
-    setManualAnchor(selected);
-    setManualUrl("");
-    setManualNewTab(false);
-    setManualOpen(true);
-  };
-
-  const insertManualLink = () => {
-    const anchor = manualAnchor.trim();
-    let url = manualUrl.trim();
-    if (!anchor) { toast.error("Anchor text is required"); return; }
-    if (!url) { toast.error("URL is required"); return; }
-    // Allow internal "/path" or full URLs; auto-prefix bare domains
-    if (!/^(https?:\/\/|\/|mailto:|tel:|#)/i.test(url)) url = `https://${url}`;
-    const md = manualNewTab
-      ? `[${anchor}](${url}){:target="_blank" rel="noopener"}`
-      : `[${anchor}](${url})`;
-    const start = manualSelStart ?? v.body.length;
-    const end = manualSelEnd ?? v.body.length;
-    const newBody = v.body.slice(0, start) + md + v.body.slice(end);
-    setV((p) => ({ ...p, body: newBody }));
-    setManualOpen(false);
-    toast.success("Link inserted");
-    // Restore focus & caret after the inserted markdown
-    requestAnimationFrame(() => {
-      const ta = bodyRef.current;
-      if (ta) {
-        const pos = start + md.length;
-        ta.focus();
-        ta.setSelectionRange(pos, pos);
-      }
-    });
-  };
+  // Markdown <-> HTML bridge for the rich editor
+  const turndown = useMemo(() => {
+    const td = new TurndownService({ headingStyle: "atx", codeBlockStyle: "fenced", bulletListMarker: "-" });
+    return td;
+  }, []);
+  const [editorHtml, setEditorHtml] = useState<string>(() =>
+    v.body ? (marked.parse(v.body, { async: false }) as string) : ""
+  );
+  // When body changes externally (AI generate, initial load), refresh the editor HTML
+  useEffect(() => {
+    const html = v.body ? (marked.parse(v.body, { async: false }) as string) : "";
+    setEditorHtml(html);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initial?.id]);
 
   const set = <K extends keyof BlogFormValues>(k: K, val: BlogFormValues[K]) =>
     setV((p) => ({ ...p, [k]: val }));
+
 
   const handleGenerate = async () => {
     if (!aiPrompt.trim()) { toast.error("Tell the AI what to write about"); return; }
