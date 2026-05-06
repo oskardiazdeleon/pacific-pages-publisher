@@ -5,7 +5,7 @@ import { Search, Shield, ShieldCheck, UserCog, ExternalLink, UserPlus, X } from 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { hubForCategory } from "@/lib/listing-categories";
-import { adminCreateUser } from "@/server/users.functions";
+import { adminCreateUser, adminListAuthUsers, type AdminAuthUser } from "@/server/users.functions";
 import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/admin/users")({
@@ -46,6 +46,7 @@ type UserRow = {
   roles: AppRole[];
   claims: ClaimRow[];
   ownedListings: ListingRow[];
+  auth?: AdminAuthUser;
 };
 
 const ALL_ROLES: AppRole[] = ["admin", "editor", "partner", "user"];
@@ -57,14 +58,19 @@ function AdminUsers() {
   const [q, setQ] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const listAuthUsersFn = useServerFn(adminListAuthUsers);
 
   const load = async () => {
-    const [{ data: profiles, error: pe }, { data: roles, error: re }, { data: claims, error: ce }, { data: listings, error: le }] =
+    const [{ data: profiles, error: pe }, { data: roles, error: re }, { data: claims, error: ce }, { data: listings, error: le }, authUsersResult] =
       await Promise.all([
         supabase.from("profiles").select("user_id, display_name, avatar_url, partner_company, created_at").order("created_at", { ascending: false }),
         supabase.from("user_roles").select("user_id, role"),
         supabase.from("listing_claims").select("id, user_id, listing_id, status, claimant_email, claimant_role, created_at").order("created_at", { ascending: false }),
         supabase.from("listings").select("id, name, slug, category, partner_id"),
+        listAuthUsersFn().catch((err: unknown) => {
+          console.error("Failed to load auth users", err);
+          return [] as AdminAuthUser[];
+        }),
       ]);
     if (pe || re || ce || le) {
       toast.error((pe || re || ce || le)!.message);
@@ -87,14 +93,40 @@ function AdminUsers() {
       if (l.partner_id) (ownedByUser[l.partner_id] ??= []).push(l);
     });
 
-    setRows(
-      (profiles as Profile[] ?? []).map((p) => ({
-        profile: p,
-        roles: rolesByUser[p.user_id] ?? [],
-        claims: claimsByUser[p.user_id] ?? [],
-        ownedListings: ownedByUser[p.user_id] ?? [],
-      })),
-    );
+    const authById: Record<string, AdminAuthUser> = {};
+    (authUsersResult as AdminAuthUser[]).forEach((u) => (authById[u.id] = u));
+
+    const profileList = (profiles as Profile[] ?? []);
+    const seen = new Set(profileList.map((p) => p.user_id));
+
+    const merged: UserRow[] = profileList.map((p) => ({
+      profile: p,
+      roles: rolesByUser[p.user_id] ?? [],
+      claims: claimsByUser[p.user_id] ?? [],
+      ownedListings: ownedByUser[p.user_id] ?? [],
+      auth: authById[p.user_id],
+    }));
+
+    // Add auth users that don't yet have a profile (e.g. unconfirmed signups)
+    (authUsersResult as AdminAuthUser[]).forEach((u) => {
+      if (seen.has(u.id)) return;
+      merged.push({
+        profile: {
+          user_id: u.id,
+          display_name: u.email?.split("@")[0] ?? null,
+          avatar_url: null,
+          partner_company: null,
+          created_at: u.created_at,
+        },
+        roles: rolesByUser[u.id] ?? [],
+        claims: claimsByUser[u.id] ?? [],
+        ownedListings: ownedByUser[u.id] ?? [],
+        auth: u,
+      });
+    });
+
+    merged.sort((a, b) => (a.profile.created_at < b.profile.created_at ? 1 : -1));
+    setRows(merged);
   };
 
   useEffect(() => {
@@ -107,7 +139,7 @@ function AdminUsers() {
     if (!needle) return rows;
     return rows.filter((r) => {
       const name = r.profile.display_name?.toLowerCase() ?? "";
-      const email = r.claims[0]?.claimant_email?.toLowerCase() ?? "";
+      const email = (r.auth?.email ?? r.claims[0]?.claimant_email ?? "").toLowerCase();
       const co = r.profile.partner_company?.toLowerCase() ?? "";
       return name.includes(needle) || email.includes(needle) || co.includes(needle);
     });
@@ -192,17 +224,30 @@ function AdminUsers() {
                         {r}
                       </span>
                     ))}
+                    {u.auth && !u.auth.email_confirmed_at && (
+                      <span className="text-[10px] uppercase tracking-wider rounded-full bg-amber-500/15 text-amber-700 px-2 py-0.5 font-semibold">
+                        Email pending
+                      </span>
+                    )}
+                    {u.auth?.email_confirmed_at && !u.auth.last_sign_in_at && (
+                      <span className="text-[10px] uppercase tracking-wider rounded-full bg-muted text-foreground/60 px-2 py-0.5 font-semibold">
+                        Never signed in
+                      </span>
+                    )}
                   </div>
                   {u.profile.partner_company && (
                     <div className="text-xs text-muted-foreground mt-1">{u.profile.partner_company}</div>
                   )}
-                  {u.claims[0]?.claimant_email && (
+                  {(u.auth?.email || u.claims[0]?.claimant_email) && (
                     <div className="text-xs text-muted-foreground mt-0.5">
-                      {u.claims[0].claimant_email}
+                      {u.auth?.email ?? u.claims[0]?.claimant_email}
                     </div>
                   )}
                   <div className="text-[11px] text-muted-foreground/70 mt-1">
                     Joined {new Date(u.profile.created_at).toLocaleDateString()}
+                    {u.auth?.last_sign_in_at && (
+                      <> · Last sign-in {new Date(u.auth.last_sign_in_at).toLocaleDateString()}</>
+                    )}
                   </div>
                 </div>
 

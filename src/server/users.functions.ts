@@ -61,3 +61,46 @@ export const adminCreateUser = createServerFn({ method: "POST" })
 
     return { userId: newUserId };
   });
+
+export type AdminAuthUser = {
+  id: string;
+  email: string | null;
+  email_confirmed_at: string | null;
+  last_sign_in_at: string | null;
+  created_at: string;
+};
+
+export const adminListAuthUsers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<AdminAuthUser[]> => {
+    const { data: roleRow, error: roleErr } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (roleErr) throw new Error(roleErr.message);
+    if (!roleRow) throw new Error("Forbidden: admin role required");
+
+    const all: AdminAuthUser[] = [];
+    let page = 1;
+    const perPage = 200;
+    // Paginate through all auth users
+    while (true) {
+      const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
+      if (error) throw new Error(error.message);
+      for (const u of data.users) {
+        all.push({
+          id: u.id,
+          email: u.email ?? null,
+          email_confirmed_at: u.email_confirmed_at ?? null,
+          last_sign_in_at: u.last_sign_in_at ?? null,
+          created_at: u.created_at,
+        });
+      }
+      if (data.users.length < perPage) break;
+      page += 1;
+      if (page > 50) break; // safety cap
+    }
+    return all;
+  });
