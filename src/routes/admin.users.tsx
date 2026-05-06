@@ -224,17 +224,30 @@ function AdminUsers() {
                         {r}
                       </span>
                     ))}
+                    {u.auth && !u.auth.email_confirmed_at && (
+                      <span className="text-[10px] uppercase tracking-wider rounded-full bg-amber-500/15 text-amber-700 px-2 py-0.5 font-semibold">
+                        Email pending
+                      </span>
+                    )}
+                    {u.auth?.email_confirmed_at && !u.auth.last_sign_in_at && (
+                      <span className="text-[10px] uppercase tracking-wider rounded-full bg-muted text-foreground/60 px-2 py-0.5 font-semibold">
+                        Never signed in
+                      </span>
+                    )}
                   </div>
                   {u.profile.partner_company && (
                     <div className="text-xs text-muted-foreground mt-1">{u.profile.partner_company}</div>
                   )}
-                  {u.claims[0]?.claimant_email && (
+                  {(u.auth?.email || u.claims[0]?.claimant_email) && (
                     <div className="text-xs text-muted-foreground mt-0.5">
-                      {u.claims[0].claimant_email}
+                      {u.auth?.email ?? u.claims[0]?.claimant_email}
                     </div>
                   )}
                   <div className="text-[11px] text-muted-foreground/70 mt-1">
                     Joined {new Date(u.profile.created_at).toLocaleDateString()}
+                    {u.auth?.last_sign_in_at && (
+                      <> · Last sign-in {new Date(u.auth.last_sign_in_at).toLocaleDateString()}</>
+                    )}
                   </div>
                 </div>
 
