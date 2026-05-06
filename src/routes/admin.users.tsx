@@ -301,3 +301,138 @@ function AdminUsers() {
     </div>
   );
 }
+
+function CreateUserModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [selectedRoles, setSelectedRoles] = useState<AppRole[]>(["user"]);
+  const [submitting, setSubmitting] = useState(false);
+
+  const toggle = (r: AppRole) =>
+    setSelectedRoles((prev) =>
+      prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r],
+    );
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedRoles.length === 0) {
+      toast.error("Pick at least one role");
+      return;
+    }
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await adminCreateUser({
+        data: {
+          email: email.trim(),
+          password,
+          displayName: displayName.trim() || undefined,
+          roles: selectedRoles,
+        },
+      });
+      toast.success("User created");
+      onCreated();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to create user");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-foreground/40 p-4" onClick={onClose}>
+      <form
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={submit}
+        className="w-full max-w-md rounded-2xl bg-background p-6 shadow-xl border border-border"
+      >
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h2 className="font-display text-xl font-semibold">Create user</h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Account is created and email-confirmed immediately.
+            </p>
+          </div>
+          <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          <label className="block">
+            <span className="text-xs font-medium text-muted-foreground">Email</span>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium text-muted-foreground">Display name (optional)</span>
+            <input
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium text-muted-foreground">Temporary password (min 8)</span>
+            <input
+              type="text"
+              required
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-mono"
+            />
+          </label>
+          <div>
+            <span className="text-xs font-medium text-muted-foreground">Roles</span>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {ALL_ROLES.map((r) => {
+                const has = selectedRoles.includes(r);
+                return (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => toggle(r)}
+                    className={`text-xs rounded-full px-3 py-1 border transition ${
+                      has
+                        ? "bg-foreground text-background border-foreground"
+                        : "border-border hover:bg-secondary"
+                    }`}
+                  >
+                    {has ? "− " : "+ "}{r}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-md border border-border px-4 py-2 text-sm hover:bg-secondary"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          >
+            {submitting ? "Creating…" : "Create user"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
