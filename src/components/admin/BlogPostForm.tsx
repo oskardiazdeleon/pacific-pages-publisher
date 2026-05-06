@@ -127,6 +127,7 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
       const skipped = Array.isArray(result?.skipped) ? result.skipped : [];
       const newBody = typeof result?.body === "string" ? result.body : v.body;
       setV((p) => ({ ...p, body: newBody }));
+      setEditorHtml(marked.parse(newBody, { async: false }) as string);
       setLinkReport({ applied, skipped });
       if (applied.length === 0) {
         toast.warning(result?.message ?? "No internal links could be inserted — see report below");
