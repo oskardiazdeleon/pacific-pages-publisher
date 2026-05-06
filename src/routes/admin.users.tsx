@@ -139,16 +139,34 @@ function AdminUsers() {
             Registered users, their roles, claims, and listings they manage.
           </p>
         </div>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search name, email, company…"
-            className="w-72 rounded-full border border-border bg-background pl-9 pr-3 py-2 text-sm"
-          />
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search name, email, company…"
+              className="w-72 rounded-full border border-border bg-background pl-9 pr-3 py-2 text-sm"
+            />
+          </div>
+          <button
+            onClick={() => setShowCreate(true)}
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            <UserPlus className="h-4 w-4" /> New user
+          </button>
         </div>
       </div>
+
+      {showCreate && (
+        <CreateUserModal
+          onClose={() => setShowCreate(false)}
+          onCreated={() => {
+            setShowCreate(false);
+            load();
+          }}
+        />
+      )}
 
       {!filtered ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
