@@ -4,7 +4,7 @@ import { createHash, randomBytes } from "crypto";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-const ScopeEnum = z.enum(["blog:write", "listings:write"]);
+const ScopeEnum = z.enum(["blog:write", "listings:write", "articles:write"]);
 
 export const createApiKey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
