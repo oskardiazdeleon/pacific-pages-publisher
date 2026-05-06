@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { hubForCategory } from "@/lib/listing-categories";
 import { adminCreateUser } from "@/server/users.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/admin/users")({
   head: () => ({ meta: [{ title: "Users — Admin" }] }),
@@ -308,6 +309,7 @@ function CreateUserModal({ onClose, onCreated }: { onClose: () => void; onCreate
   const [displayName, setDisplayName] = useState("");
   const [selectedRoles, setSelectedRoles] = useState<AppRole[]>(["user"]);
   const [submitting, setSubmitting] = useState(false);
+  const createUserFn = useServerFn(adminCreateUser);
 
   const toggle = (r: AppRole) =>
     setSelectedRoles((prev) =>
@@ -326,7 +328,7 @@ function CreateUserModal({ onClose, onCreated }: { onClose: () => void; onCreate
     }
     setSubmitting(true);
     try {
-      await adminCreateUser({
+      await createUserFn({
         data: {
           email: email.trim(),
           password,
