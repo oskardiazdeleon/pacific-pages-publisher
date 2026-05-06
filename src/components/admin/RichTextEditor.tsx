@@ -6,10 +6,12 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect, useRef, useState } from "react";
 import {
   Bold, Italic, Strikethrough, Code, Heading2, Heading3, List, ListOrdered,
-  Quote, Link as LinkIcon, Image as ImageIcon, Undo2, Redo2, Minus, Loader2,
+  Quote, Link as LinkIcon, Image as ImageIcon, Undo2, Redo2, Minus, Loader2, Ship,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { EmbedCardNode } from "@/components/admin/editor/EmbedCardNode";
+import { InsertCruiseCardDialog } from "@/components/admin/editor/InsertCruiseCardDialog";
 
 interface Props {
   value: string;
