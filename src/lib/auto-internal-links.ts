@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { neighborhoodHubs } from "@/lib/neighborhoods-data";
 
 export type LinkTarget = {
   title: string;
@@ -9,29 +10,28 @@ export type LinkTarget = {
 export async function fetchLinkTargets(excludeSlug?: string): Promise<LinkTarget[]> {
   const targets: LinkTarget[] = [];
 
-  const [articles, listings, cruises, blog, neighborhoods] = await Promise.all([
+  const [articles, listings, cruises, blog] = await Promise.all([
     supabase.from("articles").select("title, slug").eq("status", "published").limit(500),
     supabase.from("listings").select("name, slug").limit(500),
     supabase.from("cruise_lines").select("name, slug").limit(200),
     supabase.from("blog_posts").select("title, slug").eq("status", "published").limit(500),
-    supabase.from("neighborhoods").select("name, slug").limit(200),
   ]);
 
-  for (const a of articles.data ?? []) {
+  for (const a of (articles.data as Array<{ title: string; slug: string }> | null) ?? []) {
     if (a.slug === excludeSlug) continue;
     if (a.title && a.slug) targets.push({ title: a.title, url: `/articles/${a.slug}` });
   }
-  for (const l of listings.data ?? []) {
+  for (const l of (listings.data as Array<{ name: string; slug: string }> | null) ?? []) {
     if (l.name && l.slug) targets.push({ title: l.name, url: `/listings/${l.slug}` });
   }
-  for (const c of cruises.data ?? []) {
+  for (const c of (cruises.data as Array<{ name: string; slug: string }> | null) ?? []) {
     if (c.name && c.slug) targets.push({ title: c.name, url: `/cruises/${c.slug}` });
   }
-  for (const b of blog.data ?? []) {
+  for (const b of (blog.data as Array<{ title: string; slug: string }> | null) ?? []) {
     if (b.slug === excludeSlug) continue;
     if (b.title && b.slug) targets.push({ title: b.title, url: `/blog/${b.slug}` });
   }
-  for (const n of neighborhoods.data ?? []) {
+  for (const n of neighborhoodHubs) {
     if (n.name && n.slug) targets.push({ title: n.name, url: `/neighborhoods/${n.slug}` });
   }
 
