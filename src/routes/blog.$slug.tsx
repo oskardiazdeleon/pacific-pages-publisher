@@ -1,10 +1,9 @@
 import { createFileRoute, Link, notFound, useLoaderData } from "@tanstack/react-router";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { Clock, Sparkles, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { BlogBody } from "@/components/site/BlogBody";
 
 interface Post {
   id: string;
@@ -122,9 +121,7 @@ function BlogPostPage() {
       {/* Body */}
       <div className="container-page max-w-3xl py-12 md:py-16">
         <div className="prose-blog">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {post.body || ""}
-          </ReactMarkdown>
+          <BlogBody markdown={post.body || ""} />
         </div>
 
         {post.tags && post.tags.length > 0 && (
