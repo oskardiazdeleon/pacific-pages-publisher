@@ -98,6 +98,7 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
         ai_generated: true,
         ai_prompt: aiPrompt,
       }));
+      if (d.body_markdown) setEditorHtml(marked.parse(d.body_markdown, { async: false }) as string);
       toast.success("Draft generated — review and refine below");
       setAiOpen(false);
     } catch (e) {
