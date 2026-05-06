@@ -87,6 +87,7 @@ function injectHeadingIds(html: string): { html: string; toc: { id: string; text
   const toc: { id: string; text: string; level: 2 | 3 }[] = [];
   const slugify = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
   const seen = new Set<string>();
+  // Inject ids on both h2 and h3 (so deep links still work) but only collect H2s in the TOC.
   const out = html.replace(/<h([23])([^>]*)>([\s\S]*?)<\/h\1>/gi, (_m, lvl: string, attrs: string, inner: string) => {
     const text = inner.replace(/<[^>]+>/g, "").trim();
     if (!text) return _m;
