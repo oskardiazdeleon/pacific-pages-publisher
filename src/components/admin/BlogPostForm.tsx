@@ -390,6 +390,19 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
           </div>
 
           <div>
+            <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Author</label>
+            <select
+              value={authorId}
+              onChange={(e) => setAuthorId(e.target.value)}
+              className="mt-1 mb-4 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
+            >
+              <option value="">— Select author —</option>
+              {authors.map((a) => (
+                <option key={a.user_id} value={a.user_id}>
+                  {a.display_name || a.user_id.slice(0, 8)}
+                </option>
+              ))}
+            </select>
             <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Category</label>
             <select
               value={v.category}
