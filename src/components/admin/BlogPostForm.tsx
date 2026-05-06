@@ -53,6 +53,31 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
   const [aiBusy, setAiBusy] = useState(false);
   const [linkBusy, setLinkBusy] = useState(false);
   const [linkReport, setLinkReport] = useState<{ applied: { anchor: string; url: string }[]; skipped: { anchor: string; url: string; reason: string }[] } | null>(null);
+  const [authors, setAuthors] = useState<{ user_id: string; display_name: string | null }[]>([]);
+  const [authorId, setAuthorId] = useState<string>(initial?.id ? "" : (user?.id ?? ""));
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("user_id, display_name")
+        .order("display_name", { ascending: true });
+      if (data) setAuthors(data);
+    })();
+  }, []);
+
+  // Load existing post's author_id
+  useEffect(() => {
+    if (!initial?.id) return;
+    (async () => {
+      const { data } = await supabase
+        .from("blog_posts")
+        .select("author_id")
+        .eq("id", initial.id!)
+        .maybeSingle();
+      if (data?.author_id) setAuthorId(data.author_id);
+    })();
+  }, [initial?.id]);
 
   // Markdown <-> HTML bridge for the rich editor
   const turndown = useMemo(() => {
@@ -163,8 +188,8 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
         read_time_minutes: v.read_time_minutes ? Math.max(1, Math.round(Number(v.read_time_minutes))) : null,
         meta_title: v.meta_title || null,
         meta_description: v.meta_description || null,
-        author_id: user?.id ?? null,
-        author_name: user?.email?.split("@")[0] ?? null,
+        author_id: authorId || user?.id || null,
+        author_name: (authors.find((a) => a.user_id === (authorId || user?.id))?.display_name) ?? user?.email?.split("@")[0] ?? null,
         ai_generated: v.ai_generated ?? false,
         ai_prompt: v.ai_prompt || null,
         published_at: status === "published" ? (initial?.id ? undefined : new Date().toISOString()) : null,
@@ -365,6 +390,19 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
           </div>
 
           <div>
+            <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Author</label>
+            <select
+              value={authorId}
+              onChange={(e) => setAuthorId(e.target.value)}
+              className="mt-1 mb-4 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
+            >
+              <option value="">— Select author —</option>
+              {authors.map((a) => (
+                <option key={a.user_id} value={a.user_id}>
+                  {a.display_name || a.user_id.slice(0, 8)}
+                </option>
+              ))}
+            </select>
             <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Category</label>
             <select
               value={v.category}
