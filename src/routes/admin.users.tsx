@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Search, Shield, ShieldCheck, UserCog, ExternalLink } from "lucide-react";
+import { Search, Shield, ShieldCheck, UserCog, ExternalLink, UserPlus, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { hubForCategory } from "@/lib/listing-categories";
+import { adminCreateUser } from "@/server/users.functions";
 
 export const Route = createFileRoute("/admin/users")({
   head: () => ({ meta: [{ title: "Users — Admin" }] }),
