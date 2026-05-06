@@ -1,29 +1,63 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LogOut, LayoutDashboard, FileText, Building2, BarChart3, Download, Settings, Menu as MenuIcon, Home, FileStack, Sparkles, KeyRound, MapPin, ShieldCheck, Ship } from "lucide-react";
+import { LogOut, LayoutDashboard, FileText, Building2, BarChart3, Download, Settings, Menu as MenuIcon, Home, FileStack, Sparkles, KeyRound, MapPin, ShieldCheck, Ship, Users } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
-const navItems: ReadonlyArray<{
-  to: "/admin" | "/admin/listings" | "/admin/articles" | "/admin/blog" | "/admin/claims" | "/admin/impressions" | "/admin/import" | "/admin/cms/settings" | "/admin/cms/navigation" | "/admin/cms/homepage" | "/admin/cms/home-neighborhoods" | "/admin/cms/pages" | "/admin/cms/neighborhoods" | "/admin/api-keys" | "/admin/cruises";
+type NavItem = {
+  to: "/admin" | "/admin/listings" | "/admin/articles" | "/admin/blog" | "/admin/claims" | "/admin/impressions" | "/admin/import" | "/admin/cms/settings" | "/admin/cms/navigation" | "/admin/cms/homepage" | "/admin/cms/home-neighborhoods" | "/admin/cms/pages" | "/admin/cms/neighborhoods" | "/admin/api-keys" | "/admin/cruises" | "/admin/users";
   label: string;
   icon: typeof LayoutDashboard;
   exact?: boolean;
-  group?: string;
-}> = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/admin/listings", label: "Listings", icon: Building2 },
-  { to: "/admin/cruises", label: "Cruise Lines", icon: Ship },
-  { to: "/admin/claims", label: "Claims", icon: ShieldCheck },
-  { to: "/admin/articles", label: "Articles", icon: FileText },
-  { to: "/admin/blog", label: "Blog", icon: Sparkles },
-  { to: "/admin/impressions", label: "Impressions", icon: BarChart3 },
-  { to: "/admin/import", label: "Import", icon: Download },
-  { to: "/admin/cms/settings", label: "Site Settings", icon: Settings, group: "CMS" },
-  { to: "/admin/cms/navigation", label: "Navigation", icon: MenuIcon, group: "CMS" },
-  { to: "/admin/cms/homepage", label: "Homepage", icon: Home, group: "CMS" },
-  { to: "/admin/cms/home-neighborhoods", label: "Home Neighborhoods", icon: MapPin, group: "CMS" },
-  { to: "/admin/cms/pages", label: "Pages", icon: FileStack, group: "CMS" },
-  { to: "/admin/cms/neighborhoods", label: "Neighborhoods", icon: MapPin, group: "CMS" },
-  { to: "/admin/api-keys", label: "API Keys", icon: KeyRound, group: "CMS" },
+};
+
+const navGroups: ReadonlyArray<{ heading?: string; items: ReadonlyArray<NavItem> }> = [
+  {
+    items: [{ to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true }],
+  },
+  {
+    heading: "Directory",
+    items: [
+      { to: "/admin/listings", label: "Listings", icon: Building2 },
+      { to: "/admin/cruises", label: "Cruise Lines", icon: Ship },
+    ],
+  },
+  {
+    heading: "Editorial",
+    items: [
+      { to: "/admin/articles", label: "Articles", icon: FileText },
+      { to: "/admin/blog", label: "Blog", icon: Sparkles },
+    ],
+  },
+  {
+    heading: "People",
+    items: [
+      { to: "/admin/users", label: "Users", icon: Users },
+      { to: "/admin/claims", label: "Claims", icon: ShieldCheck },
+    ],
+  },
+  {
+    heading: "Insights",
+    items: [
+      { to: "/admin/impressions", label: "Impressions", icon: BarChart3 },
+      { to: "/admin/import", label: "Import", icon: Download },
+    ],
+  },
+  {
+    heading: "Site (CMS)",
+    items: [
+      { to: "/admin/cms/homepage", label: "Homepage", icon: Home },
+      { to: "/admin/cms/home-neighborhoods", label: "Home Neighborhoods", icon: MapPin },
+      { to: "/admin/cms/navigation", label: "Navigation", icon: MenuIcon },
+      { to: "/admin/cms/pages", label: "Pages", icon: FileStack },
+      { to: "/admin/cms/neighborhoods", label: "Neighborhoods", icon: MapPin },
+    ],
+  },
+  {
+    heading: "System",
+    items: [
+      { to: "/admin/cms/settings", label: "Site Settings", icon: Settings },
+      { to: "/admin/api-keys", label: "API Keys", icon: KeyRound },
+    ],
+  },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
@@ -49,29 +83,38 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               <span className="font-display font-semibold">Admin</span>
             </Link>
           </div>
-          <nav className="px-3 space-y-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const active = item.exact
-                ? pathname === item.to
-                : pathname.startsWith(item.to);
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${
-                    active
-                      ? "bg-primary text-primary-foreground"
-                      : "text-foreground/70 hover:bg-secondary hover:text-foreground"
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
-              );
-            })}
+          <nav className="px-3 pb-28 space-y-4">
+            {navGroups.map((group, gi) => (
+              <div key={gi} className="space-y-1">
+                {group.heading && (
+                  <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                    {group.heading}
+                  </div>
+                )}
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const active = item.exact
+                    ? pathname === item.to
+                    : pathname.startsWith(item.to);
+                  return (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${
+                        active
+                          ? "bg-primary text-primary-foreground"
+                          : "text-foreground/70 hover:bg-secondary hover:text-foreground"
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            ))}
           </nav>
-          <div className="absolute bottom-0 w-full md:w-[260px] border-t border-border p-4 hidden md:block">
+          <div className="absolute bottom-0 w-full md:w-[260px] border-t border-border p-4 hidden md:block bg-background">
             <div className="text-xs text-muted-foreground truncate">{user?.email}</div>
             <div className="mt-1 flex flex-wrap gap-1">
               {roles.map((r) => (
