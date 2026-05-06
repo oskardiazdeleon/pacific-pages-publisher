@@ -55,6 +55,7 @@ function AdminUsers() {
   const [listingsById, setListingsById] = useState<Record<string, ListingRow>>({});
   const [q, setQ] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
 
   const load = async () => {
     const [{ data: profiles, error: pe }, { data: roles, error: re }, { data: claims, error: ce }, { data: listings, error: le }] =
