@@ -84,12 +84,35 @@ export function ArticleForm({ initial }: { initial?: Partial<ArticleFormValues> 
     faqs: initial?.faqs ?? [],
   });
   const [busy, setBusy] = useState(false);
+  const [linking, setLinking] = useState(false);
 
   const set = <K extends keyof ArticleFormValues>(k: K, val: ArticleFormValues[K]) =>
     setV((p) => ({ ...p, [k]: val }));
 
   const slugify = (s: string) =>
     s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+  const runAutoLink = async () => {
+    if (!v.body || v.body.trim().length === 0) {
+      toast.error("Add some body content first");
+      return;
+    }
+    setLinking(true);
+    try {
+      const targets = await fetchLinkTargets(v.slug || slugify(v.title));
+      const { html, added } = autoLinkHtml(v.body, targets, { maxLinks: 8 });
+      if (added.length === 0) {
+        toast.info("No relevant internal links found");
+      } else {
+        set("body", html);
+        toast.success(`Added ${added.length} internal link${added.length === 1 ? "" : "s"}`);
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Auto-link failed");
+    } finally {
+      setLinking(false);
+    }
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
