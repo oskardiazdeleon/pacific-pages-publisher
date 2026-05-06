@@ -431,3 +431,54 @@ X-API-Key: sk_live_…   (scope: listings:write)`}
   );
 }
 
+
+function ArticlesDocs({ baseUrl }: { baseUrl: string }) {
+  return (
+    <>
+      <DocBlock label="Endpoint">
+{`POST ${baseUrl}/api/public/articles
+Content-Type: application/json
+X-API-Key: sk_live_…   (scope: articles:write)`}
+      </DocBlock>
+      <DocBlock label="Request body">
+{`{
+  "title": "The Insider's Guide to La Jolla Coves",   // required, ≤200
+  "slug": "insiders-guide-la-jolla-coves",            // optional, [a-z0-9-]
+  "subtitle": "Tide pools, sea caves, and sunset.",
+  "excerpt": "A short summary for previews.",         // ≤500
+  "body": "<p>HTML body…</p>",                        // required, HTML
+  "hero_image": "https://…/hero.jpg",
+  "hero_caption": "Photo caption",
+  "hero_credit": "Photo: Jane Doe",
+  "category": "Guides",                               // required
+  "tags": ["la-jolla", "outdoors"],
+  "author_name": "Jane Doe",
+  "author_title": "Senior editor",
+  "author_avatar": "https://…/jane.jpg",
+  "author_bio": "Jane writes about coastal SD.",
+  "key_takeaways": ["Best at low tide", "Park early"],
+  "faqs": [{ "q": "Is parking free?", "a": "On weekdays, yes." }],
+  "pull_quote": "The coves at golden hour are unmatched.",
+  "read_time_minutes": 6,
+  "meta_title": "Insider's Guide to La Jolla Coves",
+  "meta_description": "≤160 char description",
+  "canonical_url": "https://example.com/canonical",
+  "og_image": "https://…/og.jpg",
+  "status": "published"                                // or "draft"
+}`}
+      </DocBlock>
+      <DocBlock label="cURL example">
+{`curl -X POST ${baseUrl}/api/public/articles \\
+  -H "Content-Type: application/json" \\
+  -H "X-API-Key: $SANDIEGO_API_KEY" \\
+  -d '{
+    "title": "Insider Guide to La Jolla",
+    "category": "Guides",
+    "body": "<p>Full article HTML…</p>",
+    "status": "published"
+  }'`}
+      </DocBlock>
+      <ResponseList resourceKey="article" />
+    </>
+  );
+}
