@@ -20,10 +20,11 @@ interface ApiKeyRow {
   created_at: string;
 }
 
-type Scope = "blog:write" | "listings:write";
+type Scope = "blog:write" | "listings:write" | "articles:write";
 const ALL_SCOPES: { value: Scope; label: string }[] = [
   { value: "blog:write", label: "Blog posts" },
   { value: "listings:write", label: "Listings" },
+  { value: "articles:write", label: "Articles" },
 ];
 
 function ApiKeysPage() {
@@ -32,7 +33,7 @@ function ApiKeysPage() {
   const [scopes, setScopes] = useState<Scope[]>(["blog:write"]);
   const [creating, setCreating] = useState(false);
   const [newKey, setNewKey] = useState<string | null>(null);
-  const [docsTab, setDocsTab] = useState<"blog" | "listings">("blog");
+  const [docsTab, setDocsTab] = useState<"blog" | "listings" | "articles">("blog");
   const create = useServerFn(createApiKey);
   const revoke = useServerFn(revokeApiKey);
 
@@ -269,7 +270,7 @@ function ApiKeysPage() {
         </p>
 
         <div className="mt-5 inline-flex rounded-full border border-border bg-card p-1">
-          {(["blog", "listings"] as const).map((t) => (
+          {(["blog", "listings", "articles"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setDocsTab(t)}
@@ -279,15 +280,17 @@ function ApiKeysPage() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {t === "blog" ? "Blog posts" : "Listings"}
+              {t === "blog" ? "Blog posts" : t === "listings" ? "Listings" : "Articles"}
             </button>
           ))}
         </div>
 
         {docsTab === "blog" ? (
           <BlogDocs baseUrl={baseUrl} />
-        ) : (
+        ) : docsTab === "listings" ? (
           <ListingsDocs baseUrl={baseUrl} />
+        ) : (
+          <ArticlesDocs baseUrl={baseUrl} />
         )}
       </div>
     </div>
