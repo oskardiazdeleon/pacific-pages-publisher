@@ -1,11 +1,14 @@
-import { useState, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Sparkles, Loader2, Wand2, Link2 } from "lucide-react";
+import { Sparkles, Loader2, Wand2 } from "lucide-react";
+import { marked } from "marked";
+import TurndownService from "turndown";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { aiInsertInternalLinks } from "@/utils/import.functions";
 
 export interface BlogFormValues {
