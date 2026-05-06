@@ -96,7 +96,7 @@ function injectHeadingIds(html: string): { html: string; toc: { id: string; text
     let i = 2;
     while (seen.has(id)) { id = `${slugify(text)}-${i++}`; }
     seen.add(id);
-    toc.push({ id, text, level: Number(lvl) as 2 | 3 });
+    if (Number(lvl) === 2) toc.push({ id, text, level: 2 });
     if (/\bid=/.test(attrs)) return _m;
     return `<h${lvl}${attrs} id="${id}">${inner}</h${lvl}>`;
   });
