@@ -1,96 +1,56 @@
-# Listing Claim Flow
+# San Diego–Themed 404 Page
 
-A self-serve way for business owners to claim their listing, verify ownership, and get partner access — with an admin review queue as the trust gate.
+Replace the generic "Page not found" screen (currently in `src/routes/__root.tsx` → `NotFoundComponent`) with a sun-soaked, ocean-horizon illustration and a rotating set of playful, locally-flavored messages.
 
-## User flow
+## Message options (a different one shows on each visit)
+
+1. 🌊 **Looks like you missed the wave.** — "This page wiped out somewhere off Black's Beach. Paddle back and we'll find you a cleaner set."
+2. 🌮 **This page is on a taco run.** — "It ducked into a shop in Barrio Logan and never came back. Try the homepage — the salsa's better there anyway."
+3. 🌅 **Couldn't find your vibe.** — "The page you're looking for is somewhere between Sunset Cliffs and the next golden hour. Let's get you back on the boardwalk."
+4. 🦭 **Even the La Jolla seals are confused.** — "This URL slipped past the Cove. Head home and we'll point you toward something worth barking about."
+5. 🌴 **Took a wrong turn off the 5.** — "You ended up on a frontage road in the digital desert. Hop back on and we'll get you to the good stuff."
+6. 🚤 **Lost in the marine layer.** — "The page is fogged in until about 11am. While you wait, the rest of San Diego is already at the beach."
+7. 🏄 **Wipeout.** — "Whatever you were chasing closed out on you. Pop back up and we'll line up the next one from the homepage."
+8. 🌮 **404: No tacos at this address.** — "But there are plenty a few clicks away. Let's get you somewhere worth the drive."
+
+On each page load one is picked at random so the 404 always feels fresh.
+
+## Visual design
+
+A single full-screen scene that reads as San Diego at golden hour:
 
 ```text
-Listing page                  Submitter                     Admin
------------                   ---------                     -----
-[Claim this listing] ──▶  Sign in / sign up
-                          Fill claim form
-                          (role at business,
-                           work email, notes)
-                                  │
-                                  ▼
-                          Auto-verify if work
-                          email domain matches
-                          listing website domain
-                                  │
-                                  ▼
-                          Status: pending  ───────────▶  Admin queue
-                                                         /admin/claims
-                                                              │
-                                                              ▼
-                                                         Approve / Reject
-                                                              │
-                          ◀──────────────────────────────────┘
-                          On approve:
-                            - listings.partner_id = user
-                            - grant 'partner' role
-                            - email submitter
-                          On reject:
-                            - email submitter w/ reason
+   sky: warm cream → peach → coral gradient
+   ┌──────────────────────────────────────────┐
+   │   palm                                   │
+   │  silhouette       ☀  big soft sun        │
+   │   ╱                                      │
+   │  ╱        404  (huge navy display)      │
+   │           🌊                             │
+   │     Looks like you missed the wave.     │
+   │     Sub-message in muted navy.          │
+   │  [Back to the boardwalk] [Browse articles]│
+   │  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  │ ← white-foam wave
+   │ ░░░░░░░░░░ deep ocean band ░░░░░░░░░░░  │
+   └──────────────────────────────────────────┘
+   tiny caps label: "Lost in San Diego · Error 404"
 ```
 
-## What gets built
+Layers, all rendered with CSS gradients + inline SVG (no new image assets):
+- Sky gradient (cream → peach → coral)
+- Soft glowing sun disc behind the headline
+- Two-tone ocean band with a sun-reflection shimmer
+- Two stacked SVG wave paths (deep blue + white foam) at the horizon
+- Palm tree SVG silhouette on the left edge
+- Big navy "404" in the display font, with the playful headline + sub copy centered
+- Two CTAs: primary "Back to the boardwalk" → `/`, secondary "Browse articles" → `/articles`
 
-### 1. Database (`listing_claims` table)
+## Technical details
 
-Columns: `id`, `listing_id`, `user_id`, `claimant_name`, `claimant_email`, `claimant_role` (Owner / Manager / Marketing / Other), `notes`, `status` (pending / approved / rejected), `email_domain_match` (bool — auto-set on insert), `reviewed_by`, `review_notes`, `created_at`, `reviewed_at`.
+- File: `src/routes/__root.tsx`, replacing the current `NotFoundComponent`.
+- Add a `SD_404_MESSAGES` array and pick one with `Math.random()` on render.
+- Use inline Tailwind utility classes with explicit San Diego palette values (sunset cream/peach/coral + navy ocean) so the scene reads correctly regardless of the active theme tokens.
+- Pure SVG + gradients, no new dependencies, no new assets, no migrations.
+- Continues to be wired in via `notFoundComponent: NotFoundComponent` on the root route, so it covers every unmatched URL site-wide.
 
-- Unique partial index: one pending claim per (listing_id, user_id).
-- RLS:
-  - INSERT: any authenticated user, with `user_id = auth.uid()`.
-  - SELECT: claimant sees own claims; admins see all.
-  - UPDATE: admins only (status, review_notes, reviewed_by, reviewed_at).
-- Trigger on approve: set `listings.partner_id = user_id`, insert `('partner')` into `user_roles` (idempotent).
-
-### 2. "Claim this listing" CTA on listing pages
-
-Added to `ListingDetailPage.tsx` sidebar, shown when `listings.partner_id IS NULL`. If signed-in user already has a pending or approved claim on the listing, button shows that state instead.
-
-Unauthenticated click → redirect to `/auth?next=/{category}/{slug}?claim=1`.
-
-### 3. Claim form (`/claim/$slug`)
-
-- Auth-gated (redirect to `/auth` if signed out).
-- Zod-validated form: name (≤100), work email (valid email, ≤255), role (enum), notes (≤500).
-- On submit: insert into `listing_claims`. Server compares email domain to listing's website host — sets `email_domain_match = true` if equal (helps admin triage but doesn't auto-approve).
-- Success screen: "We'll review within 1–2 business days."
-
-### 4. Admin review queue (`/admin/claims`)
-
-- New entry in admin nav.
-- Table: listing, claimant, role, email (with green "domain match" badge if true), submitted date, status filter.
-- Detail drawer with claimant info + listing preview + Approve / Reject buttons.
-- Approve runs the trigger logic (link partner_id, grant role). Reject takes a required reason.
-
-### 5. Partner dashboard empty state
-
-Update `/partner` empty state to link to "Find your listing" with a search, plus "Submit a claim" copy. Removes the current dead-end.
-
-### 6. `/partners` marketing page CTAs
-
-Wire the inactive "Claim listing" / "Start Featured" / etc. buttons to either the claim flow (Free tier) or a "Contact sales" mailto for paid tiers (Stripe checkout is out of scope for this round — noted as next step).
-
-### 7. Email notifications
-
-Three transactional emails via the project's email infra:
-- Claim submitted (to claimant): "We got it, review in 1–2 days."
-- Claim approved (to claimant): link to `/partner`.
-- Claim rejected (to claimant): with admin's reason.
-
-## Out of scope (can follow up)
-
-- Stripe checkout for paid tiers
-- Phone/postcard verification fallback when email domain doesn't match
-- Partner-facing analytics dashboard (currently mocked)
-- Bulk claim approval
-
-## Technical notes
-
-- Schema change via migration; data writes via standard insert tooling.
-- The auto-link-on-approve runs as a Postgres trigger using `SECURITY DEFINER` so the admin UI doesn't need service-role calls.
-- Claim form input validated with zod on both client and server (server function with `requireSupabaseAuth`).
-- Domain comparison normalizes (`lowercase`, strip `www.`, drop port) and only checks exact match — subdomains don't auto-match.
+After approval, I'll implement it in one edit to `src/routes/__root.tsx`.
