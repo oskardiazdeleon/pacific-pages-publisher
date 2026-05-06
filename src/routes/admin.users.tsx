@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Search, Shield, ShieldCheck, UserCog, ExternalLink } from "lucide-react";
+import { Search, Shield, ShieldCheck, UserCog, ExternalLink, UserPlus, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { hubForCategory } from "@/lib/listing-categories";
+import { adminCreateUser } from "@/server/users.functions";
 
 export const Route = createFileRoute("/admin/users")({
   head: () => ({ meta: [{ title: "Users — Admin" }] }),
@@ -54,6 +55,7 @@ function AdminUsers() {
   const [listingsById, setListingsById] = useState<Record<string, ListingRow>>({});
   const [q, setQ] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
 
   const load = async () => {
     const [{ data: profiles, error: pe }, { data: roles, error: re }, { data: claims, error: ce }, { data: listings, error: le }] =
@@ -138,16 +140,34 @@ function AdminUsers() {
             Registered users, their roles, claims, and listings they manage.
           </p>
         </div>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search name, email, company…"
-            className="w-72 rounded-full border border-border bg-background pl-9 pr-3 py-2 text-sm"
-          />
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search name, email, company…"
+              className="w-72 rounded-full border border-border bg-background pl-9 pr-3 py-2 text-sm"
+            />
+          </div>
+          <button
+            onClick={() => setShowCreate(true)}
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            <UserPlus className="h-4 w-4" /> New user
+          </button>
         </div>
       </div>
+
+      {showCreate && (
+        <CreateUserModal
+          onClose={() => setShowCreate(false)}
+          onCreated={() => {
+            setShowCreate(false);
+            load();
+          }}
+        />
+      )}
 
       {!filtered ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
@@ -278,6 +298,141 @@ function AdminUsers() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function CreateUserModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [selectedRoles, setSelectedRoles] = useState<AppRole[]>(["user"]);
+  const [submitting, setSubmitting] = useState(false);
+
+  const toggle = (r: AppRole) =>
+    setSelectedRoles((prev) =>
+      prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r],
+    );
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedRoles.length === 0) {
+      toast.error("Pick at least one role");
+      return;
+    }
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await adminCreateUser({
+        data: {
+          email: email.trim(),
+          password,
+          displayName: displayName.trim() || undefined,
+          roles: selectedRoles,
+        },
+      });
+      toast.success("User created");
+      onCreated();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to create user");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-foreground/40 p-4" onClick={onClose}>
+      <form
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={submit}
+        className="w-full max-w-md rounded-2xl bg-background p-6 shadow-xl border border-border"
+      >
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h2 className="font-display text-xl font-semibold">Create user</h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Account is created and email-confirmed immediately.
+            </p>
+          </div>
+          <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          <label className="block">
+            <span className="text-xs font-medium text-muted-foreground">Email</span>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium text-muted-foreground">Display name (optional)</span>
+            <input
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium text-muted-foreground">Temporary password (min 8)</span>
+            <input
+              type="text"
+              required
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-mono"
+            />
+          </label>
+          <div>
+            <span className="text-xs font-medium text-muted-foreground">Roles</span>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {ALL_ROLES.map((r) => {
+                const has = selectedRoles.includes(r);
+                return (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => toggle(r)}
+                    className={`text-xs rounded-full px-3 py-1 border transition ${
+                      has
+                        ? "bg-foreground text-background border-foreground"
+                        : "border-border hover:bg-secondary"
+                    }`}
+                  >
+                    {has ? "− " : "+ "}{r}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-md border border-border px-4 py-2 text-sm hover:bg-secondary"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          >
+            {submitting ? "Creating…" : "Create user"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
