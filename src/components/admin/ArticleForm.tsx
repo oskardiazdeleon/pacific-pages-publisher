@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Plus, Trash2, Sparkles, HelpCircle, User, Image as ImageIcon, Search } from "lucide-react";
+import { Plus, Trash2, Sparkles, HelpCircle, User, Image as ImageIcon, Search, Link2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { fetchLinkTargets, autoLinkHtml } from "@/lib/auto-internal-links";
 
 export interface ArticleFormValues {
   id?: string;
@@ -83,12 +84,35 @@ export function ArticleForm({ initial }: { initial?: Partial<ArticleFormValues> 
     faqs: initial?.faqs ?? [],
   });
   const [busy, setBusy] = useState(false);
+  const [linking, setLinking] = useState(false);
 
   const set = <K extends keyof ArticleFormValues>(k: K, val: ArticleFormValues[K]) =>
     setV((p) => ({ ...p, [k]: val }));
 
   const slugify = (s: string) =>
     s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+  const runAutoLink = async () => {
+    if (!v.body || v.body.trim().length === 0) {
+      toast.error("Add some body content first");
+      return;
+    }
+    setLinking(true);
+    try {
+      const targets = await fetchLinkTargets(v.slug || slugify(v.title));
+      const { html, added } = autoLinkHtml(v.body, targets, { maxLinks: 8 });
+      if (added.length === 0) {
+        toast.info("No relevant internal links found");
+      } else {
+        set("body", html);
+        toast.success(`Added ${added.length} internal link${added.length === 1 ? "" : "s"}`);
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Auto-link failed");
+    } finally {
+      setLinking(false);
+    }
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -177,6 +201,19 @@ export function ArticleForm({ initial }: { initial?: Partial<ArticleFormValues> 
             uploadFolder={v.slug || "inline"}
             onChange={(html) => set("body", html)}
           />
+          <div className="mt-2 flex items-center justify-between gap-3 flex-wrap">
+            <p className="text-[11px] text-muted-foreground/80">
+              Auto-link scans the body for mentions of your other articles, listings, cruise lines, blog posts, and neighborhoods, then links them for SEO.
+            </p>
+            <button
+              type="button"
+              onClick={runAutoLink}
+              disabled={linking}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-1.5 text-xs font-medium hover:bg-secondary/70 disabled:opacity-50"
+            >
+              <Link2 className="h-3.5 w-3.5" /> {linking ? "Linking…" : "Auto-link internal pages"}
+            </button>
+          </div>
         </Field>
         <Field label="Pull quote" hint="A standout sentence rendered as a large editorial callout in the article.">
           <textarea className={inputCls} rows={2} value={v.pull_quote}
