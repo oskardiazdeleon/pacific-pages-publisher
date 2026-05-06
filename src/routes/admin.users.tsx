@@ -139,7 +139,7 @@ function AdminUsers() {
     if (!needle) return rows;
     return rows.filter((r) => {
       const name = r.profile.display_name?.toLowerCase() ?? "";
-      const email = r.claims[0]?.claimant_email?.toLowerCase() ?? "";
+      const email = (r.auth?.email ?? r.claims[0]?.claimant_email ?? "").toLowerCase();
       const co = r.profile.partner_company?.toLowerCase() ?? "";
       return name.includes(needle) || email.includes(needle) || co.includes(needle);
     });
