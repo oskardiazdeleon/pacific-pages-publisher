@@ -76,13 +76,9 @@ export const EmbedCardNode = Node.create({
   },
 });
 
-function EmbedCardView(props: {
-  node: { attrs: { kind: string; slug: string; variant: "full" | "compact" } };
-  updateAttributes: (attrs: Partial<{ variant: "full" | "compact" }>) => void;
-  deleteNode: () => void;
-  selected: boolean;
-}) {
-  const { kind, slug, variant } = props.node.attrs;
+function EmbedCardView(props: any) {
+  const attrs = props.node.attrs as { kind: string; slug: string; variant: "full" | "compact" };
+  const { kind, slug, variant } = attrs;
   const [cruise, setCruise] = useState<CruiseLine | null>(null);
   const [loading, setLoading] = useState(true);
 
