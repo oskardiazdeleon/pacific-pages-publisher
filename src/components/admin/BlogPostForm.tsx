@@ -84,8 +84,26 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
 
   // Markdown <-> HTML bridge for the rich editor
   const turndown = useMemo(() => {
-    const td = new TurndownService({ headingStyle: "atx", codeBlockStyle: "fenced", bulletListMarker: "-" });
-    // Convert embed-card divs back into our markdown directive
+    const td = new TurndownService({
+      headingStyle: "atx",
+      codeBlockStyle: "fenced",
+      bulletListMarker: "-",
+      // Default blankReplacement strips empty elements before rules run; preserve embed cards.
+      blankReplacement: (content, node) => {
+        const el = node as HTMLElement;
+        if (el.nodeType === 1 && el.hasAttribute && el.hasAttribute("data-embed-card")) {
+          const kind = el.getAttribute("data-kind");
+          const slug = el.getAttribute("data-slug") || "";
+          const variant = (el.getAttribute("data-variant") || "full") as "full" | "compact";
+          if (kind === "cruise" && slug) {
+            return `\n\n${buildDirective({ kind: "cruise", slug, variant })}\n\n`;
+          }
+          return "";
+        }
+        return (node as any).isBlock ? "\n\n" : "";
+      },
+    });
+    // Convert embed-card divs back into our markdown directive (non-blank case)
     td.addRule("embedCard", {
       filter: (node) =>
         node.nodeName === "DIV" &&
