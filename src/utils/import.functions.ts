@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-type ListingCategory = "Restaurant" | "Hotel" | "Attraction" | "Tour" | "Shopping" | "Nightlife";
+type ListingCategory = "Restaurant" | "Hotel" | "Attraction" | "Tour" | "Shopping" | "Nightlife" | "WeddingVenue";
 type ContentKind = "listing" | "article";
 // "curated_listing" reuses the import_jobs table but each item is a *restaurant
 // or business name* (stored in the `url` column with a synthetic `curated://`
