@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-type ListingCategory = "Restaurant" | "Hotel" | "Attraction" | "Tour" | "Shopping" | "Nightlife";
+type ListingCategory = "Restaurant" | "Hotel" | "Attraction" | "Tour" | "Shopping" | "Nightlife" | "WeddingVenue";
 type ContentKind = "listing" | "article";
 // "curated_listing" reuses the import_jobs table but each item is a *restaurant
 // or business name* (stored in the `url` column with a synthetic `curated://`
@@ -108,6 +108,13 @@ Set price_range using $/$$/$$$/$$$$ if signal exists.`,
   Tour: `Structure: 1) hook, 2) what you'll see/do (route, duration), 3) who it's best for, 4) what's included, 5) insider tip on timing or which version of the tour to pick.`,
   Shopping: `Structure: 1) hook (what kind of shop), 2) what they actually carry (named brands or maker categories), 3) standout item or section, 4) who it's for, 5) insider tip (sale timing, custom orders, parking).`,
   Nightlife: `Structure: 1) hook (kind of bar/club), 2) drink program + room/sound vibe, 3) signature drink or show, 4) crowd + dress, 5) insider tip (best night, cover policy, secret room).`,
+  WeddingVenue: `Structure the description in this exact order (one short paragraph each, separated by blank lines):
+1. Hook — what kind of wedding venue this is and the overall feel.
+2. Setting & spaces — indoor vs outdoor ceremony spots, reception room style, scenic backdrop.
+3. Capacity & layout — typical guest count range, ceremony + reception flow, get-ready suites.
+4. What's included — catering, in-house coordinator, rentals, accommodations, parking.
+5. Insider tip — best season/time, off-peak pricing, photo spots, scheduling note.
+Set price_range using $/$$/$$$/$$$$ if signal exists.`,
 };
 
 const ORIGINALITY_INSTRUCTION = `\n\nYour previous attempt copied too much from the source. Rewrite from scratch — synthesize the facts, but NEVER reuse 8-word runs from the source text. Vary sentence structure entirely.`;
@@ -148,7 +155,7 @@ async function aiNormalize(
           properties: {
             kind: { type: "string", enum: ["listing"] },
             name: { type: "string" },
-            category: { type: "string", enum: ["Restaurant", "Hotel", "Attraction", "Tour", "Shopping", "Nightlife"] },
+            category: { type: "string", enum: ["Restaurant", "Hotel", "Attraction", "Tour", "Shopping", "Nightlife", "WeddingVenue"] },
             neighborhood: { type: "string" },
             short_description: { type: "string", description: "1 sentence, max 180 chars, no banned phrases." },
             description: { type: "string", description: "Multi-paragraph editorial description following the per-category structure." },
@@ -163,6 +170,41 @@ async function aiNormalize(
             price_range: { type: "string" },
             meta_title: { type: "string", description: "Max 65 chars, includes neighborhood + a signature trait so two listings never share a meta title." },
             meta_description: { type: "string", description: "Max 155 chars, original sentence — not a copy of short_description." },
+            wedding_details: {
+              type: "object",
+              description: "ONLY populate when category is WeddingVenue. Extract from the source page (WeddingWire, The Knot, Zola, the venue's own site).",
+              properties: {
+                venue_types: { type: "array", items: { type: "string" }, description: "e.g. 'Estate / Private Mansion', 'Beach / Waterfront', 'Garden', 'Ballroom', 'Barn / Farm', 'Hotel / Resort', 'Winery / Vineyard'." },
+                settings: { type: "array", items: { type: "string" }, description: "e.g. 'Oceanfront', 'Garden', 'Historic', 'Indoor', 'Outdoor', 'Rooftop'." },
+                ceremony_capacity: { type: "number" },
+                reception_capacity: { type: "number" },
+                min_capacity: { type: "number" },
+                max_capacity: { type: "number" },
+                get_ready_rooms: { type: "boolean" },
+                starting_price: { type: "string", description: "Lowest published price, e.g. '$8,500'." },
+                peak_price: { type: "string" },
+                off_peak_price: { type: "string" },
+                average_price: { type: "string" },
+                response_time: { type: "string", description: "Typical vendor response time, e.g. '24 hours'." },
+                spaces: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      name: { type: "string" },
+                      capacity: { type: "string" },
+                      type: { type: "string", description: "Indoor / Outdoor / Covered, etc." },
+                      description: { type: "string" },
+                    },
+                  },
+                },
+                event_types: { type: "array", items: { type: "string" }, description: "e.g. 'Ceremony', 'Reception', 'Rehearsal dinner', 'Bridal shower'." },
+                services: { type: "array", items: { type: "string" }, description: "e.g. 'Catering', 'Bar service', 'Coordinator', 'Cake', 'Setup/cleanup'." },
+                items_included: { type: "array", items: { type: "string" }, description: "e.g. 'Tables', 'Chairs', 'Linens', 'Sound system'." },
+                accessibility: { type: "array", items: { type: "string" }, description: "e.g. 'Wheelchair accessible', 'Elevator', 'Accessible parking'." },
+              },
+              additionalProperties: false,
+            },
           },
           required: ["kind", "name", "category", "neighborhood", "short_description", "description", "editor_note", "why_we_picked_it", "insider_tip", "local_context", "meta_title", "meta_description"],
           additionalProperties: false,
@@ -187,8 +229,9 @@ async function aiNormalize(
   // Detect category from source for the right per-category prompt
   let detectedCategory: ListingCategory = "Restaurant";
   if (kind === "listing") {
-    const blob = `${scraped.metadata?.title ?? ""} ${scraped.metadata?.description ?? ""} ${scraped.markdown.slice(0, 2000)}`.toLowerCase();
-    if (/\bhotel|resort|inn\b/.test(blob)) detectedCategory = "Hotel";
+    const blob = `${scraped.metadata?.title ?? ""} ${scraped.metadata?.description ?? ""} ${scraped.sourceUrl} ${scraped.markdown.slice(0, 2000)}`.toLowerCase();
+    if (/weddingwire|theknot|zola\.com\/wedding|\bwedding venue|wedding venues|ceremony|reception venue|bridal/.test(blob)) detectedCategory = "WeddingVenue";
+    else if (/\bhotel|resort|inn\b/.test(blob)) detectedCategory = "Hotel";
     else if (/\btour|cruise|excursion\b/.test(blob)) detectedCategory = "Tour";
     else if (/\bbar|club|lounge|nightlife\b/.test(blob)) detectedCategory = "Nightlife";
     else if (/\bmuseum|park|zoo|attraction|gallery\b/.test(blob)) detectedCategory = "Attraction";
@@ -206,7 +249,9 @@ ${BRAND_VOICE}
 CATEGORY-SPECIFIC STRUCTURE (use the structure that matches the detected category — likely ${detectedCategory}):
 ${CATEGORY_PROMPTS[detectedCategory]}
 
-The editor_note, insider_tip, and local_context fields are PROPRIETARY editorial content — invent them from your knowledge of San Diego, do not copy them from the source.`
+The editor_note, insider_tip, and local_context fields are PROPRIETARY editorial content — invent them from your knowledge of San Diego, do not copy them from the source.
+
+When category is "WeddingVenue", you MUST also populate the wedding_details object with every field you can extract from the source (capacities, venue types, settings, event spaces, services, items included, accessibility, peak/off-peak pricing, response time). On WeddingWire, The Knot, and Zola pages this data is on the page in labelled sections — read it carefully.`
       : `You convert scraped web content into a clean San Diego editorial article. Preserve the structure with semantic HTML. ${BRAND_VOICE} Estimate read time (~200 wpm).`;
 
   const userMsg = `Source URL: ${scraped.sourceUrl}
@@ -344,6 +389,7 @@ async function insertListing(
     best_time_to_visit: record.best_time_to_visit ?? null,
     local_context: record.local_context ?? null,
     hero_image: hero,
+    gallery: Array.isArray(record.gallery) ? record.gallery.slice(0, 12) : [],
     address: record.address ?? null,
     phone: record.phone ?? null,
     website: record.website ?? null,
@@ -354,6 +400,10 @@ async function insertListing(
     source_url: ctx.sourceUrl ?? null,
     originality_score: ctx.originalityScore ?? null,
     curator_id: ctx.curatorId ?? null,
+    wedding_details:
+      record.category === "WeddingVenue" && record.wedding_details && typeof record.wedding_details === "object"
+        ? record.wedding_details
+        : null,
     tier: "free" as const,
     status: (shouldPublish ? "published" : "draft") as "published" | "draft",
     published_at: shouldPublish ? new Date().toISOString() : null,
@@ -396,9 +446,33 @@ async function processOneUrl(
   const { record, originality_score } = await aiNormalize(scraped, kind);
   const hero = pickHeroImage(scraped.html, scraped.metadata, url);
   const reservation = kind === "listing" ? pickReservationUrl(scraped.html, scraped.links) : null;
+  if (kind === "listing" && record.category === "WeddingVenue") {
+    const gallery = extractGallery(scraped.html, url, hero);
+    if (gallery.length) (record as any).gallery = gallery;
+  }
   return kind === "listing"
     ? await insertListing(record, hero, publish, reservation, { sourceUrl: url, originalityScore: originality_score, curatorId })
     : await insertArticle(record, hero, publish);
+}
+
+function extractGallery(html: string, base: string, hero: string | null): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  const re = /<img[^>]+src=["']([^"']+)["']/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    const u = absUrl(m[1], base);
+    if (!u) continue;
+    if (!/^https?:\/\//i.test(u)) continue;
+    if (/\.(svg|gif)(\?|$)/i.test(u)) continue;
+    if (/sprite|icon|logo|avatar|favicon/i.test(u)) continue;
+    if (u === hero) continue;
+    if (seen.has(u)) continue;
+    seen.add(u);
+    out.push(u);
+    if (out.length >= 12) break;
+  }
+  return out;
 }
 
 // ---------- Curated (search-based) listing import ----------
@@ -547,6 +621,7 @@ async function ensureAdmin(supabase: any, userId: string) {
 
 function guessKind(url: string): ContentKind {
   const u = url.toLowerCase();
+  if (/weddingwire\.com|theknot\.com|zola\.com\/wedding/.test(u)) return "listing";
   if (/\b(blog|article|news|story|guide|stories)\b/.test(u)) return "article";
   return "listing";
 }
