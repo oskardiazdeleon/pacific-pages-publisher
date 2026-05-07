@@ -1,5 +1,8 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { ListingDetailPage, listingHeadMeta } from "@/components/site/ListingDetailPage";
+import {
+  WeddingVenueDetailPage,
+  weddingVenueHeadMeta,
+} from "@/components/site/wedding/WeddingVenueDetailPage";
 import { fetchListingBySlug } from "@/lib/content-queries";
 import { hubForSlug } from "@/lib/listing-categories";
 
@@ -14,18 +17,20 @@ export const Route = createFileRoute("/weddings/$slug")({
   head: ({ loaderData }) => {
     const l = loaderData?.listing;
     if (!l) return { meta: [{ title: "Wedding venue — sandiego.com" }] };
-    return { meta: listingHeadMeta(l, HUB) };
+    return { meta: weddingVenueHeadMeta(l as any, HUB) };
   },
   notFoundComponent: () => (
     <div className="min-h-screen grid place-items-center px-4 text-center">
       <div>
         <h1 className="font-display text-3xl font-semibold">Wedding venue not found</h1>
-        <a href="/weddings" className="mt-4 inline-block text-accent">Back to all wedding venues</a>
+        <a href="/weddings" className="mt-4 inline-block text-accent">
+          Back to all wedding venues
+        </a>
       </div>
     </div>
   ),
   component: () => {
     const { listing } = Route.useLoaderData();
-    return <ListingDetailPage listing={listing} expectedHub={HUB} />;
+    return <WeddingVenueDetailPage listing={listing as any} />;
   },
 });
