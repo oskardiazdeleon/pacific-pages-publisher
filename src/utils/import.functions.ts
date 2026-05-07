@@ -155,7 +155,7 @@ async function aiNormalize(
           properties: {
             kind: { type: "string", enum: ["listing"] },
             name: { type: "string" },
-            category: { type: "string", enum: ["Restaurant", "Hotel", "Attraction", "Tour", "Shopping", "Nightlife"] },
+            category: { type: "string", enum: ["Restaurant", "Hotel", "Attraction", "Tour", "Shopping", "Nightlife", "WeddingVenue"] },
             neighborhood: { type: "string" },
             short_description: { type: "string", description: "1 sentence, max 180 chars, no banned phrases." },
             description: { type: "string", description: "Multi-paragraph editorial description following the per-category structure." },
