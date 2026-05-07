@@ -108,6 +108,13 @@ Set price_range using $/$$/$$$/$$$$ if signal exists.`,
   Tour: `Structure: 1) hook, 2) what you'll see/do (route, duration), 3) who it's best for, 4) what's included, 5) insider tip on timing or which version of the tour to pick.`,
   Shopping: `Structure: 1) hook (what kind of shop), 2) what they actually carry (named brands or maker categories), 3) standout item or section, 4) who it's for, 5) insider tip (sale timing, custom orders, parking).`,
   Nightlife: `Structure: 1) hook (kind of bar/club), 2) drink program + room/sound vibe, 3) signature drink or show, 4) crowd + dress, 5) insider tip (best night, cover policy, secret room).`,
+  WeddingVenue: `Structure the description in this exact order (one short paragraph each, separated by blank lines):
+1. Hook — what kind of wedding venue this is and the overall feel.
+2. Setting & spaces — indoor vs outdoor ceremony spots, reception room style, scenic backdrop.
+3. Capacity & layout — typical guest count range, ceremony + reception flow, get-ready suites.
+4. What's included — catering, in-house coordinator, rentals, accommodations, parking.
+5. Insider tip — best season/time, off-peak pricing, photo spots, scheduling note.
+Set price_range using $/$$/$$$/$$$$ if signal exists.`,
 };
 
 const ORIGINALITY_INSTRUCTION = `\n\nYour previous attempt copied too much from the source. Rewrite from scratch — synthesize the facts, but NEVER reuse 8-word runs from the source text. Vary sentence structure entirely.`;
