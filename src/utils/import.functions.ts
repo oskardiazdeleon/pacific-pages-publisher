@@ -399,6 +399,10 @@ async function insertListing(
     source_url: ctx.sourceUrl ?? null,
     originality_score: ctx.originalityScore ?? null,
     curator_id: ctx.curatorId ?? null,
+    wedding_details:
+      record.category === "WeddingVenue" && record.wedding_details && typeof record.wedding_details === "object"
+        ? record.wedding_details
+        : null,
     tier: "free" as const,
     status: (shouldPublish ? "published" : "draft") as "published" | "draft",
     published_at: shouldPublish ? new Date().toISOString() : null,
