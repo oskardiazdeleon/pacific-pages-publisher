@@ -358,8 +358,10 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
             <RichTextEditor
               value={editorHtml}
               onChange={(html) => {
+                const markdown = turndown.turndown(html);
                 setEditorHtml(html);
-                set("body", turndown.turndown(html));
+                latestBodyRef.current = markdown;
+                set("body", markdown);
               }}
               uploadFolder="blog"
               placeholder="Write your post — use the toolbar to add headings, links, and images…"
