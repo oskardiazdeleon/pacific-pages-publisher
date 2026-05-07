@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -49,6 +49,7 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
   const aiInsertInternalLinksFn = useServerFn(aiInsertInternalLinks);
   const { user } = useAuth();
   const [v, setV] = useState<BlogFormValues>({ ...empty, ...initial });
+  const latestBodyRef = useRef(v.body);
   const [busy, setBusy] = useState(false);
   const [aiOpen, setAiOpen] = useState(!initial?.id);
   const [aiPrompt, setAiPrompt] = useState("");
@@ -121,6 +122,9 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
     return td;
   }, []);
   const [editorHtml, setEditorHtml] = useState<string>(() => (v.body ? mdToHtml(v.body) : ""));
+  useEffect(() => {
+    latestBodyRef.current = v.body;
+  }, [v.body]);
   // When body changes externally (AI generate, initial load), refresh the editor HTML
   useEffect(() => {
     setEditorHtml(v.body ? mdToHtml(v.body) : "");
@@ -185,6 +189,7 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
       const applied = Array.isArray(result?.applied) ? result.applied : [];
       const skipped = Array.isArray(result?.skipped) ? result.skipped : [];
       const newBody = typeof result?.body === "string" ? result.body : v.body;
+      latestBodyRef.current = newBody;
       setV((p) => ({ ...p, body: newBody }));
       setEditorHtml(mdToHtml(newBody));
       setLinkReport({ applied, skipped });
@@ -213,7 +218,7 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
         title: v.title,
         subtitle: v.subtitle || null,
         excerpt: v.excerpt || null,
-        body: v.body || null,
+        body: latestBodyRef.current || null,
         cover_image: v.cover_image || null,
         category: v.category || null,
         tags,
