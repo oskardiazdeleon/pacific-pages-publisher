@@ -249,7 +249,9 @@ ${BRAND_VOICE}
 CATEGORY-SPECIFIC STRUCTURE (use the structure that matches the detected category — likely ${detectedCategory}):
 ${CATEGORY_PROMPTS[detectedCategory]}
 
-The editor_note, insider_tip, and local_context fields are PROPRIETARY editorial content — invent them from your knowledge of San Diego, do not copy them from the source.`
+The editor_note, insider_tip, and local_context fields are PROPRIETARY editorial content — invent them from your knowledge of San Diego, do not copy them from the source.
+
+When category is "WeddingVenue", you MUST also populate the wedding_details object with every field you can extract from the source (capacities, venue types, settings, event spaces, services, items included, accessibility, peak/off-peak pricing, response time). On WeddingWire, The Knot, and Zola pages this data is on the page in labelled sections — read it carefully.`
       : `You convert scraped web content into a clean San Diego editorial article. Preserve the structure with semantic HTML. ${BRAND_VOICE} Estimate read time (~200 wpm).`;
 
   const userMsg = `Source URL: ${scraped.sourceUrl}
