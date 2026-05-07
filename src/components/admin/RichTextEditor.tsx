@@ -6,12 +6,20 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect, useRef, useState } from "react";
 import {
   Bold, Italic, Strikethrough, Code, Heading2, Heading3, List, ListOrdered,
-  Quote, Link as LinkIcon, Image as ImageIcon, Undo2, Redo2, Minus, Loader2, Ship,
+  Quote, Link as LinkIcon, Image as ImageIcon, Undo2, Redo2, Minus, Loader2,
+  Ship, Heart, Plus, ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { EmbedCardNode } from "@/components/admin/editor/EmbedCardNode";
 import { InsertCruiseCardDialog } from "@/components/admin/editor/InsertCruiseCardDialog";
+import { InsertWeddingVenueDialog } from "@/components/admin/editor/InsertWeddingVenueDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Props {
   value: string;
@@ -39,7 +47,12 @@ function ToolbarButton({
   );
 }
 
-function Toolbar({ editor, onImage, uploading, onInsertCruise }: { editor: Editor; onImage: () => void; uploading: boolean; onInsertCruise: () => void }) {
+function Toolbar({
+  editor, onImage, uploading, onInsertCruise, onInsertVenue,
+}: {
+  editor: Editor; onImage: () => void; uploading: boolean;
+  onInsertCruise: () => void; onInsertVenue: () => void;
+}) {
   const promptLink = () => {
     const prev = editor.getAttributes("link").href;
     const url = window.prompt("URL", prev || "https://");
@@ -91,9 +104,29 @@ function Toolbar({ editor, onImage, uploading, onInsertCruise }: { editor: Edito
       <ToolbarButton title="Insert image" onClick={onImage}>
         {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
       </ToolbarButton>
-      <ToolbarButton title="Insert cruise card" onClick={onInsertCruise}>
-        <Ship className="h-4 w-4" />
-      </ToolbarButton>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            title="Embed a card"
+            className="inline-flex h-8 items-center gap-1 rounded-md px-2 text-xs font-semibold text-foreground transition hover:bg-secondary"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Embed
+            <ChevronDown className="h-3 w-3 opacity-60" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-52">
+          <DropdownMenuItem onSelect={onInsertCruise}>
+            <Ship className="mr-2 h-4 w-4 text-accent" />
+            Cruise card
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={onInsertVenue}>
+            <Heart className="mr-2 h-4 w-4 text-accent" />
+            Wedding venue
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <span className="mx-1 h-6 w-px bg-border" />
       <ToolbarButton title="Undo" onClick={() => editor.chain().focus().undo().run()}>
         <Undo2 className="h-4 w-4" />
@@ -109,6 +142,7 @@ export function RichTextEditor({ value, onChange, placeholder, uploadFolder }: P
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [cruiseDialogOpen, setCruiseDialogOpen] = useState(false);
+  const [venueDialogOpen, setVenueDialogOpen] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -128,7 +162,6 @@ export function RichTextEditor({ value, onChange, placeholder, uploadFolder }: P
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
   });
 
-  // Sync external value changes (e.g. loading initial content)
   useEffect(() => {
     if (!editor) return;
     if (value && value !== editor.getHTML()) {
@@ -174,6 +207,7 @@ export function RichTextEditor({ value, onChange, placeholder, uploadFolder }: P
         uploading={uploading}
         onImage={() => fileRef.current?.click()}
         onInsertCruise={() => setCruiseDialogOpen(true)}
+        onInsertVenue={() => setVenueDialogOpen(true)}
       />
       <EditorContent editor={editor} />
       <input
@@ -192,6 +226,13 @@ export function RichTextEditor({ value, onChange, placeholder, uploadFolder }: P
         onOpenChange={setCruiseDialogOpen}
         onSelect={(slug, variant) => {
           editor.chain().focus().insertEmbedCard({ kind: "cruise", slug, variant }).run();
+        }}
+      />
+      <InsertWeddingVenueDialog
+        open={venueDialogOpen}
+        onOpenChange={setVenueDialogOpen}
+        onSelect={(slug, variant) => {
+          editor.chain().focus().insertEmbedCard({ kind: "venue", slug, variant }).run();
         }}
       />
     </div>
