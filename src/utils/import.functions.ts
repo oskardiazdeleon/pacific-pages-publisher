@@ -194,8 +194,9 @@ async function aiNormalize(
   // Detect category from source for the right per-category prompt
   let detectedCategory: ListingCategory = "Restaurant";
   if (kind === "listing") {
-    const blob = `${scraped.metadata?.title ?? ""} ${scraped.metadata?.description ?? ""} ${scraped.markdown.slice(0, 2000)}`.toLowerCase();
-    if (/\bhotel|resort|inn\b/.test(blob)) detectedCategory = "Hotel";
+    const blob = `${scraped.metadata?.title ?? ""} ${scraped.metadata?.description ?? ""} ${scraped.sourceUrl} ${scraped.markdown.slice(0, 2000)}`.toLowerCase();
+    if (/weddingwire|theknot|zola\.com\/wedding|\bwedding venue|wedding venues|ceremony|reception venue|bridal/.test(blob)) detectedCategory = "WeddingVenue";
+    else if (/\bhotel|resort|inn\b/.test(blob)) detectedCategory = "Hotel";
     else if (/\btour|cruise|excursion\b/.test(blob)) detectedCategory = "Tour";
     else if (/\bbar|club|lounge|nightlife\b/.test(blob)) detectedCategory = "Nightlife";
     else if (/\bmuseum|park|zoo|attraction|gallery\b/.test(blob)) detectedCategory = "Attraction";
