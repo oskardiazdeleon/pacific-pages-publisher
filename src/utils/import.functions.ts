@@ -621,6 +621,7 @@ async function ensureAdmin(supabase: any, userId: string) {
 
 function guessKind(url: string): ContentKind {
   const u = url.toLowerCase();
+  if (/weddingwire\.com|theknot\.com|zola\.com\/wedding/.test(u)) return "listing";
   if (/\b(blog|article|news|story|guide|stories)\b/.test(u)) return "article";
   return "listing";
 }
