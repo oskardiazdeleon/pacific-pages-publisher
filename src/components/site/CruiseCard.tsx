@@ -27,7 +27,7 @@ export function CruiseCard({ cruise, variant = "full" }: Props) {
             </div>
           )}
         </div>
-        <div className="min-w-0 flex-1">
+        <div className="flex min-w-0 flex-1 flex-col justify-center">
           <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-accent">
             <Ship className="h-3 w-3" /> Cruise line
           </div>
