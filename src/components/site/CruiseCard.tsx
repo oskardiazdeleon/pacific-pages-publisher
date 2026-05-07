@@ -11,9 +11,9 @@ export function CruiseCard({ cruise, variant = "full" }: Props) {
     return (
       <a
         href={`/cruises/${cruise.slug}`}
-        className="not-prose group flex items-center gap-4 rounded-2xl border border-border bg-card p-3 no-underline transition hover:border-accent/50 hover:shadow-md"
+        className="not-prose group my-4 flex items-stretch gap-4 rounded-2xl border border-border bg-card p-3 no-underline transition hover:border-accent/50 hover:shadow-md"
       >
-        <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-xl bg-muted">
+        <div className="relative aspect-[4/3] w-32 shrink-0 self-stretch overflow-hidden rounded-xl bg-muted sm:w-40">
           {cruise.heroImage ? (
             <img
               src={cruise.heroImage}
