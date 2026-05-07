@@ -445,9 +445,33 @@ async function processOneUrl(
   const { record, originality_score } = await aiNormalize(scraped, kind);
   const hero = pickHeroImage(scraped.html, scraped.metadata, url);
   const reservation = kind === "listing" ? pickReservationUrl(scraped.html, scraped.links) : null;
+  if (kind === "listing" && record.category === "WeddingVenue") {
+    const gallery = extractGallery(scraped.html, url, hero);
+    if (gallery.length) (record as any).gallery = gallery;
+  }
   return kind === "listing"
     ? await insertListing(record, hero, publish, reservation, { sourceUrl: url, originalityScore: originality_score, curatorId })
     : await insertArticle(record, hero, publish);
+}
+
+function extractGallery(html: string, base: string, hero: string | null): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  const re = /<img[^>]+src=["']([^"']+)["']/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    const u = absUrl(m[1], base);
+    if (!u) continue;
+    if (!/^https?:\/\//i.test(u)) continue;
+    if (/\.(svg|gif)(\?|$)/i.test(u)) continue;
+    if (/sprite|icon|logo|avatar|favicon/i.test(u)) continue;
+    if (u === hero) continue;
+    if (seen.has(u)) continue;
+    seen.add(u);
+    out.push(u);
+    if (out.length >= 12) break;
+  }
+  return out;
 }
 
 // ---------- Curated (search-based) listing import ----------
