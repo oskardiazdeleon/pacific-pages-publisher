@@ -96,8 +96,8 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
           const kind = el.getAttribute("data-kind");
           const slug = el.getAttribute("data-slug") || "";
           const variant = (el.getAttribute("data-variant") || "full") as "full" | "compact";
-          if (kind === "cruise" && slug) {
-            return `\n\n${buildDirective({ kind: "cruise", slug, variant })}\n\n`;
+          if ((kind === "cruise" || kind === "venue") && slug) {
+            return `\n\n${buildDirective({ kind, slug, variant })}\n\n`;
           }
           return "";
         }
@@ -115,8 +115,8 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
         const kind = el.getAttribute("data-kind");
         const slug = el.getAttribute("data-slug") || "";
         const variant = (el.getAttribute("data-variant") || "full") as "full" | "compact";
-        if (kind !== "cruise" || !slug) return "";
-        return `\n\n${buildDirective({ kind: "cruise", slug, variant })}\n\n`;
+        if ((kind !== "cruise" && kind !== "venue") || !slug) return "";
+        return `\n\n${buildDirective({ kind, slug, variant })}\n\n`;
       },
     });
     return td;
