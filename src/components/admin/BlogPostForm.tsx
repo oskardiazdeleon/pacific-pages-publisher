@@ -10,6 +10,9 @@ import { useAuth } from "@/lib/auth";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { aiInsertInternalLinks } from "@/utils/import.functions";
+import { directivesToHtml, buildDirective } from "@/lib/embed-directives";
+
+const mdToHtml = (md: string) => (marked.parse(directivesToHtml(md || ""), { async: false }) as string);
 
 export interface BlogFormValues {
   id?: string;
@@ -82,15 +85,27 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
   // Markdown <-> HTML bridge for the rich editor
   const turndown = useMemo(() => {
     const td = new TurndownService({ headingStyle: "atx", codeBlockStyle: "fenced", bulletListMarker: "-" });
+    // Convert embed-card divs back into our markdown directive
+    td.addRule("embedCard", {
+      filter: (node) =>
+        node.nodeName === "DIV" &&
+        (node as HTMLElement).hasAttribute &&
+        (node as HTMLElement).hasAttribute("data-embed-card"),
+      replacement: (_content, node) => {
+        const el = node as HTMLElement;
+        const kind = el.getAttribute("data-kind");
+        const slug = el.getAttribute("data-slug") || "";
+        const variant = (el.getAttribute("data-variant") || "full") as "full" | "compact";
+        if (kind !== "cruise" || !slug) return "";
+        return `\n\n${buildDirective({ kind: "cruise", slug, variant })}\n\n`;
+      },
+    });
     return td;
   }, []);
-  const [editorHtml, setEditorHtml] = useState<string>(() =>
-    v.body ? (marked.parse(v.body, { async: false }) as string) : ""
-  );
+  const [editorHtml, setEditorHtml] = useState<string>(() => (v.body ? mdToHtml(v.body) : ""));
   // When body changes externally (AI generate, initial load), refresh the editor HTML
   useEffect(() => {
-    const html = v.body ? (marked.parse(v.body, { async: false }) as string) : "";
-    setEditorHtml(html);
+    setEditorHtml(v.body ? mdToHtml(v.body) : "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initial?.id]);
 
@@ -123,7 +138,7 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
         ai_generated: true,
         ai_prompt: aiPrompt,
       }));
-      if (d.body_markdown) setEditorHtml(marked.parse(d.body_markdown, { async: false }) as string);
+      if (d.body_markdown) setEditorHtml(mdToHtml(d.body_markdown));
       toast.success("Draft generated — review and refine below");
       setAiOpen(false);
     } catch (e) {
@@ -153,7 +168,7 @@ export function BlogPostForm({ initial }: { initial?: Partial<BlogFormValues> })
       const skipped = Array.isArray(result?.skipped) ? result.skipped : [];
       const newBody = typeof result?.body === "string" ? result.body : v.body;
       setV((p) => ({ ...p, body: newBody }));
-      setEditorHtml(marked.parse(newBody, { async: false }) as string);
+      setEditorHtml(mdToHtml(newBody));
       setLinkReport({ applied, skipped });
       if (applied.length === 0) {
         toast.warning(result?.message ?? "No internal links could be inserted — see report below");

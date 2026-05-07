@@ -6,10 +6,12 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect, useRef, useState } from "react";
 import {
   Bold, Italic, Strikethrough, Code, Heading2, Heading3, List, ListOrdered,
-  Quote, Link as LinkIcon, Image as ImageIcon, Undo2, Redo2, Minus, Loader2,
+  Quote, Link as LinkIcon, Image as ImageIcon, Undo2, Redo2, Minus, Loader2, Ship,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { EmbedCardNode } from "@/components/admin/editor/EmbedCardNode";
+import { InsertCruiseCardDialog } from "@/components/admin/editor/InsertCruiseCardDialog";
 
 interface Props {
   value: string;
@@ -37,7 +39,7 @@ function ToolbarButton({
   );
 }
 
-function Toolbar({ editor, onImage, uploading }: { editor: Editor; onImage: () => void; uploading: boolean }) {
+function Toolbar({ editor, onImage, uploading, onInsertCruise }: { editor: Editor; onImage: () => void; uploading: boolean; onInsertCruise: () => void }) {
   const promptLink = () => {
     const prev = editor.getAttributes("link").href;
     const url = window.prompt("URL", prev || "https://");
@@ -89,6 +91,9 @@ function Toolbar({ editor, onImage, uploading }: { editor: Editor; onImage: () =
       <ToolbarButton title="Insert image" onClick={onImage}>
         {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
       </ToolbarButton>
+      <ToolbarButton title="Insert cruise card" onClick={onInsertCruise}>
+        <Ship className="h-4 w-4" />
+      </ToolbarButton>
       <span className="mx-1 h-6 w-px bg-border" />
       <ToolbarButton title="Undo" onClick={() => editor.chain().focus().undo().run()}>
         <Undo2 className="h-4 w-4" />
@@ -103,6 +108,7 @@ function Toolbar({ editor, onImage, uploading }: { editor: Editor; onImage: () =
 export function RichTextEditor({ value, onChange, placeholder, uploadFolder }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [cruiseDialogOpen, setCruiseDialogOpen] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -110,6 +116,7 @@ export function RichTextEditor({ value, onChange, placeholder, uploadFolder }: P
       Link.configure({ openOnClick: false, autolink: true, HTMLAttributes: { class: "text-accent underline underline-offset-2" } }),
       Image.configure({ HTMLAttributes: { class: "rounded-xl my-4" } }),
       Placeholder.configure({ placeholder: placeholder || "Start writing your story…" }),
+      EmbedCardNode,
     ],
     content: value || "",
     editorProps: {
@@ -162,7 +169,12 @@ export function RichTextEditor({ value, onChange, placeholder, uploadFolder }: P
 
   return (
     <div className="rounded-lg border border-border bg-background overflow-hidden">
-      <Toolbar editor={editor} uploading={uploading} onImage={() => fileRef.current?.click()} />
+      <Toolbar
+        editor={editor}
+        uploading={uploading}
+        onImage={() => fileRef.current?.click()}
+        onInsertCruise={() => setCruiseDialogOpen(true)}
+      />
       <EditorContent editor={editor} />
       <input
         ref={fileRef}
@@ -173,6 +185,13 @@ export function RichTextEditor({ value, onChange, placeholder, uploadFolder }: P
           const file = e.target.files?.[0];
           if (file) uploadAndInsert(file);
           e.target.value = "";
+        }}
+      />
+      <InsertCruiseCardDialog
+        open={cruiseDialogOpen}
+        onOpenChange={setCruiseDialogOpen}
+        onSelect={(slug, variant) => {
+          editor.chain().focus().insertEmbedCard({ kind: "cruise", slug, variant }).run();
         }}
       />
     </div>
