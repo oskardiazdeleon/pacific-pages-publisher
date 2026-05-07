@@ -4,16 +4,16 @@
 //
 //     :::cruise-card{slug="princess-cruises" variant="full"}
 //     :::
+//     :::venue-card{slug="hotel-del-coronado-weddings" variant="compact"}
+//     :::
 //
 // In the rich-text editor (TipTap / HTML world) the same block is represented
 // by an HTML element:
 //
-//     <div data-embed-card data-kind="cruise" data-slug="princess-cruises" data-variant="full"></div>
-//
-// These helpers convert between the two so we can round-trip cleanly through
-// marked (markdown -> html, on load) and turndown (html -> markdown, on save).
+//     <div data-embed-card data-kind="cruise" data-slug="..." data-variant="..."></div>
+//     <div data-embed-card data-kind="venue"  data-slug="..." data-variant="..."></div>
 
-export type EmbedCardKind = "cruise";
+export type EmbedCardKind = "cruise" | "venue";
 
 export interface EmbedCardDirective {
   kind: EmbedCardKind;
@@ -22,14 +22,16 @@ export interface EmbedCardDirective {
 }
 
 const DIRECTIVE_RE =
-  /:::(cruise-card)\{([^}]*)\}\s*(?:\r?\n)?:::/g;
+  /:::(cruise-card|venue-card)\{([^}]*)\}\s*(?:\r?\n)?:::/g;
 
 const KIND_FROM_DIRECTIVE: Record<string, EmbedCardKind> = {
   "cruise-card": "cruise",
+  "venue-card": "venue",
 };
 
 const DIRECTIVE_FROM_KIND: Record<EmbedCardKind, string> = {
   cruise: "cruise-card",
+  venue: "venue-card",
 };
 
 function parseAttrs(raw: string): Record<string, string> {
@@ -40,10 +42,6 @@ function parseAttrs(raw: string): Record<string, string> {
   return out;
 }
 
-/**
- * Replace every cruise-card directive in a markdown string with raw HTML
- * placeholder divs so marked passes them through untouched.
- */
 export function directivesToHtml(markdown: string): string {
   return markdown.replace(DIRECTIVE_RE, (_full, name: string, attrs: string) => {
     const kind = KIND_FROM_DIRECTIVE[name];
@@ -56,19 +54,11 @@ export function directivesToHtml(markdown: string): string {
   });
 }
 
-/**
- * Build the directive string we store in markdown.
- */
 export function buildDirective(d: EmbedCardDirective): string {
   const name = DIRECTIVE_FROM_KIND[d.kind];
   return `:::${name}{slug="${d.slug}" variant="${d.variant}"}\n:::`;
 }
 
-/**
- * Split a markdown body into an array of alternating raw markdown segments
- * and embed-card directives. Used by the public blog page to render real
- * React components in place of the directive.
- */
 export type BodySegment =
   | { type: "markdown"; value: string }
   | { type: "embed"; embed: EmbedCardDirective };
@@ -102,10 +92,6 @@ export function splitBody(markdown: string): BodySegment[] {
   return out;
 }
 
-/**
- * Collect every cruise slug referenced by a body — used to prefetch data
- * before render so we don't kick off N requests one at a time.
- */
 export function collectEmbedSlugs(markdown: string, kind: EmbedCardKind): string[] {
   const slugs = new Set<string>();
   for (const seg of splitBody(markdown)) {
