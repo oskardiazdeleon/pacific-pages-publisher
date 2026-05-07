@@ -706,6 +706,7 @@ export type Database = {
           verified_at: string | null
           verified_visited: boolean
           website: string | null
+          wedding_details: Json | null
           why_we_picked_it: string[]
         }
         Insert: {
@@ -750,6 +751,7 @@ export type Database = {
           verified_at?: string | null
           verified_visited?: boolean
           website?: string | null
+          wedding_details?: Json | null
           why_we_picked_it?: string[]
         }
         Update: {
@@ -794,6 +796,7 @@ export type Database = {
           verified_at?: string | null
           verified_visited?: boolean
           website?: string | null
+          wedding_details?: Json | null
           why_we_picked_it?: string[]
         }
         Relationships: []
@@ -978,6 +981,48 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      venue_inquiries: {
+        Row: {
+          created_at: string
+          email: string
+          event_date: string | null
+          guest_count: number | null
+          id: string
+          listing_id: string
+          message: string | null
+          name: string
+          phone: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          event_date?: string | null
+          guest_count?: number | null
+          id?: string
+          listing_id: string
+          message?: string | null
+          name: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          event_date?: string | null
+          guest_count?: number | null
+          id?: string
+          listing_id?: string
+          message?: string | null
+          name?: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
