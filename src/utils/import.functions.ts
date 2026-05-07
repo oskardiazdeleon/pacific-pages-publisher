@@ -389,6 +389,7 @@ async function insertListing(
     best_time_to_visit: record.best_time_to_visit ?? null,
     local_context: record.local_context ?? null,
     hero_image: hero,
+    gallery: Array.isArray(record.gallery) ? record.gallery.slice(0, 12) : [],
     address: record.address ?? null,
     phone: record.phone ?? null,
     website: record.website ?? null,
