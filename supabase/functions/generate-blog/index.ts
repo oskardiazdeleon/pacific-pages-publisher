@@ -51,50 +51,44 @@ Target length: ${lengthHint}
 
 Return a JSON object via the provided tool. Generate compelling, specific San Diego content — name real neighborhoods, restaurants, beaches, etc. when relevant.`;
 
+    const parameters = {
+      type: "object",
+      properties: {
+        title: { type: "string", description: "Catchy, SEO-friendly title (50-65 chars)" },
+        subtitle: { type: "string", description: "One-line dek under the title" },
+        excerpt: { type: "string", description: "1-2 sentence summary (~160 chars) for previews" },
+        body_markdown: { type: "string", description: "Full post body in Markdown" },
+        suggested_slug: { type: "string", description: "url-friendly-slug" },
+        tags: { type: "array", items: { type: "string" }, description: "3-6 lowercase tags" },
+        category: { type: "string", description: "One of: Food, Beaches, Neighborhoods, Events, Outdoors, Family, Nightlife, Culture" },
+        meta_title: { type: "string" },
+        meta_description: { type: "string", description: "~155 chars" },
+        read_time_minutes: { type: "number" },
+      },
+      required: [
+        "title", "subtitle", "excerpt", "body_markdown", "suggested_slug",
+        "tags", "category", "meta_title", "meta_description", "read_time_minutes",
+      ],
+    };
+
     const response = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: userPrompt },
-          ],
-          tools: [
-            {
-              type: "function",
-              function: {
-                name: "create_blog_draft",
-                description: "Create a structured blog post draft.",
-                parameters: {
-                  type: "object",
-                  properties: {
-                    title: { type: "string", description: "Catchy, SEO-friendly title (50-65 chars)" },
-                    subtitle: { type: "string", description: "One-line dek under the title" },
-                    excerpt: { type: "string", description: "1-2 sentence summary (~160 chars) for previews" },
-                    body_markdown: { type: "string", description: "Full post body in Markdown" },
-                    suggested_slug: { type: "string", description: "url-friendly-slug" },
-                    tags: { type: "array", items: { type: "string" }, description: "3-6 lowercase tags" },
-                    category: { type: "string", description: "One of: Food, Beaches, Neighborhoods, Events, Outdoors, Family, Nightlife, Culture" },
-                    meta_title: { type: "string" },
-                    meta_description: { type: "string", description: "~155 chars" },
-                    read_time_minutes: { type: "number" },
-                  },
-                  required: [
-                    "title", "subtitle", "excerpt", "body_markdown", "suggested_slug",
-                    "tags", "category", "meta_title", "meta_description", "read_time_minutes",
-                  ],
-                  additionalProperties: false,
-                },
-              },
-            },
-          ],
-          tool_choice: { type: "function", function: { name: "create_blog_draft" } },
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+          tools: [{
+            functionDeclarations: [{
+              name: "create_blog_draft",
+              description: "Create a structured blog post draft.",
+              parameters,
+            }],
+          }],
+          toolConfig: {
+            functionCallingConfig: { mode: "ANY", allowedFunctionNames: ["create_blog_draft"] },
+          },
         }),
       },
     );
@@ -106,26 +100,21 @@ Return a JSON object via the provided tool. Generate compelling, specific San Di
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "AI credits exhausted. Add funds in Settings → Workspace → Usage." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        );
-      }
       const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
+      console.error("Gemini API error:", response.status, t);
       return new Response(
-        JSON.stringify({ error: "AI gateway error" }),
+        JSON.stringify({ error: "AI provider error" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
     const data = await response.json();
-    const toolCall = data?.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall?.function?.arguments) {
+    const parts = data?.candidates?.[0]?.content?.parts ?? [];
+    const fnCall = parts.find((p: any) => p?.functionCall)?.functionCall;
+    if (!fnCall?.args) {
       throw new Error("Model did not return a structured draft");
     }
-    const draft = JSON.parse(toolCall.function.arguments);
+    const draft = fnCall.args;
 
     return new Response(JSON.stringify({ draft }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
