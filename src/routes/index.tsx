@@ -20,14 +20,16 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Discover the best of San Diego: handpicked restaurants, hotels, attractions and editorial stories from local experts.",
+          "The definitive guide to San Diego — handpicked places to stay, eat, and explore, alongside the stories behind America's Finest City.",
       },
       { property: "og:title", content: "sandiego.com — The Definitive Guide to San Diego" },
       {
         property: "og:description",
-        content: "Handpicked listings, neighborhood guides and editorial stories from local experts.",
+        content:
+          "The definitive guide to San Diego — handpicked places to stay, eat, and explore, alongside the stories behind America's Finest City.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://sandiego.com/" }],
   }),
   component: HomePage,
 });

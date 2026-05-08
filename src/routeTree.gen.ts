@@ -54,6 +54,7 @@ import { Route as GolfCoursesSlugRouteImport } from './routes/golf-courses.$slug
 import { Route as CruisesSlugRouteImport } from './routes/cruises.$slug'
 import { Route as ClaimSlugRouteImport } from './routes/claim.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as AuthorsSlugRouteImport } from './routes/authors.$slug'
 import { Route as ArticlesSlugRouteImport } from './routes/articles.$slug'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminImpressionsRouteImport } from './routes/admin.impressions'
@@ -310,6 +311,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthorsSlugRoute = AuthorsSlugRouteImport.update({
+  id: '/authors/$slug',
+  path: '/authors/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ArticlesSlugRoute = ArticlesSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -486,6 +492,7 @@ export interface FileRoutesByFullPath {
   '/admin/impressions': typeof AdminImpressionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/authors/$slug': typeof AuthorsSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/claim/$slug': typeof ClaimSlugRoute
   '/cruises/$slug': typeof CruisesSlugRoute
@@ -560,6 +567,7 @@ export interface FileRoutesByTo {
   '/admin/impressions': typeof AdminImpressionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/authors/$slug': typeof AuthorsSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/claim/$slug': typeof ClaimSlugRoute
   '/cruises/$slug': typeof CruisesSlugRoute
@@ -638,6 +646,7 @@ export interface FileRoutesById {
   '/admin/impressions': typeof AdminImpressionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/authors/$slug': typeof AuthorsSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/claim/$slug': typeof ClaimSlugRoute
   '/cruises/$slug': typeof CruisesSlugRoute
@@ -717,6 +726,7 @@ export interface FileRouteTypes {
     | '/admin/impressions'
     | '/admin/users'
     | '/articles/$slug'
+    | '/authors/$slug'
     | '/blog/$slug'
     | '/claim/$slug'
     | '/cruises/$slug'
@@ -791,6 +801,7 @@ export interface FileRouteTypes {
     | '/admin/impressions'
     | '/admin/users'
     | '/articles/$slug'
+    | '/authors/$slug'
     | '/blog/$slug'
     | '/claim/$slug'
     | '/cruises/$slug'
@@ -868,6 +879,7 @@ export interface FileRouteTypes {
     | '/admin/impressions'
     | '/admin/users'
     | '/articles/$slug'
+    | '/authors/$slug'
     | '/blog/$slug'
     | '/claim/$slug'
     | '/cruises/$slug'
@@ -940,6 +952,7 @@ export interface RootRouteChildren {
   SitemapListingsDotxmlRoute: typeof SitemapListingsDotxmlRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  AuthorsSlugRoute: typeof AuthorsSlugRoute
   BlogSlugRoute: typeof BlogSlugRoute
   ClaimSlugRoute: typeof ClaimSlugRoute
   CruisesSlugRoute: typeof CruisesSlugRoute
@@ -1287,6 +1300,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/authors/$slug': {
+      id: '/authors/$slug'
+      path: '/authors/$slug'
+      fullPath: '/authors/$slug'
+      preLoaderRoute: typeof AuthorsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/articles/$slug': {
       id: '/articles/$slug'
       path: '/$slug'
@@ -1617,6 +1637,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapListingsDotxmlRoute: SitemapListingsDotxmlRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  AuthorsSlugRoute: AuthorsSlugRoute,
   BlogSlugRoute: BlogSlugRoute,
   ClaimSlugRoute: ClaimSlugRoute,
   CruisesSlugRoute: CruisesSlugRoute,
