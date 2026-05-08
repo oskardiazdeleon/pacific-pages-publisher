@@ -39,8 +39,8 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured");
 
     const label = body.category_label || category_slug.replace(/-/g, " ");
     const userPrompt = `Generate editorial overrides for a landing page about ${label} in ${neighborhood_name}, San Diego.
@@ -49,72 +49,50 @@ ${body.notes ? `Editor notes: ${body.notes}` : ""}
 Be specific to ${neighborhood_name}: mention real streets, landmarks, vibes, and what makes this neighborhood distinct for ${label}.
 Return a structured object via the provided tool.`;
 
+    const parameters = {
+      type: "object",
+      properties: {
+        title: { type: "string", description: "H1 / page title, e.g. 'Where to Eat in La Jolla'" },
+        intro: { type: "string", description: "2–3 sentence editorial lede with specific local color (~280 chars)." },
+        insider_tip: { type: "string", description: "1–2 sentence insider tip (parking, best time, hidden gem, member perk)." },
+        meta_title: { type: "string", description: "SEO title <60 chars, includes category + neighborhood." },
+        meta_description: { type: "string", description: "SEO meta description ~155 chars, includes a benefit hook." },
+        faqs: {
+          type: "array",
+          minItems: 3,
+          maxItems: 5,
+          description: "3–5 FAQs answering likely visitor questions.",
+          items: {
+            type: "object",
+            properties: {
+              q: { type: "string" },
+              a: { type: "string" },
+            },
+            required: ["q", "a"],
+          },
+        },
+      },
+      required: ["title", "intro", "insider_tip", "meta_title", "meta_description", "faqs"],
+    };
+
     const response = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: userPrompt },
-          ],
-          tools: [
-            {
-              type: "function",
-              function: {
-                name: "create_neighborhood_overrides",
-                description: "Editorial overrides for a category × neighborhood landing page.",
-                parameters: {
-                  type: "object",
-                  properties: {
-                    title: {
-                      type: "string",
-                      description: "H1 / page title, e.g. 'Where to Eat in La Jolla'",
-                    },
-                    intro: {
-                      type: "string",
-                      description: "2–3 sentence editorial lede with specific local color (~280 chars).",
-                    },
-                    insider_tip: {
-                      type: "string",
-                      description: "1–2 sentence insider tip (parking, best time, hidden gem, member perk).",
-                    },
-                    meta_title: {
-                      type: "string",
-                      description: "SEO title <60 chars, includes category + neighborhood.",
-                    },
-                    meta_description: {
-                      type: "string",
-                      description: "SEO meta description ~155 chars, includes a benefit hook.",
-                    },
-                    faqs: {
-                      type: "array",
-                      minItems: 3,
-                      maxItems: 5,
-                      description: "3–5 FAQs answering likely visitor questions.",
-                      items: {
-                        type: "object",
-                        properties: {
-                          q: { type: "string" },
-                          a: { type: "string" },
-                        },
-                        required: ["q", "a"],
-                        additionalProperties: false,
-                      },
-                    },
-                  },
-                  required: ["title", "intro", "insider_tip", "meta_title", "meta_description", "faqs"],
-                  additionalProperties: false,
-                },
-              },
-            },
-          ],
-          tool_choice: { type: "function", function: { name: "create_neighborhood_overrides" } },
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+          tools: [{
+            functionDeclarations: [{
+              name: "create_neighborhood_overrides",
+              description: "Editorial overrides for a category × neighborhood landing page.",
+              parameters,
+            }],
+          }],
+          toolConfig: {
+            functionCallingConfig: { mode: "ANY", allowedFunctionNames: ["create_neighborhood_overrides"] },
+          },
         }),
       },
     );
@@ -126,26 +104,21 @@ Return a structured object via the provided tool.`;
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "AI credits exhausted. Add funds in Settings → Workspace → Usage." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        );
-      }
       const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
+      console.error("Gemini API error:", response.status, t);
       return new Response(
-        JSON.stringify({ error: "AI gateway error" }),
+        JSON.stringify({ error: "AI provider error" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
     const data = await response.json();
-    const toolCall = data?.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall?.function?.arguments) {
+    const parts = data?.candidates?.[0]?.content?.parts ?? [];
+    const fnCall = parts.find((p: any) => p?.functionCall)?.functionCall;
+    if (!fnCall?.args) {
       throw new Error("Model did not return a structured draft");
     }
-    const draft = JSON.parse(toolCall.function.arguments);
+    const draft = fnCall.args;
 
     return new Response(JSON.stringify({ draft }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
