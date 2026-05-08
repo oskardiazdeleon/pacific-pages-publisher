@@ -67,7 +67,12 @@ export function Footer() {
         <div>
           <div className="eyebrow text-teal-soft">What's New</div>
           <ul className="mt-4 space-y-2 text-sm">
-            {whatsNew.map((it) => (
+            {(whatsNew.length ? whatsNew : [
+              { label: "New This Week", to: "/articles" },
+              { label: "Latest Articles", to: "/articles" },
+              { label: "Member Deals", to: "/insider" },
+              { label: "Insider Newsletter", to: "/insider" },
+            ]).map((it) => (
               <li key={it.label}>
                 <Link to={it.to} className="hover:text-teal-soft">{it.label}</Link>
               </li>
@@ -78,7 +83,13 @@ export function Footer() {
         <div>
           <div className="eyebrow text-teal-soft">Company</div>
           <ul className="mt-4 space-y-2 text-sm">
-            {company.map((it) => (
+            {(company.length ? company : [
+              { label: "About", to: "/about" },
+              { label: "Contact", to: "/contact" },
+              { label: "Partner With Us", to: "/partners" },
+              { label: "Privacy Policy", to: "/privacy" },
+              { label: "Terms of Service", to: "/terms" },
+            ]).map((it) => (
               <li key={it.label}>
                 <Link to={it.to} className="hover:text-teal-soft">{it.label}</Link>
               </li>
