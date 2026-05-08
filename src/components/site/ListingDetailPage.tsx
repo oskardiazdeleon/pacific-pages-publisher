@@ -186,9 +186,12 @@ export function ListingDetailPage({
     }
   }
 
+  // Map internal schema types to Google-preferred concrete types where possible.
+  const schemaTypeFor = (t: string) =>
+    t === "LodgingBusiness" ? "Hotel" : t;
   const businessJsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
-    "@type": hub.schemaType,
+    "@type": schemaTypeFor(hub.schemaType),
     "@id": canonicalUrl,
     name: listing.name,
     image: galleryRaw.length

@@ -10,11 +10,15 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
+import { Route as SitemapListingsDotxmlRouteImport } from './routes/sitemap-listings[.]xml'
+import { Route as SitemapArticlesDotxmlRouteImport } from './routes/sitemap-articles[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as PartnerRouteImport } from './routes/partner'
 import { Route as NeighborhoodsRouteImport } from './routes/neighborhoods'
+import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as ListingsRouteImport } from './routes/listings'
 import { Route as InsiderRouteImport } from './routes/insider'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -86,6 +90,21 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
+  id: '/sitemap-pages.xml',
+  path: '/sitemap-pages.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapListingsDotxmlRoute = SitemapListingsDotxmlRouteImport.update({
+  id: '/sitemap-listings.xml',
+  path: '/sitemap-listings.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapArticlesDotxmlRoute = SitemapArticlesDotxmlRouteImport.update({
+  id: '/sitemap-articles.xml',
+  path: '/sitemap-articles.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   id: '/robots.txt',
   path: '/robots.txt',
@@ -109,6 +128,11 @@ const PartnerRoute = PartnerRouteImport.update({
 const NeighborhoodsRoute = NeighborhoodsRouteImport.update({
   id: '/neighborhoods',
   path: '/neighborhoods',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
+  id: '/llms.txt',
+  path: '/llms.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ListingsRoute = ListingsRouteImport.update({
@@ -446,11 +470,15 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/insider': typeof InsiderRoute
   '/listings': typeof ListingsRouteWithChildren
+  '/llms.txt': typeof LlmsDottxtRoute
   '/neighborhoods': typeof NeighborhoodsRouteWithChildren
   '/partner': typeof PartnerRoute
   '/partners': typeof PartnersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap-articles.xml': typeof SitemapArticlesDotxmlRoute
+  '/sitemap-listings.xml': typeof SitemapListingsDotxmlRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/api-keys': typeof AdminApiKeysRoute
   '/admin/claims': typeof AdminClaimsRoute
@@ -516,11 +544,15 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/insider': typeof InsiderRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/neighborhoods': typeof NeighborhoodsRouteWithChildren
   '/partner': typeof PartnerRoute
   '/partners': typeof PartnersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap-articles.xml': typeof SitemapArticlesDotxmlRoute
+  '/sitemap-listings.xml': typeof SitemapListingsDotxmlRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/api-keys': typeof AdminApiKeysRoute
   '/admin/claims': typeof AdminClaimsRoute
@@ -590,11 +622,15 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/insider': typeof InsiderRoute
   '/listings': typeof ListingsRouteWithChildren
+  '/llms.txt': typeof LlmsDottxtRoute
   '/neighborhoods': typeof NeighborhoodsRouteWithChildren
   '/partner': typeof PartnerRoute
   '/partners': typeof PartnersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap-articles.xml': typeof SitemapArticlesDotxmlRoute
+  '/sitemap-listings.xml': typeof SitemapListingsDotxmlRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/api-keys': typeof AdminApiKeysRoute
   '/admin/claims': typeof AdminClaimsRoute
@@ -665,11 +701,15 @@ export interface FileRouteTypes {
     | '/auth'
     | '/insider'
     | '/listings'
+    | '/llms.txt'
     | '/neighborhoods'
     | '/partner'
     | '/partners'
     | '/reset-password'
     | '/robots.txt'
+    | '/sitemap-articles.xml'
+    | '/sitemap-listings.xml'
+    | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/admin/api-keys'
     | '/admin/claims'
@@ -735,11 +775,15 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/insider'
+    | '/llms.txt'
     | '/neighborhoods'
     | '/partner'
     | '/partners'
     | '/reset-password'
     | '/robots.txt'
+    | '/sitemap-articles.xml'
+    | '/sitemap-listings.xml'
+    | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/admin/api-keys'
     | '/admin/claims'
@@ -808,11 +852,15 @@ export interface FileRouteTypes {
     | '/auth'
     | '/insider'
     | '/listings'
+    | '/llms.txt'
     | '/neighborhoods'
     | '/partner'
     | '/partners'
     | '/reset-password'
     | '/robots.txt'
+    | '/sitemap-articles.xml'
+    | '/sitemap-listings.xml'
+    | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/admin/api-keys'
     | '/admin/claims'
@@ -882,11 +930,15 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   InsiderRoute: typeof InsiderRoute
   ListingsRoute: typeof ListingsRouteWithChildren
+  LlmsDottxtRoute: typeof LlmsDottxtRoute
   NeighborhoodsRoute: typeof NeighborhoodsRouteWithChildren
   PartnerRoute: typeof PartnerRoute
   PartnersRoute: typeof PartnersRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapArticlesDotxmlRoute: typeof SitemapArticlesDotxmlRoute
+  SitemapListingsDotxmlRoute: typeof SitemapListingsDotxmlRoute
+  SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   BlogSlugRoute: typeof BlogSlugRoute
   ClaimSlugRoute: typeof ClaimSlugRoute
@@ -927,6 +979,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap-pages.xml': {
+      id: '/sitemap-pages.xml'
+      path: '/sitemap-pages.xml'
+      fullPath: '/sitemap-pages.xml'
+      preLoaderRoute: typeof SitemapPagesDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-listings.xml': {
+      id: '/sitemap-listings.xml'
+      path: '/sitemap-listings.xml'
+      fullPath: '/sitemap-listings.xml'
+      preLoaderRoute: typeof SitemapListingsDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-articles.xml': {
+      id: '/sitemap-articles.xml'
+      path: '/sitemap-articles.xml'
+      fullPath: '/sitemap-articles.xml'
+      preLoaderRoute: typeof SitemapArticlesDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/robots.txt': {
       id: '/robots.txt'
       path: '/robots.txt'
@@ -960,6 +1033,13 @@ declare module '@tanstack/react-router' {
       path: '/neighborhoods'
       fullPath: '/neighborhoods'
       preLoaderRoute: typeof NeighborhoodsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/llms.txt': {
+      id: '/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/llms.txt'
+      preLoaderRoute: typeof LlmsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/listings': {
@@ -1527,11 +1607,15 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   InsiderRoute: InsiderRoute,
   ListingsRoute: ListingsRouteWithChildren,
+  LlmsDottxtRoute: LlmsDottxtRoute,
   NeighborhoodsRoute: NeighborhoodsRouteWithChildren,
   PartnerRoute: PartnerRoute,
   PartnersRoute: PartnersRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapArticlesDotxmlRoute: SitemapArticlesDotxmlRoute,
+  SitemapListingsDotxmlRoute: SitemapListingsDotxmlRoute,
+  SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   BlogSlugRoute: BlogSlugRoute,
   ClaimSlugRoute: ClaimSlugRoute,

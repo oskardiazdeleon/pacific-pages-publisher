@@ -148,8 +148,19 @@ function ArticleDetail() {
         .map((f) => ({ q: f.q!, a: f.a! }))
     : [];
 
-  const jsonLd: Record<string, unknown>[] = [
-    {
+
+  const validAuthor =
+    article.author_name &&
+    !/lovable/i.test(article.author_name);
+  if (!validAuthor && typeof console !== "undefined") {
+    console.warn(
+      `[seo] Article "${article.slug}" missing valid author_name — Article schema suppressed.`,
+    );
+  }
+
+  const jsonLd: Record<string, unknown>[] = [breadcrumbJsonLd(breadcrumbs)];
+  if (validAuthor) {
+    jsonLd.unshift({
       "@context": "https://schema.org",
       "@type": "Article",
       headline: article.title,
@@ -160,17 +171,19 @@ function ArticleDetail() {
       articleSection: article.category,
       keywords: article.tags?.join(", "),
       mainEntityOfPage: { "@type": "WebPage", "@id": url },
-      author: article.author_name
-        ? { "@type": "Person", name: article.author_name, jobTitle: article.author_title || undefined }
-        : { "@type": "Organization", name: "sandiego.com" },
+      author: {
+        "@type": "Person",
+        name: article.author_name,
+        jobTitle: article.author_title || undefined,
+      },
       publisher: {
         "@type": "Organization",
-        name: "sandiego.com",
-        logo: { "@type": "ImageObject", url: `${SITE_URL}/favicon.ico` },
+        name: "SanDiego.com",
+        logo: { "@type": "ImageObject", url: "https://sandiego.com/assets/logo.png" },
       },
-    },
-    breadcrumbJsonLd(breadcrumbs),
-  ];
+    });
+  }
+
   if (faqs.length) {
     jsonLd.push({
       "@context": "https://schema.org",
