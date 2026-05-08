@@ -150,7 +150,7 @@ function AuthorPage() {
           Articles by {author.name}
         </h2>
         <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {author.articles.map((a) => (
+          {author.articles.map((a: ArticleCardData) => (
             <ArticleCard key={a.id} article={a} />
           ))}
         </div>
