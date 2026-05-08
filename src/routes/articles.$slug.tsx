@@ -273,7 +273,16 @@ function ArticleDetail() {
                         </div>
                       )}
                       <div className="leading-tight">
-                        <div className="font-medium text-foreground">{article.author_name}</div>
+                        <Link
+                          to="/authors/$slug"
+                          params={{
+                            slug: article.author_name.toLowerCase().trim()
+                              .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+                          }}
+                          className="font-medium text-foreground hover:text-accent"
+                        >
+                          {article.author_name}
+                        </Link>
                         {article.author_title && (
                           <div className="text-xs text-muted-foreground">{article.author_title}</div>
                         )}
