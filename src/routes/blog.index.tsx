@@ -12,7 +12,12 @@ export const Route = createFileRoute("/blog/")({
       { name: "description", content: "Lifestyle stories, weekend guides, and local dispatches from sandiego.com — the people, places, and flavor of the city." },
       { property: "og:title", content: "Blog — Stories, guides & dispatches from San Diego" },
       { property: "og:description", content: "Lifestyle stories, weekend guides, and local dispatches from across San Diego." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://sandiego.com/blog" },
+      { property: "og:image", content: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80" },
+      { name: "twitter:image", content: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80" },
     ],
+    links: [{ rel: "canonical", href: "https://sandiego.com/blog" }],
   }),
   component: BlogIndex,
 });
@@ -102,9 +107,21 @@ function BlogIndex() {
         {loading ? (
           <p className="text-muted-foreground">Loading stories…</p>
         ) : visible.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-border p-12 text-center">
-            <p className="text-lg font-display">No posts yet.</p>
-            <p className="mt-2 text-sm text-muted-foreground">Check back soon for fresh stories.</p>
+          <div className="rounded-3xl border border-border bg-card px-6 py-16 md:px-10 md:py-20 text-center">
+            <h2 className="font-display text-3xl md:text-4xl font-semibold tracking-tight">
+              The Journal — launching soon
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-sm md:text-base text-muted-foreground">
+              We're crafting our first dispatches from across San Diego — neighborhood deep-dives, food obsessions, and the unforgettable details that make this city feel like yours.
+            </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Link to="/insider" className="inline-flex items-center gap-1.5 rounded-full bg-accent px-5 py-3 text-sm font-bold text-accent-foreground hover:opacity-90 transition">
+                Subscribe — get notified at launch
+              </Link>
+              <Link to="/things-to-do" className="inline-flex items-center gap-1.5 rounded-full border-2 border-accent bg-background px-5 py-3 text-sm font-bold text-accent hover:bg-accent hover:text-accent-foreground transition">
+                Browse things to do →
+              </Link>
+            </div>
           </div>
         ) : (
           <>

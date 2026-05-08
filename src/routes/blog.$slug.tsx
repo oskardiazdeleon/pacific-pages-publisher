@@ -39,12 +39,14 @@ export const Route = createFileRoute("/blog/$slug")({
     if (!p) return { meta: [{ title: "Post not found" }] };
     const title = p.meta_title || `${p.title} — sandiego.com Blog`;
     const desc = p.meta_description || p.excerpt || p.subtitle || "";
+    const url = `https://sandiego.com/blog/${p.slug}`;
     const meta: Array<{ title?: string; name?: string; property?: string; content?: string }> = [
       { title },
-      { name: "description", content: desc },
+      { name: "description", content: desc.slice(0, 160) },
       { property: "og:title", content: title },
-      { property: "og:description", content: desc },
+      { property: "og:description", content: desc.slice(0, 160) },
       { property: "og:type", content: "article" },
+      { property: "og:url", content: url },
     ];
     if (p.cover_image) {
       meta.push(
@@ -52,7 +54,13 @@ export const Route = createFileRoute("/blog/$slug")({
         { name: "twitter:image", content: p.cover_image },
       );
     }
-    return { meta };
+    if (p.published_at) meta.push({ property: "article:published_time", content: p.published_at });
+    if (p.author_name && !/lovable/i.test(p.author_name)) {
+      meta.push({ property: "article:author", content: p.author_name });
+    }
+    if (p.category) meta.push({ property: "article:section", content: p.category });
+    (p.tags ?? []).forEach((t) => meta.push({ property: "article:tag", content: t }));
+    return { meta, links: [{ rel: "canonical", href: url }] };
   },
   notFoundComponent: () => (
     <div className="container-page py-32 text-center">

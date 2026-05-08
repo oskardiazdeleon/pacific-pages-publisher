@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
@@ -20,7 +20,12 @@ export const Route = createFileRoute("/articles/")({
         property: "og:description",
         content: "Editorial features and travel stories from San Diego's local experts.",
       },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://sandiego.com/articles" },
+      { property: "og:image", content: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=1600&q=80" },
+      { name: "twitter:image", content: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=1600&q=80" },
     ],
+    links: [{ rel: "canonical", href: "https://sandiego.com/articles" }],
   }),
   component: ArticlesPage,
 });
@@ -58,7 +63,23 @@ function ArticlesPage() {
           <div className="aspect-[4/3] md:aspect-[16/7] rounded-2xl bg-card border border-border animate-pulse" />
         </section>
       ) : items.length === 0 ? (
-        <section className="container-page py-20 text-center text-muted-foreground">No articles yet.</section>
+        <section className="container-page pb-20">
+          <div className="rounded-3xl border border-border bg-card px-6 py-16 md:px-10 md:py-20 text-center">
+            <h2 className="font-display text-3xl md:text-4xl font-semibold tracking-tight">
+              The Magazine — coming soon
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-sm md:text-base text-muted-foreground">
+              Long-form features and editorial guides are in production. Our first stories drop soon.
+            </p>
+            <div className="mt-6 text-sm text-muted-foreground">In the meantime, browse:</div>
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <Link to="/things-to-do" className="rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold hover:border-accent hover:text-accent transition">Things to Do →</Link>
+              <Link to="/hotels" className="rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold hover:border-accent hover:text-accent transition">Hotels →</Link>
+              <Link to="/cruises" className="rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold hover:border-accent hover:text-accent transition">Cruises →</Link>
+              <Link to="/neighborhoods" className="rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold hover:border-accent hover:text-accent transition">Neighborhoods →</Link>
+            </div>
+          </div>
+        </section>
       ) : (
         <>
           <section className="container-page">

@@ -19,13 +19,20 @@ export const Route = createFileRoute("/cruises/")({
       { name: "description", content: META_DESC },
       { property: "og:title", content: META_TITLE },
       { property: "og:description", content: META_DESC },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: `${SITE_URL}/cruises` },
       {
         property: "og:image",
         content:
           "https://images.unsplash.com/photo-1548574505-5e239809ee19?w=1600&q=80",
       },
-      { rel: "canonical", href: `${SITE_URL}/cruises` },
+      {
+        name: "twitter:image",
+        content:
+          "https://images.unsplash.com/photo-1548574505-5e239809ee19?w=1600&q=80",
+      },
     ],
+    links: [{ rel: "canonical", href: `${SITE_URL}/cruises` }],
   }),
   component: CruisesHub,
 });
@@ -171,7 +178,7 @@ function CruisesHub() {
               <h1 className="font-display text-5xl md:text-6xl xl:text-7xl font-semibold tracking-tight leading-[1.02] text-foreground">
                 {heroVal("heading")}
                 {heroVal("heading_accent") ? (
-                  <span className="block text-accent">{heroVal("heading_accent")}</span>
+                  <span className="mt-2 block text-accent">{heroVal("heading_accent")}</span>
                 ) : null}
               </h1>
 
