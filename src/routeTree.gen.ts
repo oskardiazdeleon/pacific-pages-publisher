@@ -9,21 +9,25 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as SitemapListingsDotxmlRouteImport } from './routes/sitemap-listings[.]xml'
 import { Route as SitemapArticlesDotxmlRouteImport } from './routes/sitemap-articles[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as PartnerRouteImport } from './routes/partner'
 import { Route as NeighborhoodsRouteImport } from './routes/neighborhoods'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as ListingsRouteImport } from './routes/listings'
 import { Route as InsiderRouteImport } from './routes/insider'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ArticlesRouteImport } from './routes/articles'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WineriesIndexRouteImport } from './routes/wineries.index'
 import { Route as WeddingsIndexRouteImport } from './routes/weddings.index'
@@ -86,6 +90,11 @@ import { Route as AdminCmsNeighborhoodsIndexRouteImport } from './routes/admin.c
 import { Route as AdminCmsPagesIdRouteImport } from './routes/admin.cms.pages.$id'
 import { Route as AdminCmsNeighborhoodsIdRouteImport } from './routes/admin.cms.neighborhoods.$id'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -114,6 +123,11 @@ const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PartnersRoute = PartnersRouteImport.update({
@@ -146,6 +160,11 @@ const InsiderRoute = InsiderRouteImport.update({
   path: '/insider',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -159,6 +178,11 @@ const ArticlesRoute = ArticlesRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -471,21 +495,25 @@ const AdminCmsNeighborhoodsIdRoute = AdminCmsNeighborhoodsIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
   '/articles': typeof ArticlesRouteWithChildren
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/insider': typeof InsiderRoute
   '/listings': typeof ListingsRouteWithChildren
   '/llms.txt': typeof LlmsDottxtRoute
   '/neighborhoods': typeof NeighborhoodsRouteWithChildren
   '/partner': typeof PartnerRoute
   '/partners': typeof PartnersRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap-articles.xml': typeof SitemapArticlesDotxmlRoute
   '/sitemap-listings.xml': typeof SitemapListingsDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/admin/api-keys': typeof AdminApiKeysRoute
   '/admin/claims': typeof AdminClaimsRoute
   '/admin/import': typeof AdminImportRoute
@@ -549,18 +577,22 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/insider': typeof InsiderRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/neighborhoods': typeof NeighborhoodsRouteWithChildren
   '/partner': typeof PartnerRoute
   '/partners': typeof PartnersRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap-articles.xml': typeof SitemapArticlesDotxmlRoute
   '/sitemap-listings.xml': typeof SitemapListingsDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/admin/api-keys': typeof AdminApiKeysRoute
   '/admin/claims': typeof AdminClaimsRoute
   '/admin/import': typeof AdminImportRoute
@@ -625,21 +657,25 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
   '/articles': typeof ArticlesRouteWithChildren
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/insider': typeof InsiderRoute
   '/listings': typeof ListingsRouteWithChildren
   '/llms.txt': typeof LlmsDottxtRoute
   '/neighborhoods': typeof NeighborhoodsRouteWithChildren
   '/partner': typeof PartnerRoute
   '/partners': typeof PartnersRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap-articles.xml': typeof SitemapArticlesDotxmlRoute
   '/sitemap-listings.xml': typeof SitemapListingsDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/admin/api-keys': typeof AdminApiKeysRoute
   '/admin/claims': typeof AdminClaimsRoute
   '/admin/import': typeof AdminImportRoute
@@ -705,21 +741,25 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/admin'
     | '/articles'
     | '/auth'
+    | '/contact'
     | '/insider'
     | '/listings'
     | '/llms.txt'
     | '/neighborhoods'
     | '/partner'
     | '/partners'
+    | '/privacy'
     | '/reset-password'
     | '/robots.txt'
     | '/sitemap-articles.xml'
     | '/sitemap-listings.xml'
     | '/sitemap-pages.xml'
     | '/sitemap.xml'
+    | '/terms'
     | '/admin/api-keys'
     | '/admin/claims'
     | '/admin/import'
@@ -783,18 +823,22 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/auth'
+    | '/contact'
     | '/insider'
     | '/llms.txt'
     | '/neighborhoods'
     | '/partner'
     | '/partners'
+    | '/privacy'
     | '/reset-password'
     | '/robots.txt'
     | '/sitemap-articles.xml'
     | '/sitemap-listings.xml'
     | '/sitemap-pages.xml'
     | '/sitemap.xml'
+    | '/terms'
     | '/admin/api-keys'
     | '/admin/claims'
     | '/admin/import'
@@ -858,21 +902,25 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/admin'
     | '/articles'
     | '/auth'
+    | '/contact'
     | '/insider'
     | '/listings'
     | '/llms.txt'
     | '/neighborhoods'
     | '/partner'
     | '/partners'
+    | '/privacy'
     | '/reset-password'
     | '/robots.txt'
     | '/sitemap-articles.xml'
     | '/sitemap-listings.xml'
     | '/sitemap-pages.xml'
     | '/sitemap.xml'
+    | '/terms'
     | '/admin/api-keys'
     | '/admin/claims'
     | '/admin/import'
@@ -937,21 +985,25 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRouteWithChildren
   ArticlesRoute: typeof ArticlesRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ContactRoute: typeof ContactRoute
   InsiderRoute: typeof InsiderRoute
   ListingsRoute: typeof ListingsRouteWithChildren
   LlmsDottxtRoute: typeof LlmsDottxtRoute
   NeighborhoodsRoute: typeof NeighborhoodsRouteWithChildren
   PartnerRoute: typeof PartnerRoute
   PartnersRoute: typeof PartnersRoute
+  PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapArticlesDotxmlRoute: typeof SitemapArticlesDotxmlRoute
   SitemapListingsDotxmlRoute: typeof SitemapListingsDotxmlRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermsRoute: typeof TermsRoute
   AuthorsSlugRoute: typeof AuthorsSlugRoute
   BlogSlugRoute: typeof BlogSlugRoute
   ClaimSlugRoute: typeof ClaimSlugRoute
@@ -985,6 +1037,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -1025,6 +1084,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/partners': {
@@ -1069,6 +1135,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InsiderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -1088,6 +1161,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -1622,21 +1702,25 @@ const NeighborhoodsRouteWithChildren = NeighborhoodsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   AdminRoute: AdminRouteWithChildren,
   ArticlesRoute: ArticlesRouteWithChildren,
   AuthRoute: AuthRoute,
+  ContactRoute: ContactRoute,
   InsiderRoute: InsiderRoute,
   ListingsRoute: ListingsRouteWithChildren,
   LlmsDottxtRoute: LlmsDottxtRoute,
   NeighborhoodsRoute: NeighborhoodsRouteWithChildren,
   PartnerRoute: PartnerRoute,
   PartnersRoute: PartnersRoute,
+  PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapArticlesDotxmlRoute: SitemapArticlesDotxmlRoute,
   SitemapListingsDotxmlRoute: SitemapListingsDotxmlRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermsRoute: TermsRoute,
   AuthorsSlugRoute: AuthorsSlugRoute,
   BlogSlugRoute: BlogSlugRoute,
   ClaimSlugRoute: ClaimSlugRoute,
@@ -1670,12 +1754,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

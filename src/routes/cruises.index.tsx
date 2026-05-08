@@ -178,7 +178,7 @@ function CruisesHub() {
               <h1 className="font-display text-5xl md:text-6xl xl:text-7xl font-semibold tracking-tight leading-[1.02] text-foreground">
                 {heroVal("heading")}
                 {heroVal("heading_accent") ? (
-                  <span className="block text-accent">{heroVal("heading_accent")}</span>
+                  <span className="mt-2 block text-accent">{heroVal("heading_accent")}</span>
                 ) : null}
               </h1>
 
