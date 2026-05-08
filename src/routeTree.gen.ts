@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
+import { Route as SitemapArticlesDotxmlRouteImport } from './routes/sitemap-articles[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PartnersRouteImport } from './routes/partners'
@@ -85,6 +87,16 @@ import { Route as AdminCmsNeighborhoodsIdRouteImport } from './routes/admin.cms.
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
+  id: '/sitemap-pages.xml',
+  path: '/sitemap-pages.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapArticlesDotxmlRoute = SitemapArticlesDotxmlRouteImport.update({
+  id: '/sitemap-articles.xml',
+  path: '/sitemap-articles.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
@@ -458,6 +470,8 @@ export interface FileRoutesByFullPath {
   '/partners': typeof PartnersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap-articles.xml': typeof SitemapArticlesDotxmlRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/api-keys': typeof AdminApiKeysRoute
   '/admin/claims': typeof AdminClaimsRoute
@@ -529,6 +543,8 @@ export interface FileRoutesByTo {
   '/partners': typeof PartnersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap-articles.xml': typeof SitemapArticlesDotxmlRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/api-keys': typeof AdminApiKeysRoute
   '/admin/claims': typeof AdminClaimsRoute
@@ -604,6 +620,8 @@ export interface FileRoutesById {
   '/partners': typeof PartnersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap-articles.xml': typeof SitemapArticlesDotxmlRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/api-keys': typeof AdminApiKeysRoute
   '/admin/claims': typeof AdminClaimsRoute
@@ -680,6 +698,8 @@ export interface FileRouteTypes {
     | '/partners'
     | '/reset-password'
     | '/robots.txt'
+    | '/sitemap-articles.xml'
+    | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/admin/api-keys'
     | '/admin/claims'
@@ -751,6 +771,8 @@ export interface FileRouteTypes {
     | '/partners'
     | '/reset-password'
     | '/robots.txt'
+    | '/sitemap-articles.xml'
+    | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/admin/api-keys'
     | '/admin/claims'
@@ -825,6 +847,8 @@ export interface FileRouteTypes {
     | '/partners'
     | '/reset-password'
     | '/robots.txt'
+    | '/sitemap-articles.xml'
+    | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/admin/api-keys'
     | '/admin/claims'
@@ -900,6 +924,8 @@ export interface RootRouteChildren {
   PartnersRoute: typeof PartnersRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapArticlesDotxmlRoute: typeof SitemapArticlesDotxmlRoute
+  SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   BlogSlugRoute: typeof BlogSlugRoute
   ClaimSlugRoute: typeof ClaimSlugRoute
@@ -938,6 +964,20 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-pages.xml': {
+      id: '/sitemap-pages.xml'
+      path: '/sitemap-pages.xml'
+      fullPath: '/sitemap-pages.xml'
+      preLoaderRoute: typeof SitemapPagesDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-articles.xml': {
+      id: '/sitemap-articles.xml'
+      path: '/sitemap-articles.xml'
+      fullPath: '/sitemap-articles.xml'
+      preLoaderRoute: typeof SitemapArticlesDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/robots.txt': {
@@ -1553,6 +1593,8 @@ const rootRouteChildren: RootRouteChildren = {
   PartnersRoute: PartnersRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapArticlesDotxmlRoute: SitemapArticlesDotxmlRoute,
+  SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   BlogSlugRoute: BlogSlugRoute,
   ClaimSlugRoute: ClaimSlugRoute,
@@ -1586,3 +1628,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
