@@ -70,30 +70,78 @@ function NotFoundComponent() {
 }
 
 export const Route = createRootRoute({
-  head: () => ({
-    meta: [
+  head: () => {
+    const isProd = (process.env.SITE_URL || "").includes("sandiego.com");
+    const description =
+      "The definitive guide to San Diego — handpicked places to stay, eat, and explore, alongside the stories behind America's Finest City.";
+    const title = "SanDiego.com — The Definitive Guide to America's Finest City";
+    const meta = [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "San Diego" },
-      { name: "description", content: "San Diego Canvas replicates sandiego.com, featuring articles, blogs, and business listings with a modern design and SEO focus." },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "San Diego" },
-      { property: "og:description", content: "San Diego Canvas replicates sandiego.com, featuring articles, blogs, and business listings with a modern design and SEO focus." },
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "San Diego" },
-      { name: "twitter:description", content: "San Diego Canvas replicates sandiego.com, featuring articles, blogs, and business listings with a modern design and SEO focus." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3184c3da-c9bc-4c7f-8344-d442238f26cf/id-preview-07d4b560--2d11b159-53c2-40cc-b2e7-ced05f2c70cd.lovable.app-1777051318796.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3184c3da-c9bc-4c7f-8344-d442238f26cf/id-preview-07d4b560--2d11b159-53c2-40cc-b2e7-ced05f2c70cd.lovable.app-1777051318796.png" },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-    ],
-  }),
+      { property: "og:site_name", content: "SanDiego.com" },
+      { property: "og:locale", content: "en_US" },
+      { property: "og:url", content: "https://sandiego.com" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:site", content: "@sandiegocom" },
+      { name: "twitter:creator", content: "@sandiegocom" },
+    ];
+    if (!isProd) {
+      meta.push({ name: "robots", content: "noindex, nofollow" });
+    }
+    return {
+      meta,
+      links: [{ rel: "stylesheet", href: appCss }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "SanDiego.com",
+            alternateName: "San Diego Insider",
+            url: "https://sandiego.com",
+            logo: "https://sandiego.com/assets/logo.png",
+            description,
+            foundingDate: "1996",
+            sameAs: [
+              "https://www.facebook.com/sandiego.com",
+              "https://www.instagram.com/sandiego.com",
+            ],
+            contactPoint: {
+              "@type": "ContactPoint",
+              contactType: "customer service",
+              email: "hello@sandiego.com",
+              availableLanguage: "English",
+            },
+          }),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "SanDiego.com",
+            url: "https://sandiego.com",
+            description: "The definitive guide to San Diego.",
+            publisher: { "@type": "Organization", name: "SanDiego.com" },
+            potentialAction: {
+              "@type": "SearchAction",
+              target: {
+                "@type": "EntryPoint",
+                urlTemplate: "https://sandiego.com/search?q={search_term_string}",
+              },
+              "query-input": "required name=search_term_string",
+            },
+          }),
+        },
+      ],
+    };
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
