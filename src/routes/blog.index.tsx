@@ -12,7 +12,12 @@ export const Route = createFileRoute("/blog/")({
       { name: "description", content: "Lifestyle stories, weekend guides, and local dispatches from sandiego.com — the people, places, and flavor of the city." },
       { property: "og:title", content: "Blog — Stories, guides & dispatches from San Diego" },
       { property: "og:description", content: "Lifestyle stories, weekend guides, and local dispatches from across San Diego." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://sandiego.com/blog" },
+      { property: "og:image", content: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80" },
+      { name: "twitter:image", content: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80" },
     ],
+    links: [{ rel: "canonical", href: "https://sandiego.com/blog" }],
   }),
   component: BlogIndex,
 });

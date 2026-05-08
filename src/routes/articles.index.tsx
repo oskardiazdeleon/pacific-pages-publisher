@@ -20,7 +20,12 @@ export const Route = createFileRoute("/articles/")({
         property: "og:description",
         content: "Editorial features and travel stories from San Diego's local experts.",
       },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://sandiego.com/articles" },
+      { property: "og:image", content: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=1600&q=80" },
+      { name: "twitter:image", content: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=1600&q=80" },
     ],
+    links: [{ rel: "canonical", href: "https://sandiego.com/articles" }],
   }),
   component: ArticlesPage,
 });

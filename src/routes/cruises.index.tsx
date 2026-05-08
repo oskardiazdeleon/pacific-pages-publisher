@@ -19,13 +19,20 @@ export const Route = createFileRoute("/cruises/")({
       { name: "description", content: META_DESC },
       { property: "og:title", content: META_TITLE },
       { property: "og:description", content: META_DESC },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: `${SITE_URL}/cruises` },
       {
         property: "og:image",
         content:
           "https://images.unsplash.com/photo-1548574505-5e239809ee19?w=1600&q=80",
       },
-      { rel: "canonical", href: `${SITE_URL}/cruises` },
+      {
+        name: "twitter:image",
+        content:
+          "https://images.unsplash.com/photo-1548574505-5e239809ee19?w=1600&q=80",
+      },
     ],
+    links: [{ rel: "canonical", href: `${SITE_URL}/cruises` }],
   }),
   component: CruisesHub,
 });

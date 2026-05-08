@@ -17,14 +17,25 @@ export const Route = createFileRoute("/insider")({
       {
         name: "description",
         content:
-          "Join sandiego.com Insider for member pricing on San Diego hotels, cruises, tickets, rental cars, resort weeks, experiences, flights and wine. From $19/mo — annual is just $149.",
+          "Join sandiego.com Insider for member pricing on hotels, cruises, tickets, rental cars, experiences, and more. From $19/mo. Annual just $149.",
       },
       { property: "og:title", content: "sandiego.com Insider — The Travel Club for America's Finest City" },
       {
         property: "og:description",
         content: "Member-only savings across the San Diego experiences locals book most. Try free for 7 days.",
       },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://sandiego.com/insider" },
+      {
+        property: "og:image",
+        content: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80",
+      },
+      {
+        name: "twitter:image",
+        content: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80",
+      },
     ],
+    links: [{ rel: "canonical", href: "https://sandiego.com/insider" }],
   }),
   component: InsiderPage,
 });
