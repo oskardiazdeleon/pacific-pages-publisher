@@ -15,6 +15,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as PartnerRouteImport } from './routes/partner'
 import { Route as NeighborhoodsRouteImport } from './routes/neighborhoods'
+import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as ListingsRouteImport } from './routes/listings'
 import { Route as InsiderRouteImport } from './routes/insider'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -109,6 +110,11 @@ const PartnerRoute = PartnerRouteImport.update({
 const NeighborhoodsRoute = NeighborhoodsRouteImport.update({
   id: '/neighborhoods',
   path: '/neighborhoods',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
+  id: '/llms.txt',
+  path: '/llms.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ListingsRoute = ListingsRouteImport.update({
@@ -446,6 +452,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/insider': typeof InsiderRoute
   '/listings': typeof ListingsRouteWithChildren
+  '/llms.txt': typeof LlmsDottxtRoute
   '/neighborhoods': typeof NeighborhoodsRouteWithChildren
   '/partner': typeof PartnerRoute
   '/partners': typeof PartnersRoute
@@ -516,6 +523,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/insider': typeof InsiderRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/neighborhoods': typeof NeighborhoodsRouteWithChildren
   '/partner': typeof PartnerRoute
   '/partners': typeof PartnersRoute
@@ -590,6 +598,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/insider': typeof InsiderRoute
   '/listings': typeof ListingsRouteWithChildren
+  '/llms.txt': typeof LlmsDottxtRoute
   '/neighborhoods': typeof NeighborhoodsRouteWithChildren
   '/partner': typeof PartnerRoute
   '/partners': typeof PartnersRoute
@@ -665,6 +674,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/insider'
     | '/listings'
+    | '/llms.txt'
     | '/neighborhoods'
     | '/partner'
     | '/partners'
@@ -735,6 +745,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/insider'
+    | '/llms.txt'
     | '/neighborhoods'
     | '/partner'
     | '/partners'
@@ -808,6 +819,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/insider'
     | '/listings'
+    | '/llms.txt'
     | '/neighborhoods'
     | '/partner'
     | '/partners'
@@ -882,6 +894,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   InsiderRoute: typeof InsiderRoute
   ListingsRoute: typeof ListingsRouteWithChildren
+  LlmsDottxtRoute: typeof LlmsDottxtRoute
   NeighborhoodsRoute: typeof NeighborhoodsRouteWithChildren
   PartnerRoute: typeof PartnerRoute
   PartnersRoute: typeof PartnersRoute
@@ -960,6 +973,13 @@ declare module '@tanstack/react-router' {
       path: '/neighborhoods'
       fullPath: '/neighborhoods'
       preLoaderRoute: typeof NeighborhoodsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/llms.txt': {
+      id: '/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/llms.txt'
+      preLoaderRoute: typeof LlmsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/listings': {
@@ -1527,6 +1547,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   InsiderRoute: InsiderRoute,
   ListingsRoute: ListingsRouteWithChildren,
+  LlmsDottxtRoute: LlmsDottxtRoute,
   NeighborhoodsRoute: NeighborhoodsRouteWithChildren,
   PartnerRoute: PartnerRoute,
   PartnersRoute: PartnersRoute,
