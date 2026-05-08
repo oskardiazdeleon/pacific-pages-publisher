@@ -55,7 +55,7 @@ export const CATEGORY_HUBS: CategoryHub[] = [
     singular: "Hotel",
     metaTitle: "Hotels in San Diego | Insider Members Save 15–40%",
     metaDescription:
-      "Browse 200+ editor-vetted San Diego hotels. SD Insider members save 15–40% on beachfront resorts, downtown boutiques and family stays. Join & save »",
+      "San Diego hotels by neighborhood, with insider picks and member-exclusive savings on Gaslamp, La Jolla, Coronado, and downtown stays.",
     eyebrow: "Where to stay",
     heading: "San Diego Hotels",
     subheading:
@@ -89,7 +89,7 @@ export const CATEGORY_HUBS: CategoryHub[] = [
     singular: "Restaurant",
     metaTitle: "Top Restaurants in San Diego | Member Exclusive Deals",
     metaDescription:
-      "Discover San Diego's best restaurants — tacos, fine dining, waterfront patios. SD Insider members save 15–25% at participating spots. Join & save »",
+      "Where to eat in San Diego — neighborhood-by-neighborhood restaurant picks from the people who actually live here.",
     eyebrow: "Where to eat",
     heading: "San Diego Restaurants",
     subheading:
@@ -123,7 +123,7 @@ export const CATEGORY_HUBS: CategoryHub[] = [
     singular: "Thing To Do",
     metaTitle: "Things to Do in San Diego | Members Save at 200+ Places",
     metaDescription:
-      "1,200+ things to do in San Diego: attractions, tours, beaches and museums. SD Insider members save up to 30% at 200+ partner places. Join & save »",
+      "Things to do in San Diego, curated by locals — beaches, museums, hidden gems, and seasonal experiences.",
     eyebrow: "What to do",
     heading: "Things To Do in San Diego",
     subheading:

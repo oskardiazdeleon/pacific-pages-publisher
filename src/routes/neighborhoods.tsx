@@ -10,14 +10,16 @@ export const Route = createFileRoute("/neighborhoods")({
       {
         name: "description",
         content:
-          "From La Jolla's sea cliffs to the Gaslamp Quarter — explore the distinct neighborhoods that make up San Diego.",
+          "San Diego's eight neighborhoods, decoded — La Jolla, Gaslamp, Coronado, Pacific Beach, Balboa Park, and beyond.",
       },
       { property: "og:title", content: "Neighborhoods of San Diego" },
       {
         property: "og:description",
-        content: "Explore the distinct neighborhoods that make up San Diego.",
+        content:
+          "San Diego's eight neighborhoods, decoded — La Jolla, Gaslamp, Coronado, Pacific Beach, Balboa Park, and beyond.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://sandiego.com/neighborhoods" }],
   }),
   component: NeighborhoodsPage,
 });

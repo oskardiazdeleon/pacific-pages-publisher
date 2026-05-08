@@ -10,7 +10,7 @@ import { fetchPublishedHomepageSections, type HomepageSection } from "@/lib/cms"
 const SITE_URL = "https://sandiego.com";
 const META_TITLE = "Cruises from San Diego — Every Cruise Line Sailing the Port | sandiego.com";
 const META_DESC =
-  "Every cruise line sailing from the Port of San Diego: Holland America, Disney, Princess, Norwegian, Carnival, Royal Caribbean and Celebrity. Itineraries, ships and booking.";
+  "Cruises from the Port of San Diego — every line, every itinerary, plus member savings on Mexican Riviera, Hawaii, and Baja sailings.";
 
 export const Route = createFileRoute("/cruises/")({
   head: () => ({
