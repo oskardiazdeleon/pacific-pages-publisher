@@ -1,89 +1,56 @@
-# Wedding Venue Cards in Articles
 
-Mirror the existing cruise-card embed system so editors can drop a wedding venue into any article/blog body, with the same full + compact variants and the same insert flow.
+## Goal
 
-## What the cards will look like
+Replace calls to the Lovable AI Gateway (`ai.gateway.lovable.dev`) with direct calls to Google AI Studio's Gemini API (`generativelanguage.googleapis.com`) so the AI features work on any host with a user-provided `GEMINI_API_KEY`.
 
-Same visual language as cruise cards (so the article body stays consistent), but tuned to wedding-venue info instead of cruise info.
+## Scope
 
-**Full variant** (default — used inline as a feature block):
+Only the two edge functions that use AI:
+- `supabase/functions/generate-blog/index.ts` — drafts blog posts
+- `supabase/functions/generate-neighborhood-page/index.ts` — generates neighborhood landing page editorial
 
-```text
-┌─────────────────────────────────────────────────┐
-│ ╔═══ hero photo of venue (16:9) ════════════╗   │
-│ ║  [💍 Wedding venue]  ← pill, top-left      ║  │
-│ ╚═══════════════════════════════════════════╝   │
-│                                                 │
-│  Venue Name                          (h3)       │
-│  Tagline / short description                    │
-│                                                 │
-│  📍 Neighborhood   👥 Capacity   💲 From        │
-│  La Jolla          250 guests    $$$            │
-│                                                 │
-│  [ Inquire ▸ ]   [ View venue ]                 │
-└─────────────────────────────────────────────────┘
-```
+Nothing else in the app changes. Admin UI, DB, auth, listings, etc. are untouched.
 
-**Compact variant** (for sidebars / inline mentions, same shape as cruise compact):
+## Steps
 
-```text
-┌──────┬──────────────────────────────────────┬──┐
-│ img  │ 💍 WEDDING VENUE                     │ →│
-│ 4:3  │ Venue Name                           │  │
-│      │ Neighborhood · Capacity              │  │
-└──────┴──────────────────────────────────────┴──┘
-```
+1. **Add `GEMINI_API_KEY` secret**
+   - Prompt the user to paste their Google AI Studio API key (from https://aistudio.google.com/apikey).
+   - Stored as a backend secret, available to edge functions as `Deno.env.get("GEMINI_API_KEY")`.
 
-Three info chips on full variant, sourced from the listing record:
-- **Location** — neighborhood / area
-- **Capacity** — guest count (falls back to "Indoor + outdoor" or similar tag if unknown)
-- **Price tier** — `$ / $$ / $$$ / $$$$` from listing data
+2. **Rewrite `generate-blog/index.ts`**
+   - Replace the `fetch` to `ai.gateway.lovable.dev` with a `POST` to:
+     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`
+   - Convert the OpenAI-style `messages` + `tools` payload to Gemini's native format:
+     - `system_instruction` for the system prompt
+     - `contents` array for the user message
+     - `tools[].functionDeclarations` instead of OpenAI `tools`
+     - `toolConfig.functionCallingConfig` with `mode: "ANY"` to force structured output
+   - Parse the response from `candidates[0].content.parts[0].functionCall.args` instead of `choices[0].message.tool_calls[0].function.arguments`.
+   - Preserve the existing 429 / 402 / generic error handling (Gemini returns 429 for rate limits; map quota errors similarly).
 
-CTAs:
-- Primary: **Inquire** → links to the venue's booking/contact URL if present, else to the detail page
-- Secondary: **View venue** → `/weddings/{slug}`
+3. **Rewrite `generate-neighborhood-page/index.ts`**
+   - Identical pattern to step 2 — same endpoint, same payload conversion, different schema/prompt.
 
-## Editor UX
+4. **Leave `LOVABLE_API_KEY` in place but unused**
+   - Don't delete it; harmless to keep. User can remove it later from secrets if desired.
 
-In the rich-text toolbar, the existing "Insert cruise card" button becomes a small dropdown:
+5. **Test both functions**
+   - Trigger each from the admin UI (or via the curl edge function tool) and verify a valid structured draft is returned.
+   - Check logs for any schema-conversion issues.
 
-```text
-[ + Embed ▾ ]
-   ├─ 🚢 Cruise card
-   └─ 💍 Wedding venue
-```
+## Technical notes
 
-Clicking "Wedding venue" opens a search dialog identical to `InsertCruiseCardDialog` but listing wedding venues (DB category `WeddingVenue`), with the same Full / Compact toggle.
+**Schema conversion:** OpenAI's `parameters` JSON Schema works almost as-is in Gemini's `functionDeclarations[].parameters`, with two caveats:
+- Remove `additionalProperties: false` (Gemini rejects it).
+- Gemini wants `type` values uppercase in some SDKs but accepts lowercase via the REST API — keeping lowercase is fine.
 
-In the editor the embedded card renders the real `<WeddingVenueCard>`, with the same hover toolbar (toggle variant / delete) the cruise card already has.
+**Model choice:** Use `gemini-2.5-flash` (matches what the functions use today). If you want higher quality for blog drafts, `gemini-2.5-pro` is a drop-in swap.
 
-## Storage format
+**Free tier:** Google AI Studio's free tier has generous rate limits for Gemini Flash, plenty for admin-side draft generation.
 
-Same directive pattern as cruise cards, new kind `venue-card`:
+## What's NOT in this plan
 
-```text
-:::venue-card{slug="hotel-del-coronado-weddings" variant="full"}
-:::
-```
-
-Round-trips through the same marked → HTML → turndown pipeline using a `data-embed-card data-kind="venue"` element.
-
-## Technical changes
-
-- `src/lib/embed-directives.ts` — extend `EmbedCardKind` to `"cruise" | "venue"`, add `venue-card` to the directive maps and regex.
-- `src/lib/wedding-venues.ts` (new) — `fetchWeddingVenues()` and `fetchWeddingVenueBySlug()` querying `listings` where `category = 'WeddingVenue'`. Shape mirrors `CruiseLine` (name, slug, heroImage, tagline, neighborhood, capacity, priceTier, bookingUrl).
-- `src/components/site/WeddingVenueCard.tsx` (new) — full + compact variants + skeleton, styled to match `CruiseCard.tsx`.
-- `src/components/admin/editor/EmbedCardNode.tsx` — branch on `kind`: render `CruiseCard` or `WeddingVenueCard`, fetch the right loader.
-- `src/components/admin/editor/InsertWeddingVenueDialog.tsx` (new) — clone of `InsertCruiseCardDialog` for venues.
-- `src/components/admin/RichTextEditor.tsx` — replace single insert button with a small dropdown (Cruise / Wedding venue), wire each to its dialog and `insertEmbedCard({ kind, slug, variant })`.
-- `src/components/admin/BlogPostForm.tsx` — extend the `blankReplacement` Turndown override to also emit `:::venue-card{…}` when `data-kind="venue"`.
-- `src/components/site/BlogBody.tsx` — render `<WeddingVenueCard>` for `embed.kind === "venue"`, prefetch slugs.
-
-No DB migrations needed — venues already live in `listings` with `category = 'WeddingVenue'`.
-
-## Out of scope (let me know if you want any of these)
-
-- New embed kinds beyond cruises + venues (restaurants, hotels, golf courses) — easy to add later using the same pattern.
-- Editing venue fields from inside the article editor — the card just reflects the venue record.
-
-Once you approve, I'll build it and you can preview a wedding venue embedded in this same article.
+- No changes to frontend code or admin pages.
+- No database migrations.
+- No replacement of the AI Gateway for any future AI features — if you add more AI later, you'd extend the same Gemini pattern.
+- No migration off Supabase. Edge functions still run on the Supabase project; only their outbound API target changes.
