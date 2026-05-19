@@ -41,6 +41,70 @@ const HOME_FAQS: { q: string; a: string }[] = [
   },
 ];
 
+type HomeNeighborhood = {
+  id: string;
+  name: string;
+  blurb: string | null;
+  image_url: string | null;
+  link_to: string;
+};
+
+type HomeLoaderData = {
+  featured: ListingCardData[];
+  posts: ArticleCardData[];
+  cms: Record<string, Record<string, unknown>>;
+  hoods: HomeNeighborhood[];
+};
+
+// Server-side loader — runs during SSR so featured listings, editorial posts,
+// CMS sections, and home neighborhoods land in the initial HTML.
+async function loadHome(): Promise<HomeLoaderData> {
+  let featured: ListingCardData[] = [];
+  let posts: ArticleCardData[] = [];
+  const cms: Record<string, Record<string, unknown>> = {};
+  let hoods: HomeNeighborhood[] = [];
+
+  try {
+    const [l, a, sections] = await Promise.all([
+      fetchPublishedListings({ limit: 6 }),
+      fetchPublishedArticles({ limit: 4 }),
+      fetchPublishedHomepageSections(),
+    ]);
+    const paid = l.filter((x) => x.tier !== "free");
+    const filler = l.filter((x) => x.tier === "free");
+    let feat = [...paid, ...filler].slice(0, 3);
+    if (feat.length < 3) {
+      const seen = new Set(feat.map((f) => f.slug));
+      const mockFill = [
+        ...mockListings.filter((m) => m.tier !== "free"),
+        ...mockListings.filter((m) => m.tier === "free"),
+      ].filter((m) => !seen.has(m.slug));
+      feat = [...feat, ...mockFill].slice(0, 3) as typeof feat;
+    }
+    featured = feat as ListingCardData[];
+    posts = (a.length ? a : mockArticles) as ArticleCardData[];
+    for (const s of sections as HomepageSection[]) {
+      cms[s.section_key] = (s.published_content || {}) as Record<string, unknown>;
+    }
+  } catch {
+    featured = mockListings.filter((m) => m.tier !== "free").slice(0, 3) as ListingCardData[];
+    posts = mockArticles as ArticleCardData[];
+  }
+
+  try {
+    const { data } = await supabase
+      .from("home_neighborhoods")
+      .select("id, name, blurb, image_url, link_to")
+      .eq("enabled", true)
+      .order("position");
+    if (data && data.length) hoods = data as HomeNeighborhood[];
+  } catch {
+    // ignore — fall back to hardcoded neighborhoods in the component
+  }
+
+  return { featured, posts, cms, hoods };
+}
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -73,61 +137,12 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  loader: () => loadHome(),
   component: HomePage,
 });
 
-type HomeNeighborhood = {
-  id: string;
-  name: string;
-  blurb: string | null;
-  image_url: string | null;
-  link_to: string;
-};
-
 function HomePage() {
-  const [featured, setFeatured] = useState<ListingCardData[]>([]);
-  const [posts, setPosts] = useState<ArticleCardData[]>([]);
-  const [cms, setCms] = useState<Record<string, Record<string, unknown>>>({});
-  const [hoods, setHoods] = useState<HomeNeighborhood[]>([]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const [l, a, sections] = await Promise.all([
-          fetchPublishedListings({ limit: 6 }),
-          fetchPublishedArticles({ limit: 4 }),
-          fetchPublishedHomepageSections(),
-        ]);
-        const paid = l.filter((x) => x.tier !== "free");
-        const filler = l.filter((x) => x.tier === "free");
-        let feat = [...paid, ...filler].slice(0, 3);
-        if (feat.length < 3) {
-          const seen = new Set(feat.map((f) => f.slug));
-          const mockFill = [
-            ...mockListings.filter((m) => m.tier !== "free"),
-            ...mockListings.filter((m) => m.tier === "free"),
-          ].filter((m) => !seen.has(m.slug));
-          feat = [...feat, ...mockFill].slice(0, 3) as typeof feat;
-        }
-        setFeatured(feat as ListingCardData[]);
-        setPosts(a.length ? (a as ArticleCardData[]) : (mockArticles as ArticleCardData[]));
-        const map: Record<string, Record<string, unknown>> = {};
-        for (const s of sections as HomepageSection[]) map[s.section_key] = (s.published_content || {}) as Record<string, unknown>;
-        setCms(map);
-      } catch {
-        setFeatured(mockListings.filter((m) => m.tier !== "free").slice(0, 3) as ListingCardData[]);
-        setPosts(mockArticles as ArticleCardData[]);
-      }
-    })();
-    (async () => {
-      const { data } = await supabase
-        .from("home_neighborhoods")
-        .select("id, name, blurb, image_url, link_to")
-        .eq("enabled", true)
-        .order("position");
-      if (data && data.length) setHoods(data as HomeNeighborhood[]);
-    })();
-  }, []);
+  const { featured, posts, cms, hoods } = Route.useLoaderData();
 
   const c = (key: string, field: string, fallback: string): string => (cms[key]?.[field] as string) || fallback;
   const heroCms = cms["hero"] || {};
