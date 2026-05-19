@@ -26,12 +26,17 @@ type OwnedListing = {
   partner_spotlight: unknown;
 };
 
+type ImpressionRow = { listing_id: string; impression_type: "view" | "click"; created_at: string };
+type PerfStat = { views: number; clicks: number; views30: number; clicks30: number };
+
 function PartnerDashboard() {
   const { user, loading, isPartner, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [listings, setListings] = useState<OwnedListing[] | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingData, setEditingData] = useState<Partial<ListingFormValues> | null>(null);
+  const [stats, setStats] = useState<Record<string, PerfStat>>({});
+  const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
@@ -48,6 +53,59 @@ function PartnerDashboard() {
       setListings((data as OwnedListing[] | null) ?? []);
     })();
   }, [user]);
+
+  // Load impressions for the partner's listings. RLS already scopes the
+  // listing_impressions table to rows the partner can see (partner_id match
+  // or admin role), so we don't need to pass partner_id in the query.
+  useEffect(() => {
+    if (!user || !listings || listings.length === 0) {
+      if (listings && listings.length === 0) setStatsLoading(false);
+      return;
+    }
+    (async () => {
+      setStatsLoading(true);
+      const ids = listings.map((l) => l.id);
+      const { data } = await supabase
+        .from("listing_impressions")
+        .select("listing_id, impression_type, created_at")
+        .in("listing_id", ids)
+        .limit(10000);
+
+      const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+      const map: Record<string, PerfStat> = {};
+      for (const id of ids) {
+        map[id] = { views: 0, clicks: 0, views30: 0, clicks30: 0 };
+      }
+      for (const r of (data as ImpressionRow[] | null) ?? []) {
+        const s = map[r.listing_id];
+        if (!s) continue;
+        const recent = new Date(r.created_at).getTime() >= cutoff;
+        if (r.impression_type === "view") {
+          s.views++;
+          if (recent) s.views30++;
+        } else {
+          s.clicks++;
+          if (recent) s.clicks30++;
+        }
+      }
+      setStats(map);
+      setStatsLoading(false);
+    })();
+  }, [user, listings]);
+
+  const totals = useMemo(() => {
+    const t = { views: 0, clicks: 0, views30: 0, clicks30: 0 };
+    for (const s of Object.values(stats)) {
+      t.views += s.views;
+      t.clicks += s.clicks;
+      t.views30 += s.views30;
+      t.clicks30 += s.clicks30;
+    }
+    return t;
+  }, [stats]);
+
+  const ctrPct = (clicks: number, views: number) =>
+    views > 0 ? ((clicks / views) * 100).toFixed(1) : "0.0";
 
   const startEdit = async (id: string) => {
     const { data: row } = await supabase.from("listings").select("*").eq("id", id).maybeSingle();
