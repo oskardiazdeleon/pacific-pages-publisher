@@ -6,6 +6,8 @@ import { Footer } from "@/components/site/Footer";
 import { Breadcrumbs, breadcrumbJsonLd } from "@/components/site/Breadcrumbs";
 import { fetchCruiseLines, type CruiseLine } from "@/lib/cruise-lines";
 import { fetchPublishedHomepageSections, type HomepageSection } from "@/lib/cms";
+import { insiderUTM } from "@/lib/utm";
+import { EmailCapture } from "@/components/site/EmailCapture";
 
 const SITE_URL = "https://sandiego.com";
 const META_TITLE = "Cruises from San Diego — Every Cruise Line Sailing the Port | sandiego.com";
