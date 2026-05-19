@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { BlogBody } from "@/components/site/BlogBody";
+import { EmailCapture } from "@/components/site/EmailCapture";
 
 interface Post {
   id: string;
