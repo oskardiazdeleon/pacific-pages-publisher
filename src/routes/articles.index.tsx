@@ -83,7 +83,7 @@ function ArticlesPage() {
 
           {rest.length > 0 && (
             <section className="container-page mt-16 grid gap-12 md:grid-cols-2 lg:grid-cols-3">
-              {rest.map((a) => <ArticleCard key={a.slug} article={a} />)}
+              {rest.map((a: ArticleCardData) => <ArticleCard key={a.slug} article={a} />)}
             </section>
           )}
         </>
