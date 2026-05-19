@@ -71,26 +71,31 @@ function NotFoundComponent() {
 
 export const Route = createRootRoute({
   head: () => {
-    const isProd = (process.env.SITE_URL || "").includes("sandiego.com");
+    const allowIndexing = import.meta.env.VITE_ALLOW_INDEXING === "true";
     const description =
-      "The definitive guide to San Diego — handpicked places to stay, eat, and explore, alongside the stories behind America's Finest City.";
-    const title = "SanDiego.com — The Definitive Guide to America's Finest City";
+      "Handpicked San Diego hotels, restaurants, things to do, and editorial guides from local experts. Insider members save up to 40%.";
+    const ogDescription =
+      "Handpicked listings, neighborhood guides, and editorial stories from local experts.";
+    const title = "sandiego.com — The Definitive Guide to America's Finest City";
     const meta = [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title },
       { name: "description", content: description },
+      { name: "author", content: "sandiego.com Editorial Team" },
       { property: "og:title", content: title },
-      { property: "og:description", content: description },
+      { property: "og:description", content: ogDescription },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "SanDiego.com" },
+      { property: "og:site_name", content: "sandiego.com" },
       { property: "og:locale", content: "en_US" },
       { property: "og:url", content: "https://sandiego.com" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@sandiegocom" },
-      { name: "twitter:creator", content: "@sandiegocom" },
+      { name: "twitter:site", content: "@sandiegodotcom" },
+      { name: "twitter:creator", content: "@sandiegodotcom" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: ogDescription },
     ];
-    if (!isProd) {
+    if (!allowIndexing) {
       meta.push({ name: "robots", content: "noindex, nofollow" });
     }
     return {
