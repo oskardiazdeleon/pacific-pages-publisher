@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { ArrowRight, MapPin, Sparkles, TrendingUp } from "lucide-react";
 import { ArrowRight, MapPin, Sparkles, TrendingUp } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Header } from "@/components/site/Header";
