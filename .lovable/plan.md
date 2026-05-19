@@ -1,56 +1,56 @@
 
-## Goal
+## Why this matters
 
-Replace calls to the Lovable AI Gateway (`ai.gateway.lovable.dev`) with direct calls to Google AI Studio's Gemini API (`generativelanguage.googleapis.com`) so the AI features work on any host with a user-provided `GEMINI_API_KEY`.
+Right now the homepage is mostly visuals, card grids, and short CTAs. Google has very little prose to associate with `sandiego.com` for terms like "things to do in San Diego," "where to stay in San Diego," or "best San Diego neighborhoods." Adding a real content section — backed by the existing homepage CMS (`fetchPublishedHomepageSections`) — gives crawlers something to rank and gives you a place to keep updating fresh keywords without touching code.
 
-## Scope
+## Recommended sections (pick 1–3)
 
-Only the two edge functions that use AI:
-- `supabase/functions/generate-blog/index.ts` — drafts blog posts
-- `supabase/functions/generate-neighborhood-page/index.ts` — generates neighborhood landing page editorial
+1. **"About San Diego" intro block** (highest SEO value, lowest effort)
+   - 2–4 short paragraphs of editorial prose under an H2 like "The definitive guide to San Diego."
+   - Naturally mentions the big head terms: neighborhoods, beaches, hotels, restaurants, things to do, weather, getting around.
+   - Placed between Neighborhoods and the Insider lead magnet, or just below the hero.
 
-Nothing else in the app changes. Admin UI, DB, auth, listings, etc. are untouched.
+2. **Internal-linking "Explore by category" block**
+   - H2 + 6–10 keyword-rich text links: "Best hotels in San Diego," "Top restaurants in La Jolla," "Things to do in Balboa Park," "San Diego nightlife," "Family-friendly beaches," etc.
+   - Pure text links (not just image cards) — crawlers weight these much more than the current image grid.
+   - Doubles as a sitemap-style hub that pushes link equity to category and neighborhood pages.
 
-## Steps
+3. **FAQ block with FAQPage JSON-LD**
+   - 5–8 Q&As: "When is the best time to visit San Diego?", "How many days do you need in San Diego?", "What's the best neighborhood to stay in?", "Is San Diego walkable?", "How do I get from the airport?"
+   - Emit `application/ld+json` of type `FAQPage` in the route's `head().scripts` — eligible for rich results in Google.
 
-1. **Add `GEMINI_API_KEY` secret**
-   - Prompt the user to paste their Google AI Studio API key (from https://aistudio.google.com/apikey).
-   - Stored as a backend secret, available to edge functions as `Deno.env.get("GEMINI_API_KEY")`.
+4. **"Trending right now" / fresh content strip** (optional)
+   - Auto-pulls the 4–6 most recent published articles or listings as text links with short blurbs.
+   - Signals freshness to crawlers and gives recurring crawl targets.
 
-2. **Rewrite `generate-blog/index.ts`**
-   - Replace the `fetch` to `ai.gateway.lovable.dev` with a `POST` to:
-     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`
-   - Convert the OpenAI-style `messages` + `tools` payload to Gemini's native format:
-     - `system_instruction` for the system prompt
-     - `contents` array for the user message
-     - `tools[].functionDeclarations` instead of OpenAI `tools`
-     - `toolConfig.functionCallingConfig` with `mode: "ANY"` to force structured output
-   - Parse the response from `candidates[0].content.parts[0].functionCall.args` instead of `choices[0].message.tool_calls[0].function.arguments`.
-   - Preserve the existing 429 / 402 / generic error handling (Gemini returns 429 for rate limits; map quota errors similarly).
+5. **LocalBusiness / TravelGuide structured data** (optional, no visible UI)
+   - Add a JSON-LD `TouristDestination` or `TravelGuide` block describing sandiego.com to the root or index `head().scripts`.
 
-3. **Rewrite `generate-neighborhood-page/index.ts`**
-   - Identical pattern to step 2 — same endpoint, same payload conversion, different schema/prompt.
+## How it fits the existing system
 
-4. **Leave `LOVABLE_API_KEY` in place but unused**
-   - Don't delete it; harmless to keep. User can remove it later from secrets if desired.
+- The page already reads CMS-driven sections via `fetchPublishedHomepageSections()` and a `c("section_key", "field", "fallback")` helper. New sections plug into the same pattern — add new `section_key` values like `seo_intro`, `explore_links`, `faq`, each with their own fields (`heading`, `body_md`, `items[]`).
+- Editors can update copy from the admin without code deploys.
+- The FAQ JSON-LD can be generated from the same CMS data, so editing a question in the admin updates both the visible UI and the structured data.
 
-5. **Test both functions**
-   - Trigger each from the admin UI (or via the curl edge function tool) and verify a valid structured draft is returned.
-   - Check logs for any schema-conversion issues.
+## Suggested placement order on the homepage
 
-## Technical notes
+```text
+Hero
+Featured listings (existing)
+SEO intro block            ← new
+Editorial (existing)
+Neighborhoods (existing)
+Explore by category links  ← new
+Insider lead magnet (existing)
+FAQ + JSON-LD              ← new
+Partner CTA (existing)
+Footer
+```
 
-**Schema conversion:** OpenAI's `parameters` JSON Schema works almost as-is in Gemini's `functionDeclarations[].parameters`, with two caveats:
-- Remove `additionalProperties: false` (Gemini rejects it).
-- Gemini wants `type` values uppercase in some SDKs but accepts lowercase via the REST API — keeping lowercase is fine.
+## What I'd build first if you want a single focused change
 
-**Model choice:** Use `gemini-2.5-flash` (matches what the functions use today). If you want higher quality for blog drafts, `gemini-2.5-pro` is a drop-in swap.
+Just #1 + #3 (intro block + FAQ with JSON-LD). That gets you indexable long-form copy on the homepage and a shot at FAQ rich results, with minimal layout disruption. #2 can follow once the category/neighborhood URL structure is finalized.
 
-**Free tier:** Google AI Studio's free tier has generous rate limits for Gemini Flash, plenty for admin-side draft generation.
+## Next step
 
-## What's NOT in this plan
-
-- No changes to frontend code or admin pages.
-- No database migrations.
-- No replacement of the AI Gateway for any future AI features — if you add more AI later, you'd extend the same Gemini pattern.
-- No migration off Supabase. Edge functions still run on the Supabase project; only their outbound API target changes.
+Tell me which of these you want (any combination), and whether you'd like the copy seeded with a first draft of San Diego–specific content or left as empty CMS slots for your editors to fill in.
