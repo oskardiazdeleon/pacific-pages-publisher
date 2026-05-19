@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Sparkles, Clock, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/site/Header";
@@ -19,6 +19,18 @@ export const Route = createFileRoute("/blog/")({
     ],
     links: [{ rel: "canonical", href: "https://sandiego.com/blog" }],
   }),
+  loader: async (): Promise<{ posts: Post[] }> => {
+    try {
+      const { data } = await supabase
+        .from("blog_posts")
+        .select("id, slug, title, subtitle, excerpt, cover_image, category, tags, author_name, read_time_minutes, ai_generated, published_at")
+        .eq("status", "published")
+        .order("published_at", { ascending: false });
+      return { posts: (data as Post[]) ?? [] };
+    } catch {
+      return { posts: [] };
+    }
+  },
   component: BlogIndex,
 });
 
@@ -41,24 +53,13 @@ const formatDate = (iso: string | null) =>
   iso ? new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "";
 
 function BlogIndex() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { posts } = Route.useLoaderData();
+  const loading = false;
   const [activeCat, setActiveCat] = useState<string>("All");
 
-  useEffect(() => {
-    (async () => {
-      const { data } = await supabase
-        .from("blog_posts")
-        .select("id, slug, title, subtitle, excerpt, cover_image, category, tags, author_name, read_time_minutes, ai_generated, published_at")
-        .eq("status", "published")
-        .order("published_at", { ascending: false });
-      setPosts((data as Post[]) ?? []);
-      setLoading(false);
-    })();
-  }, []);
 
-  const categories = ["All", ...Array.from(new Set(posts.map((p) => p.category).filter(Boolean) as string[]))];
-  const visible = activeCat === "All" ? posts : posts.filter((p) => p.category === activeCat);
+  const categories = ["All", ...Array.from(new Set(posts.map((p: Post) => p.category).filter(Boolean) as string[]))];
+  const visible = activeCat === "All" ? posts : posts.filter((p: Post) => p.category === activeCat);
   const [hero, ...rest] = visible;
 
   return (
@@ -178,7 +179,7 @@ function BlogIndex() {
             {/* Grid */}
             {rest.length > 0 && (
               <div className="grid gap-10 md:gap-x-8 md:gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
-                {rest.map((p) => <BlogCard key={p.id} post={p} />)}
+                {rest.map((p: Post) => <BlogCard key={p.id} post={p} />)}
               </div>
             )}
           </>

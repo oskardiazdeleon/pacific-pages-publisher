@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ArticleCard, type ArticleCardData } from "@/components/site/ArticleCard";
@@ -27,25 +26,21 @@ export const Route = createFileRoute("/articles/")({
     ],
     links: [{ rel: "canonical", href: "https://sandiego.com/articles" }],
   }),
+  loader: async (): Promise<{ items: ArticleCardData[] }> => {
+    try {
+      const data = await fetchPublishedArticles();
+      return { items: (data.length ? data : mockArticles) as ArticleCardData[] };
+    } catch {
+      return { items: mockArticles as ArticleCardData[] };
+    }
+  },
   component: ArticlesPage,
 });
 
 function ArticlesPage() {
-  const [items, setItems] = useState<ArticleCardData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { items } = Route.useLoaderData();
+  const loading = false;
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await fetchPublishedArticles();
-        setItems(data.length ? (data as ArticleCardData[]) : (mockArticles as ArticleCardData[]));
-      } catch {
-        setItems(mockArticles as ArticleCardData[]);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
 
   const [lead, ...rest] = items;
   return (
@@ -88,7 +83,7 @@ function ArticlesPage() {
 
           {rest.length > 0 && (
             <section className="container-page mt-16 grid gap-12 md:grid-cols-2 lg:grid-cols-3">
-              {rest.map((a) => <ArticleCard key={a.slug} article={a} />)}
+              {rest.map((a: ArticleCardData) => <ArticleCard key={a.slug} article={a} />)}
             </section>
           )}
         </>

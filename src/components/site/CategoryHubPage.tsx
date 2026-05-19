@@ -14,14 +14,27 @@ import { EmailCapture } from "@/components/site/EmailCapture";
 
 const SITE_URL = "https://sandiego.com";
 
-export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
-  const [items, setItems] = useState<ListingCardData[]>([]);
-  const [loading, setLoading] = useState(true);
+export function CategoryHubPage({
+  hub,
+  initialItems,
+  initialCmsHero,
+}: {
+  hub: CategoryHub;
+  /** Pre-fetched listings from the route loader — present in SSR HTML. */
+  initialItems?: ListingCardData[];
+  /** Pre-fetched sponsor/CMS hero overrides from the route loader. */
+  initialCmsHero?: Record<string, unknown>;
+}) {
+  const hasInitialItems = Array.isArray(initialItems);
+  const hasInitialCms = Boolean(initialCmsHero);
+  const [items, setItems] = useState<ListingCardData[]>(initialItems ?? []);
+  const [loading, setLoading] = useState(!hasInitialItems);
   const [search, setSearch] = useState("");
-  const [cms, setCms] = useState<Record<string, unknown>>({});
+  const [cms, setCms] = useState<Record<string, unknown>>(initialCmsHero ?? {});
 
-  // CMS hero override (sponsor takeover)
+  // CMS hero override (sponsor takeover) — skip when seeded by the loader.
   useEffect(() => {
+    if (hasInitialCms) return;
     (async () => {
       try {
         const sections = await fetchPublishedHomepageSections();
@@ -34,9 +47,11 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
         // ignore
       }
     })();
-  }, [hub.slug]);
+  }, [hub.slug, hasInitialCms]);
 
   useEffect(() => {
+    // Loader already populated items — no need to refetch on first mount.
+    if (hasInitialItems) return;
     let cancelled = false;
     setLoading(true);
     (async () => {
@@ -66,7 +81,7 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
     return () => {
       cancelled = true;
     };
-  }, [hub.slug]);
+  }, [hub.slug, hasInitialItems]);
 
   const sponsorActive =
     cms["sponsor_active"] === true || cms["sponsor_active"] === "true";

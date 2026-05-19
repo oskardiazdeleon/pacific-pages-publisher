@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { ArrowRight, MapPin, Sparkles, TrendingUp } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Header } from "@/components/site/Header";
@@ -41,6 +40,70 @@ const HOME_FAQS: { q: string; a: string }[] = [
   },
 ];
 
+type HomeNeighborhood = {
+  id: string;
+  name: string;
+  blurb: string | null;
+  image_url: string | null;
+  link_to: string;
+};
+
+type HomeLoaderData = {
+  featured: ListingCardData[];
+  posts: ArticleCardData[];
+  cms: Record<string, Record<string, unknown>>;
+  hoods: HomeNeighborhood[];
+};
+
+// Server-side loader — runs during SSR so featured listings, editorial posts,
+// CMS sections, and home neighborhoods land in the initial HTML.
+async function loadHome(): Promise<HomeLoaderData> {
+  let featured: ListingCardData[] = [];
+  let posts: ArticleCardData[] = [];
+  const cms: Record<string, Record<string, unknown>> = {};
+  let hoods: HomeNeighborhood[] = [];
+
+  try {
+    const [l, a, sections] = await Promise.all([
+      fetchPublishedListings({ limit: 6 }),
+      fetchPublishedArticles({ limit: 4 }),
+      fetchPublishedHomepageSections(),
+    ]);
+    const paid = l.filter((x) => x.tier !== "free");
+    const filler = l.filter((x) => x.tier === "free");
+    let feat = [...paid, ...filler].slice(0, 3);
+    if (feat.length < 3) {
+      const seen = new Set(feat.map((f) => f.slug));
+      const mockFill = [
+        ...mockListings.filter((m) => m.tier !== "free"),
+        ...mockListings.filter((m) => m.tier === "free"),
+      ].filter((m) => !seen.has(m.slug));
+      feat = [...feat, ...mockFill].slice(0, 3) as typeof feat;
+    }
+    featured = feat as ListingCardData[];
+    posts = (a.length ? a : mockArticles) as ArticleCardData[];
+    for (const s of sections as HomepageSection[]) {
+      cms[s.section_key] = (s.published_content || {}) as Record<string, unknown>;
+    }
+  } catch {
+    featured = mockListings.filter((m) => m.tier !== "free").slice(0, 3) as ListingCardData[];
+    posts = mockArticles as ArticleCardData[];
+  }
+
+  try {
+    const { data } = await supabase
+      .from("home_neighborhoods")
+      .select("id, name, blurb, image_url, link_to")
+      .eq("enabled", true)
+      .order("position");
+    if (data && data.length) hoods = data as HomeNeighborhood[];
+  } catch {
+    // ignore — fall back to hardcoded neighborhoods in the component
+  }
+
+  return { featured, posts, cms, hoods };
+}
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -73,61 +136,12 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  loader: () => loadHome(),
   component: HomePage,
 });
 
-type HomeNeighborhood = {
-  id: string;
-  name: string;
-  blurb: string | null;
-  image_url: string | null;
-  link_to: string;
-};
-
 function HomePage() {
-  const [featured, setFeatured] = useState<ListingCardData[]>([]);
-  const [posts, setPosts] = useState<ArticleCardData[]>([]);
-  const [cms, setCms] = useState<Record<string, Record<string, unknown>>>({});
-  const [hoods, setHoods] = useState<HomeNeighborhood[]>([]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const [l, a, sections] = await Promise.all([
-          fetchPublishedListings({ limit: 6 }),
-          fetchPublishedArticles({ limit: 4 }),
-          fetchPublishedHomepageSections(),
-        ]);
-        const paid = l.filter((x) => x.tier !== "free");
-        const filler = l.filter((x) => x.tier === "free");
-        let feat = [...paid, ...filler].slice(0, 3);
-        if (feat.length < 3) {
-          const seen = new Set(feat.map((f) => f.slug));
-          const mockFill = [
-            ...mockListings.filter((m) => m.tier !== "free"),
-            ...mockListings.filter((m) => m.tier === "free"),
-          ].filter((m) => !seen.has(m.slug));
-          feat = [...feat, ...mockFill].slice(0, 3) as typeof feat;
-        }
-        setFeatured(feat as ListingCardData[]);
-        setPosts(a.length ? (a as ArticleCardData[]) : (mockArticles as ArticleCardData[]));
-        const map: Record<string, Record<string, unknown>> = {};
-        for (const s of sections as HomepageSection[]) map[s.section_key] = (s.published_content || {}) as Record<string, unknown>;
-        setCms(map);
-      } catch {
-        setFeatured(mockListings.filter((m) => m.tier !== "free").slice(0, 3) as ListingCardData[]);
-        setPosts(mockArticles as ArticleCardData[]);
-      }
-    })();
-    (async () => {
-      const { data } = await supabase
-        .from("home_neighborhoods")
-        .select("id, name, blurb, image_url, link_to")
-        .eq("enabled", true)
-        .order("position");
-      if (data && data.length) setHoods(data as HomeNeighborhood[]);
-    })();
-  }, []);
+  const { featured, posts, cms, hoods } = Route.useLoaderData();
 
   const c = (key: string, field: string, fallback: string): string => (cms[key]?.[field] as string) || fallback;
   const heroCms = cms["hero"] || {};
@@ -234,7 +248,7 @@ function HomePage() {
             </a>
           </div>
           <div className="mt-8 grid gap-6 md:grid-cols-3">
-            {featured.map((l) => <ListingCard key={l.slug} listing={l} />)}
+            {featured.map((l: ListingCardData) => <ListingCard key={l.slug} listing={l} />)}
           </div>
         </div>
       </section>
@@ -255,7 +269,7 @@ function HomePage() {
             {leadArticle && <ArticleCard article={leadArticle} />}
           </div>
           <div className="lg:col-span-5 space-y-8">
-            {moreArticles.map((a) => <ArticleCard key={a.slug} article={a} />)}
+            {moreArticles.map((a: ArticleCardData) => <ArticleCard key={a.slug} article={a} />)}
           </div>
         </div>
       </section>
@@ -266,14 +280,14 @@ function HomePage() {
         <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">{c("neighborhoods", "heading", "Eight cities in one")}</h2>
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {(hoods.length
-            ? hoods.map((n) => ({
+            ? hoods.map((n: HomeNeighborhood) => ({
                 key: n.id,
                 name: n.name,
                 blurb: n.blurb || "",
                 image: n.image_url || "",
                 href: n.link_to || "/neighborhoods",
               }))
-            : neighborhoods.map((n) => {
+            : neighborhoods.map((n: typeof neighborhoods[number]) => {
                 const seoDefault: Record<string, string> = {
                   "la-jolla": "/things-to-do/in/la-jolla",
                   "gaslamp-quarter": "/nightlife/in/gaslamp-quarter",
@@ -292,7 +306,7 @@ function HomePage() {
                   href: seoDefault[n.slug] || `/neighborhoods/${n.slug}`,
                 };
               })
-          ).map((n) => (
+          ).map((n: { key: string; name: string; blurb: string; image: string; href: string }) => (
             <a
               key={n.key}
               href={n.href}
