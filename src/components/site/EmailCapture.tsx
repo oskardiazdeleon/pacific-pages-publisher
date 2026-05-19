@@ -132,10 +132,10 @@ export function EmailCapture({
   }
 
   const wrapperClass = isCard
-    ? "relative overflow-hidden rounded-3xl border border-border bg-card p-8 md:p-10"
+    ? "relative overflow-hidden rounded-3xl border border-border bg-card text-foreground p-8 md:p-10"
     : isSidebar
-      ? "rounded-2xl border border-border bg-card p-5"
-      : "rounded-2xl border border-border bg-card p-6 md:p-7";
+      ? "rounded-2xl border border-border bg-card text-foreground p-5"
+      : "rounded-2xl border border-border bg-card text-foreground p-6 md:p-7";
 
   return (
     <div className={wrapperClass}>
