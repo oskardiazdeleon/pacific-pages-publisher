@@ -9,7 +9,7 @@ import { listings as mockListings } from "@/lib/mock-data";
 import { fetchPublishedListings } from "@/lib/content-queries";
 import { fetchPublishedHomepageSections, type HomepageSection } from "@/lib/cms";
 import type { CategoryHub } from "@/lib/listing-categories";
-import { insiderUTM, partnerUTM } from "@/lib/utm";
+import { insiderUTM } from "@/lib/utm";
 import { EmailCapture } from "@/components/site/EmailCapture";
 import { categoryContent } from "@/lib/category-seo-content";
 import { SEO_NEIGHBORHOODS } from "@/lib/seo-neighborhoods";
