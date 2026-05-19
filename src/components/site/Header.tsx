@@ -3,6 +3,7 @@ import { ChevronDown, Menu, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import sandiegoLogo from "@/assets/sandiego-logo.png";
 import { fetchPublishedMenu, fetchPublishedSettings, type NavItem, type SiteSettingsMap } from "@/lib/cms";
+import { insiderUTM, partnerUTM } from "@/lib/utm";
 
 const FALLBACK_NAV: NavItem[] = [
   { label: "Things To Do", to: "/things-to-do" },
