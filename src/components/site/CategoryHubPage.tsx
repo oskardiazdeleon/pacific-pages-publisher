@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, Sparkles, BadgePercent, ArrowRight } from "lucide-react";
+import { Search, Sparkles, BadgePercent, ArrowRight, MapPin } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Breadcrumbs, breadcrumbJsonLd } from "@/components/site/Breadcrumbs";
@@ -11,6 +11,9 @@ import { fetchPublishedHomepageSections, type HomepageSection } from "@/lib/cms"
 import type { CategoryHub } from "@/lib/listing-categories";
 import { insiderUTM, partnerUTM } from "@/lib/utm";
 import { EmailCapture } from "@/components/site/EmailCapture";
+import { categoryContent } from "@/lib/category-seo-content";
+import { SEO_NEIGHBORHOODS } from "@/lib/seo-neighborhoods";
+
 
 const SITE_URL = "https://sandiego.com";
 
