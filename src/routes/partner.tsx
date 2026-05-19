@@ -1,12 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Megaphone, ArrowLeft, ExternalLink } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Megaphone, ArrowLeft, ExternalLink, BarChart3, MousePointerClick, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { ListingForm, type ListingFormValues } from "@/components/admin/ListingForm";
 import { hubForCategory } from "@/lib/listing-categories";
 
 export const Route = createFileRoute("/partner")({
+  head: () => ({
+    meta: [
+      { title: "Partner Dashboard — sandiego.com" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: PartnerDashboard,
 });
 
