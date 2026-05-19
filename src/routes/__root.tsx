@@ -100,7 +100,12 @@ export const Route = createRootRoute({
     }
     return {
       meta,
-      links: [{ rel: "stylesheet", href: appCss }],
+      links: [
+        { rel: "stylesheet", href: appCss },
+        { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
+        { rel: "dns-prefetch", href: "https://images.unsplash.com" },
+        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
+      ],
       scripts: [
         {
           type: "application/ld+json",

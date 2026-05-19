@@ -120,7 +120,11 @@ export const Route = createFileRoute("/")({
           "The definitive guide to San Diego — handpicked hotels, restaurants, things to do, and neighborhood guides from local experts.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://sandiego.com/" }],
+    links: [
+      { rel: "canonical", href: "https://sandiego.com/" },
+      // Preload the LCP hero image — the home hero is the largest paint candidate.
+      { rel: "preload", as: "image", href: hero, fetchpriority: "high" },
+    ],
     scripts: [
       {
         type: "application/ld+json",
