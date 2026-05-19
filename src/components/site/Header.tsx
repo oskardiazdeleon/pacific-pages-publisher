@@ -209,6 +209,27 @@ export function Header() {
             <Link to="/partners" search={partnerUTM("header")} onClick={() => setOpen(false)} className="mt-2 inline-flex items-center justify-center rounded-full border border-border px-4 py-2.5 text-sm font-medium text-foreground/80">
               For Partners
             </Link>
+            {user ? (
+              <>
+                {dashboardTo !== "/" && (
+                  <Link to={dashboardTo} onClick={() => setOpen(false)} className="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-border px-4 py-2.5 text-sm font-medium text-foreground/80">
+                    <LayoutDashboard className="h-4 w-4" /> {dashboardLabel}
+                  </Link>
+                )}
+                <button
+                  type="button"
+                  onClick={() => { setOpen(false); handleSignOut(); }}
+                  className="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-border px-4 py-2.5 text-sm font-medium text-foreground/80"
+                >
+                  <LogOut className="h-4 w-4" /> Sign out
+                </button>
+                <div className="mt-2 text-center text-xs text-muted-foreground">{user.email}</div>
+              </>
+            ) : (
+              <Link to="/auth" onClick={() => setOpen(false)} className="mt-2 inline-flex items-center justify-center rounded-full border border-border px-4 py-2.5 text-sm font-medium text-foreground/80">
+                Sign in
+              </Link>
+            )}
           </nav>
         </div>
       )}
