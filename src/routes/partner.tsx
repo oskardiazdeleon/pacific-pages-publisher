@@ -39,8 +39,16 @@ function PartnerDashboard() {
   const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
-    if (!loading && !user) navigate({ to: "/auth" });
-  }, [loading, user, navigate]);
+    if (loading) return;
+    if (!user) {
+      navigate({ to: "/auth", search: { next: "/partner" } as never });
+      return;
+    }
+    if (!isPartner && !isAdmin) {
+      navigate({ to: "/" });
+    }
+  }, [loading, user, isPartner, isAdmin, navigate]);
+
 
   useEffect(() => {
     if (!user) return;
