@@ -237,6 +237,7 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
                 </form>
                 <Link
                   to="/insider"
+                  search={insiderUTM(`${hub.slug}_banner`)}
                   className="inline-flex items-center justify-center gap-1.5 rounded-full border-2 border-accent bg-background px-5 py-3 text-sm font-bold text-accent hover:bg-accent hover:text-accent-foreground transition whitespace-nowrap"
                 >
                   <Sparkles className="h-4 w-4" />
