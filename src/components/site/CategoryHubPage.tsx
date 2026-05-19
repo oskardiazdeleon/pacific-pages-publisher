@@ -149,8 +149,9 @@ export function CategoryHubPage({
 
   // Neighborhoods that explicitly carry this hub category — used for the
   // internal-link strip and the URL prefix of each link.
-  const hubCategoryKey = hub.slug as (typeof SEO_NEIGHBORHOODS)[number]["categories"][number];
-  const neighborhoodLinks = SEO_NEIGHBORHOODS.filter((n) =>
+  const { data: allHoods = [] } = useSeoNeighborhoods();
+  const hubCategoryKey = hub.slug;
+  const neighborhoodLinks = allHoods.filter((n) =>
     (n.categories as readonly string[]).includes(hubCategoryKey),
   );
 
