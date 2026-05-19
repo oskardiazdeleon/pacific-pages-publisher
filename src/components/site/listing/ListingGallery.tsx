@@ -23,54 +23,56 @@ export function ListingGallery({
 
   return (
     <>
-      <div className="relative grid grid-cols-1 gap-2 overflow-hidden rounded-3xl md:grid-cols-2 md:gap-2">
-        {showHero && (
-          <button
-            type="button"
-            onClick={() => setOpenIdx(0)}
-            className="group relative aspect-[4/3] overflow-hidden md:aspect-auto md:row-span-2"
+      <div className="relative overflow-hidden rounded-3xl">
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-2">
+          {showHero && (
+            <button
+              type="button"
+              onClick={() => setOpenIdx(0)}
+              className="group relative aspect-[4/3] overflow-hidden md:aspect-auto md:row-span-2"
+            >
+              <img
+                src={images[0]}
+                alt={`${name} photo 1`}
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              />
+            </button>
+          )}
+          <div
+            className={`grid gap-2 ${
+              showHero ? "grid-cols-2" : "grid-cols-2 md:col-span-2 md:grid-cols-4"
+            }`}
           >
-            <img
-              src={images[0]}
-              alt={`${name} photo 1`}
-              loading="lazy"
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-            />
-          </button>
-        )}
-        <div
-          className={`grid gap-2 ${
-            showHero ? "grid-cols-2" : "grid-cols-2 md:col-span-2 md:grid-cols-4"
-          }`}
-        >
-          {sideImages.map((src, i) => {
-            const idx = showHero ? i + 1 : i;
-            return (
-              <button
-                key={`${src}-${idx}`}
-                type="button"
-                onClick={() => setOpenIdx(idx)}
-                className="group relative aspect-[4/3] overflow-hidden"
-              >
-                <img
-                  src={src}
-                  alt={`${name} photo ${idx + 1}`}
-                  loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                />
-              </button>
-            );
-          })}
+            {sideImages.map((src, i) => {
+              const idx = showHero ? i + 1 : i;
+              return (
+                <button
+                  key={`${src}-${idx}`}
+                  type="button"
+                  onClick={() => setOpenIdx(idx)}
+                  className="group relative aspect-[4/3] overflow-hidden"
+                >
+                  <img
+                    src={src}
+                    alt={`${name} photo ${idx + 1}`}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  />
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {images.length > 5 && (
+        {images.length > 1 && (
           <button
             type="button"
             onClick={() => setOpenIdx(0)}
-            className="absolute bottom-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-background/95 px-3.5 py-2 text-sm font-semibold shadow-md hover:bg-background"
+            className="absolute bottom-4 right-4 z-10 inline-flex items-center gap-1.5 rounded-full border border-border bg-background/95 px-4 py-2 text-sm font-semibold text-foreground shadow-md backdrop-blur hover:bg-background"
           >
             <Images className="h-4 w-4" />
-            Show all {images.length} photos
+            View all {images.length} photos
           </button>
         )}
       </div>
