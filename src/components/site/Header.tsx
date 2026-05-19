@@ -118,10 +118,10 @@ export function Header() {
                 </div>
               );
             })}
-            <Link to="/insider" onClick={() => setOpen(false)} className="mt-3 inline-flex items-center justify-center rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground">
+            <Link to="/insider" search={insiderUTM("header")} onClick={() => setOpen(false)} className="mt-3 inline-flex items-center justify-center rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground">
               Join Insider
             </Link>
-            <Link to="/partners" onClick={() => setOpen(false)} className="mt-2 inline-flex items-center justify-center rounded-full border border-border px-4 py-2.5 text-sm font-medium text-foreground/80">
+            <Link to="/partners" search={partnerUTM("header")} onClick={() => setOpen(false)} className="mt-2 inline-flex items-center justify-center rounded-full border border-border px-4 py-2.5 text-sm font-medium text-foreground/80">
               For Partners
             </Link>
           </nav>
