@@ -19,6 +19,18 @@ export const Route = createFileRoute("/blog/")({
     ],
     links: [{ rel: "canonical", href: "https://sandiego.com/blog" }],
   }),
+  loader: async (): Promise<{ posts: Post[] }> => {
+    try {
+      const { data } = await supabase
+        .from("blog_posts")
+        .select("id, slug, title, subtitle, excerpt, cover_image, category, tags, author_name, read_time_minutes, ai_generated, published_at")
+        .eq("status", "published")
+        .order("published_at", { ascending: false });
+      return { posts: (data as Post[]) ?? [] };
+    } catch {
+      return { posts: [] };
+    }
+  },
   component: BlogIndex,
 });
 
@@ -41,21 +53,10 @@ const formatDate = (iso: string | null) =>
   iso ? new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "";
 
 function BlogIndex() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { posts } = Route.useLoaderData();
+  const loading = false;
   const [activeCat, setActiveCat] = useState<string>("All");
 
-  useEffect(() => {
-    (async () => {
-      const { data } = await supabase
-        .from("blog_posts")
-        .select("id, slug, title, subtitle, excerpt, cover_image, category, tags, author_name, read_time_minutes, ai_generated, published_at")
-        .eq("status", "published")
-        .order("published_at", { ascending: false });
-      setPosts((data as Post[]) ?? []);
-      setLoading(false);
-    })();
-  }, []);
 
   const categories = ["All", ...Array.from(new Set(posts.map((p) => p.category).filter(Boolean) as string[]))];
   const visible = activeCat === "All" ? posts : posts.filter((p) => p.category === activeCat);
