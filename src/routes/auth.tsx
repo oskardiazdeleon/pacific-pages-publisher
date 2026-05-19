@@ -22,7 +22,7 @@ export const Route = createFileRoute("/auth")({
 type Mode = "signin" | "signup" | "forgot";
 
 function AuthPage() {
-  const { signIn, signUp, user, loading } = useAuth();
+  const { signIn, signUp, user, loading, isAdmin, isEditor, isPartner } = useAuth();
   const navigate = useNavigate();
   const { next } = Route.useSearch();
   const [mode, setMode] = useState<Mode>("signin");
@@ -32,14 +32,19 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [resetSent, setResetSent] = useState(false);
 
+  // Where to send this user after signing in — partners get /partner,
+  // editors/admins get /admin, everyone else lands on the homepage.
+  const defaultDest: "/admin" | "/partner" | "/" =
+    isAdmin || isEditor ? "/admin" : isPartner ? "/partner" : "/";
+
   useEffect(() => {
     // Don't bounce away while the user is mid-reset flow.
     if (!loading && user && mode !== "forgot") {
       // Only allow internal redirects (must start with /).
-      const safeNext = next && next.startsWith("/") ? next : "/admin";
+      const safeNext = next && next.startsWith("/") ? next : defaultDest;
       navigate({ to: safeNext });
     }
-  }, [loading, user, navigate, mode, next]);
+  }, [loading, user, navigate, mode, next, defaultDest]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +56,8 @@ function AuthPage() {
           toast.error(error.message);
         } else {
           toast.success("Signed in");
-          navigate({ to: "/admin" });
+          // Roles load asynchronously after sign-in — the effect above will
+          // route to the right dashboard once they're known.
         }
       } else if (mode === "signup") {
         const { error } = await signUp(email, password, displayName);
@@ -59,7 +65,6 @@ function AuthPage() {
           toast.error(error.message);
         } else {
           toast.success("Account created — check your email if confirmation is required.");
-          navigate({ to: "/admin" });
         }
       } else {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
