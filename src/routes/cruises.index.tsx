@@ -266,6 +266,7 @@ function CruisesHub() {
             </div>
             <Link
               to="/insider"
+              search={insiderUTM("cruises_banner")}
               className="shrink-0 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground hover:opacity-90 transition"
             >
               Join Insider
