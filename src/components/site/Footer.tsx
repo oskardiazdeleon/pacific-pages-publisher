@@ -75,7 +75,19 @@ export function Footer() {
               { label: "Insider Newsletter", to: "/insider" },
             ]).map((it) => (
               <li key={it.label}>
-                <Link to={it.to} className="hover:text-teal-soft">{it.label}</Link>
+                <Link
+                  to={it.to}
+                  search={
+                    it.to === "/insider"
+                      ? insiderUTM("footer")
+                      : it.to === "/partners" || it.to === "/partner"
+                        ? partnerUTM("footer")
+                        : undefined
+                  }
+                  className="hover:text-teal-soft"
+                >
+                  {it.label}
+                </Link>
               </li>
             ))}
           </ul>
