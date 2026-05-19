@@ -50,12 +50,38 @@ function CruiseLinePage() {
     { label: line.name },
   ];
 
-  const jsonLd = [
+  const cruiseUrl = `${SITE_URL}/cruises/${line.slug}`;
+  // Extract a numeric price from strings like "From $599" / "$1,299+" so Offers can carry a valid number.
+  const priceMatch = (line.priceFrom || "").match(/[\d,]+(?:\.\d+)?/);
+  const priceNumber = priceMatch ? priceMatch[0].replace(/,/g, "") : undefined;
+
+  const jsonLd: Record<string, unknown>[] = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: line.name,
+      image: line.heroImage,
+      description: line.description || line.metaDescription,
+      brand: { "@type": "Brand", name: line.name },
+      category: "Cruise",
+      url: cruiseUrl,
+      ...(priceNumber
+        ? {
+            offers: {
+              "@type": "Offer",
+              priceCurrency: "USD",
+              price: priceNumber,
+              availability: "https://schema.org/InStock",
+              url: line.bookingUrl || cruiseUrl,
+            },
+          }
+        : {}),
+    },
     {
       "@context": "https://schema.org",
       "@type": "Organization",
       name: line.name,
-      url: `${SITE_URL}/cruises/${line.slug}`,
+      url: cruiseUrl,
       image: line.heroImage,
       description: line.metaDescription,
     },
