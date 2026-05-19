@@ -411,6 +411,15 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
             ))}
           </div>
         )}
+
+        <div className="mt-12">
+          <EmailCapture
+            source={`${hub.slug}_sidebar`}
+            variant="inline"
+            title={`Get the Free 3-Day San Diego Insider Itinerary`}
+            subtitle={`Locals-only picks for ${hub.label.toLowerCase()} and more — sent instantly.`}
+          />
+        </div>
       </section>
 
       <script
