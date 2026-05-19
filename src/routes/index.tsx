@@ -307,7 +307,7 @@ function HomePage() {
                   href: seoDefault[n.slug] || `/neighborhoods/${n.slug}`,
                 };
               })
-          ).map((n) => (
+          ).map((n: { key: string; name: string; blurb: string; image: string; href: string }) => (
             <a
               key={n.key}
               href={n.href}
