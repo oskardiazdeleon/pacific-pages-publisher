@@ -1,9 +1,10 @@
-import { Link } from "@tanstack/react-router";
-import { ChevronDown, Menu, Search, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { ChevronDown, Menu, Search, X, LogOut, LayoutDashboard, UserRound } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import sandiegoLogo from "@/assets/sandiego-logo.png";
 import { fetchPublishedMenu, fetchPublishedSettings, type NavItem, type SiteSettingsMap } from "@/lib/cms";
 import { insiderUTM, partnerUTM } from "@/lib/utm";
+import { useAuth } from "@/lib/auth";
 
 const FALLBACK_NAV: NavItem[] = [
   { label: "Things To Do", to: "/things-to-do" },
