@@ -14,6 +14,33 @@ import { supabase } from "@/integrations/supabase/client";
 import hero from "@/assets/hero-sandiego.jpg";
 import { appendUTMs } from "@/lib/utm";
 
+const HOME_FAQS: { q: string; a: string }[] = [
+  {
+    q: "When is the best time to visit San Diego?",
+    a: "San Diego is a year-round destination thanks to its mild Mediterranean climate, but March through May and September through November offer the best mix of warm weather, lower hotel rates, and thinner crowds. Summer (June–August) is peak season with the warmest ocean temperatures, while winter brings whale-watching season and the lowest prices.",
+  },
+  {
+    q: "How many days do you need in San Diego?",
+    a: "Three to four days is enough to cover the highlights — Balboa Park, the beaches of La Jolla and Coronado, the Gaslamp Quarter, and a day at the San Diego Zoo or Safari Park. Five to seven days lets you slow down, explore neighborhoods like Little Italy and North Park, and take a day trip to Temecula wine country or across the border to Tijuana.",
+  },
+  {
+    q: "What is the best neighborhood to stay in?",
+    a: "Downtown and the Gaslamp Quarter are best for first-time visitors who want walkable nightlife and dining. La Jolla is ideal for couples and luxury travelers. Coronado suits families wanting a quiet beach base. Little Italy is the sweet spot for food-focused trips, and Pacific Beach is the pick for a younger, surf-and-bar crowd.",
+  },
+  {
+    q: "Is San Diego walkable, or do I need a car?",
+    a: "Downtown, the Gaslamp, Little Italy, and Balboa Park are very walkable and connected by the trolley. To reach the beaches, La Jolla, Coronado, or North County, a car or rideshare is much more convenient — public transit between neighborhoods is limited.",
+  },
+  {
+    q: "How do I get from San Diego International Airport to downtown?",
+    a: "SAN airport sits just two miles from downtown. A rideshare or taxi runs about 10 minutes and $15–$25. The free Old Town Trolley shuttle and the MTS Route 992 bus also connect the airport to downtown for $2.50.",
+  },
+  {
+    q: "What are the must-see things to do in San Diego?",
+    a: "The classics are Balboa Park and the San Diego Zoo, La Jolla Cove and the sea caves, Coronado Beach and the Hotel del Coronado, the USS Midway Museum, sunset at Sunset Cliffs, and tacos in Barrio Logan or Old Town. Add the San Diego Safari Park or a whale-watching cruise if you have extra time.",
+  },
+];
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -21,16 +48,30 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "The definitive guide to San Diego — handpicked places to stay, eat, and explore, alongside the stories behind America's Finest City.",
+          "The definitive guide to San Diego — handpicked hotels, restaurants, things to do, and neighborhood guides from local experts. Plan your trip with insider picks for La Jolla, Coronado, Gaslamp Quarter, and beyond.",
       },
       { property: "og:title", content: "sandiego.com — The Definitive Guide to San Diego" },
       {
         property: "og:description",
         content:
-          "The definitive guide to San Diego — handpicked places to stay, eat, and explore, alongside the stories behind America's Finest City.",
+          "The definitive guide to San Diego — handpicked hotels, restaurants, things to do, and neighborhood guides from local experts.",
       },
     ],
     links: [{ rel: "canonical", href: "https://sandiego.com/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: HOME_FAQS.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }),
+      },
+    ],
   }),
   component: HomePage,
 });
