@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Edit3, ExternalLink, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { SEO_NEIGHBORHOODS } from "@/lib/seo-neighborhoods";
+import { useSeoNeighborhoods } from "@/lib/use-seo-neighborhoods";
 import { CATEGORY_HUBS } from "@/lib/listing-categories";
 
 export const Route = createFileRoute("/admin/cms/neighborhoods/")({
