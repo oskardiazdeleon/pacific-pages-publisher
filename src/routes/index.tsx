@@ -321,6 +321,57 @@ function HomePage() {
         <EmailCapture source="home_lead_magnet" />
       </section>
 
+      {/* SEO intro — long-form prose for crawlers and first-time visitors */}
+      <section className="container-page mt-24">
+        <div className="mx-auto max-w-3xl">
+          <div className="eyebrow">{c("seo_intro", "eyebrow", "About San Diego")}</div>
+          <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">
+            {c("seo_intro", "heading", "The definitive guide to San Diego")}
+          </h2>
+          <div className="mt-6 space-y-4 text-base md:text-lg text-foreground/80 leading-relaxed">
+            <p>
+              {c(
+                "seo_intro",
+                "p1",
+                "San Diego is America's Finest City for a reason: 70 miles of Pacific coastline, eight wildly different neighborhoods, a year-round Mediterranean climate, and a food scene that quietly rivals any major US city. From the sea caves of La Jolla to the craft breweries of North Park, the boutique hotels of the Gaslamp Quarter to the surf breaks of Pacific Beach, this is a city built for slow afternoons and long weekends."
+              )}
+            </p>
+            <p>
+              {c(
+                "seo_intro",
+                "p2",
+                "Our editors live here. We update sandiego.com every week with handpicked hotels, restaurants worth a detour, things to do beyond the obvious, and neighborhood guides written by people who actually walk these blocks. Whether you're planning your first three days in San Diego or your tenth weekend in Coronado, start here."
+              )}
+            </p>
+            <p>
+              {c(
+                "seo_intro",
+                "p3",
+                "Looking for the inside track? Insider members get curated itineraries, member-only discounts at partner hotels and restaurants, and our weekly dispatch on what's actually worth your time this month in San Diego."
+              )}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ — paired with FAQPage JSON-LD in head() for rich results */}
+      <section className="container-page mt-24">
+        <div className="mx-auto max-w-3xl">
+          <div className="eyebrow">{c("faq", "eyebrow", "Trip planning")}</div>
+          <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">
+            {c("faq", "heading", "Frequently asked questions about visiting San Diego")}
+          </h2>
+          <dl className="mt-8 divide-y divide-border border-t border-b border-border">
+            {HOME_FAQS.map((f) => (
+              <div key={f.q} className="py-6">
+                <dt className="font-display text-xl font-semibold">{f.q}</dt>
+                <dd className="mt-2 text-foreground/80 leading-relaxed">{f.a}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
       {/* Partner CTA */}
       <section className="container-page mt-24">
         <div className="overflow-hidden rounded-3xl bg-primary text-primary-foreground p-10 md:p-16 grid md:grid-cols-2 gap-8 items-center">
