@@ -72,10 +72,10 @@ export function Header() {
           <button aria-label="Search" className="hidden sm:grid h-9 w-9 place-items-center rounded-full border border-border hover:bg-secondary transition">
             <Search className="h-4 w-4" />
           </button>
-          <Link to="/partners" className="hidden xl:inline-flex items-center rounded-full border border-border px-3 py-2 text-xs font-semibold text-foreground/75 hover:text-foreground hover:bg-secondary transition whitespace-nowrap">
+          <Link to="/partners" search={partnerUTM("header")} className="hidden xl:inline-flex items-center rounded-full border border-border px-3 py-2 text-xs font-semibold text-foreground/75 hover:text-foreground hover:bg-secondary transition whitespace-nowrap">
             For Partners
           </Link>
-          <Link to="/insider" className="hidden md:inline-flex items-center rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground hover:opacity-90 transition whitespace-nowrap">
+          <Link to="/insider" search={insiderUTM("header")} className="hidden md:inline-flex items-center rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground hover:opacity-90 transition whitespace-nowrap">
             Join Insider
           </Link>
           <button
