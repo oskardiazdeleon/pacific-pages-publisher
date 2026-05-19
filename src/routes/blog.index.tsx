@@ -179,7 +179,7 @@ function BlogIndex() {
             {/* Grid */}
             {rest.length > 0 && (
               <div className="grid gap-10 md:gap-x-8 md:gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
-                {rest.map((p) => <BlogCard key={p.id} post={p} />)}
+                {rest.map((p: Post) => <BlogCard key={p.id} post={p} />)}
               </div>
             )}
           </>
