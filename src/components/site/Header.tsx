@@ -20,8 +20,21 @@ const FALLBACK_NAV: NavItem[] = [
 export function Header() {
   const [open, setOpen] = useState(false);
   const [openSection, setOpenSection] = useState<string | null>(null);
+  const [accountOpen, setAccountOpen] = useState(false);
   const [nav, setNav] = useState<NavItem[]>(FALLBACK_NAV);
   const [settings, setSettings] = useState<SiteSettingsMap>({});
+  const accountRef = useRef<HTMLDivElement | null>(null);
+  const { user, isAdmin, isEditor, isPartner, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  // Where this user's "dashboard" lives — partners land on /partner,
+  // editors/admins on /admin. Plain logged-in users get sent home.
+  const dashboardTo: "/partner" | "/admin" | "/" = isAdmin || isEditor
+    ? "/admin"
+    : isPartner
+      ? "/partner"
+      : "/";
+  const dashboardLabel = isAdmin || isEditor ? "Admin" : isPartner ? "Partner dashboard" : "Account";
 
   useEffect(() => {
     (async () => {
@@ -30,6 +43,24 @@ export function Header() {
       setSettings(s);
     })();
   }, []);
+
+  // Close the account dropdown when clicking outside.
+  useEffect(() => {
+    if (!accountOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
+        setAccountOpen(false);
+      }
+    };
+    window.addEventListener("mousedown", onDown);
+    return () => window.removeEventListener("mousedown", onDown);
+  }, [accountOpen]);
+
+  const handleSignOut = async () => {
+    setAccountOpen(false);
+    await signOut();
+    navigate({ to: "/" });
+  };
 
   const siteName = settings.brand?.site_name || "sandiego.com";
   const logoUrl = settings.brand?.logo_url || sandiegoLogo;
