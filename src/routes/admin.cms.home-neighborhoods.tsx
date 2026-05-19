@@ -4,6 +4,7 @@ import { ArrowDown, ArrowUp, ChevronDown, Edit3, Plus, Save, Trash2, X } from "l
 import { supabase } from "@/integrations/supabase/client";
 import { CmsImageUpload } from "@/components/admin/CmsImageUpload";
 import { SEO_NEIGHBORHOODS } from "@/lib/seo-neighborhoods";
+import { useSeoNeighborhoods } from "@/lib/use-seo-neighborhoods";
 
 const CATEGORY_LABELS: Record<string, string> = {
   hotels: "Hotels",
