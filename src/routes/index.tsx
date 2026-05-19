@@ -249,7 +249,7 @@ function HomePage() {
             </a>
           </div>
           <div className="mt-8 grid gap-6 md:grid-cols-3">
-            {featured.map((l) => <ListingCard key={l.slug} listing={l} />)}
+            {featured.map((l: ListingCardData) => <ListingCard key={l.slug} listing={l} />)}
           </div>
         </div>
       </section>
@@ -270,7 +270,7 @@ function HomePage() {
             {leadArticle && <ArticleCard article={leadArticle} />}
           </div>
           <div className="lg:col-span-5 space-y-8">
-            {moreArticles.map((a) => <ArticleCard key={a.slug} article={a} />)}
+            {moreArticles.map((a: ArticleCardData) => <ArticleCard key={a.slug} article={a} />)}
           </div>
         </div>
       </section>
@@ -281,14 +281,14 @@ function HomePage() {
         <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">{c("neighborhoods", "heading", "Eight cities in one")}</h2>
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {(hoods.length
-            ? hoods.map((n) => ({
+            ? hoods.map((n: HomeNeighborhood) => ({
                 key: n.id,
                 name: n.name,
                 blurb: n.blurb || "",
                 image: n.image_url || "",
                 href: n.link_to || "/neighborhoods",
               }))
-            : neighborhoods.map((n) => {
+            : neighborhoods.map((n: typeof neighborhoods[number]) => {
                 const seoDefault: Record<string, string> = {
                   "la-jolla": "/things-to-do/in/la-jolla",
                   "gaslamp-quarter": "/nightlife/in/gaslamp-quarter",
