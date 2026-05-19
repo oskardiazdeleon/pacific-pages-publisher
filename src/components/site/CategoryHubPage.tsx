@@ -9,6 +9,8 @@ import { listings as mockListings } from "@/lib/mock-data";
 import { fetchPublishedListings } from "@/lib/content-queries";
 import { fetchPublishedHomepageSections, type HomepageSection } from "@/lib/cms";
 import type { CategoryHub } from "@/lib/listing-categories";
+import { insiderUTM, partnerUTM } from "@/lib/utm";
+import { EmailCapture } from "@/components/site/EmailCapture";
 
 const SITE_URL = "https://sandiego.com";
 
