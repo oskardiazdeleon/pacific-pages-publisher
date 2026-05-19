@@ -145,7 +145,26 @@ export function CategoryHubPage({
     about: { "@type": "City", name: "San Diego", sameAs: "https://en.wikipedia.org/wiki/San_Diego" },
   };
 
-  const jsonLd = [collectionJsonLd, itemListJsonLd, breadcrumbJsonLd(breadcrumbs)];
+  const seoContent = categoryContent(hub);
+
+  // Neighborhoods that explicitly carry this hub category — used for the
+  // internal-link strip and the URL prefix of each link.
+  const hubCategoryKey = hub.slug as (typeof SEO_NEIGHBORHOODS)[number]["categories"][number];
+  const neighborhoodLinks = SEO_NEIGHBORHOODS.filter((n) =>
+    (n.categories as readonly string[]).includes(hubCategoryKey),
+  );
+
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: seoContent.faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
+  const jsonLd = [collectionJsonLd, itemListJsonLd, breadcrumbJsonLd(breadcrumbs), faqJsonLd];
 
   const heroImage =
     cmsStr("hero_image_url", hub.heroImage || "") ||
