@@ -26,12 +26,17 @@ type Row = {
 };
 
 function NeighborhoodPagesIndex() {
+  const { data: hoods = [] } = useSeoNeighborhoods();
   const [rows, setRows] = useState<Row[]>([]);
   const [creating, setCreating] = useState(false);
   const [category, setCategory] = useState<string>(CATEGORY_HUBS[0]?.slug ?? "hotels");
-  const [neighborhood, setNeighborhood] = useState<string>(SEO_NEIGHBORHOODS[0]?.slug ?? "");
+  const [neighborhood, setNeighborhood] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!neighborhood && hoods.length > 0) setNeighborhood(hoods[0].slug);
+  }, [hoods, neighborhood]);
 
   const load = async () => {
     const { data } = await supabase
@@ -46,7 +51,7 @@ function NeighborhoodPagesIndex() {
 
   const create = async () => {
     setErr(null);
-    const hood = SEO_NEIGHBORHOODS.find((n) => n.slug === neighborhood);
+    const hood = hoods.find((n) => n.slug === neighborhood);
     if (!hood) {
       setErr("Pick a neighborhood.");
       return;
@@ -85,7 +90,7 @@ function NeighborhoodPagesIndex() {
   };
 
   // Coverage matrix — show which combos still don't have an editorial override
-  const missing = SEO_NEIGHBORHOODS.flatMap((n) =>
+  const missing = hoods.flatMap((n) =>
     n.categories.map((c) => ({
       category_slug: c,
       neighborhood_slug: n.slug,
@@ -143,7 +148,7 @@ function NeighborhoodPagesIndex() {
                 onChange={(e) => setNeighborhood(e.target.value)}
                 className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
               >
-                {SEO_NEIGHBORHOODS.filter((n) =>
+                {hoods.filter((n) =>
                   n.categories.includes(category as never),
                 ).map((n) => (
                   <option key={n.slug} value={n.slug}>
