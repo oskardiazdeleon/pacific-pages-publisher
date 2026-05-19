@@ -514,6 +514,11 @@ function ArticleDetail() {
         )}
       </article>
 
+      <section className="container-page max-w-3xl mx-auto pb-16">
+        <EmailCapture source="article_footer" variant="inline" />
+      </section>
+
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
