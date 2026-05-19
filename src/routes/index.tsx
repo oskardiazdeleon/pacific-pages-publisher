@@ -12,6 +12,7 @@ import { fetchPublishedListings, fetchPublishedArticles } from "@/lib/content-qu
 import { fetchPublishedHomepageSections, type HomepageSection } from "@/lib/cms";
 import { supabase } from "@/integrations/supabase/client";
 import hero from "@/assets/hero-sandiego.jpg";
+import { appendUTMs } from "@/lib/utm";
 
 export const Route = createFileRoute("/")({
   head: () => ({
