@@ -339,6 +339,10 @@ function CruisesHub() {
         </div>
       </section>
 
+      <section className="container-page pb-16">
+        <EmailCapture source="cruises_sidebar" variant="inline" />
+      </section>
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
