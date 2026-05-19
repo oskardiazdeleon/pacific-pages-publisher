@@ -1,17 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const SITE_URL = process.env.SITE_URL || "https://sandiego.com";
-
 export const Route = createFileRoute("/robots.txt")({
   server: {
     handlers: {
-      GET: async ({ request }) => {
-        const host = request.headers.get("host") || "";
-        const isProd = host === "sandiego.com" || host === "www.sandiego.com" ||
-          SITE_URL.includes("sandiego.com");
-        const isStaging = !isProd;
+      GET: async () => {
+        const allowIndexing = process.env.VITE_ALLOW_INDEXING === "true";
 
-        const body = isStaging
+        const body = !allowIndexing
           ? `User-agent: *\nDisallow: /\n`
           : `User-agent: *
 Allow: /
