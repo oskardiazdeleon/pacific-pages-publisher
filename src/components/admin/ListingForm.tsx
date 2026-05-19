@@ -6,7 +6,7 @@ import { Megaphone, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { generateEditorialContext } from "@/utils/import.functions";
-import { SEO_NEIGHBORHOODS } from "@/lib/seo-neighborhoods";
+import { useSeoNeighborhoods } from "@/lib/use-seo-neighborhoods";
 
 export interface PartnerSpotlightValues {
   enabled: boolean;
@@ -100,6 +100,7 @@ export function ListingForm({
 }) {
   const navigate = useNavigate();
   const generateEditorialContextFn = useServerFn(generateEditorialContext);
+  const { data: hoods = [] } = useSeoNeighborhoods();
   const [v, setV] = useState<ListingFormValues>({
     ...empty,
     ...initial,
@@ -319,12 +320,12 @@ export function ListingForm({
               onChange={(e) => set("neighborhood", e.target.value)}
             >
               <option value="">Select a neighborhood…</option>
-              {SEO_NEIGHBORHOODS.map((n) => (
+              {hoods.map((n) => (
                 <option key={n.slug} value={n.name}>{n.name}</option>
               ))}
               {/* Preserve legacy / off-list values so existing rows still display */}
               {v.neighborhood &&
-                !SEO_NEIGHBORHOODS.some((n) => n.name === v.neighborhood) && (
+                !hoods.some((n) => n.name === v.neighborhood) && (
                   <option value={v.neighborhood}>{v.neighborhood} (legacy)</option>
                 )}
             </select>

@@ -933,6 +933,51 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_neighborhoods: {
+        Row: {
+          blurb: string | null
+          categories: string[]
+          created_at: string
+          description: string | null
+          enabled: boolean
+          id: string
+          lat: number | null
+          lng: number | null
+          name: string
+          position: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          blurb?: string | null
+          categories?: string[]
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name: string
+          position?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          blurb?: string | null
+          categories?: string[]
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name?: string
+          position?: number
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           draft_value: Json

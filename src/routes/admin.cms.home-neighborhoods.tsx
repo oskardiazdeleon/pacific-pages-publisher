@@ -4,6 +4,7 @@ import { ArrowDown, ArrowUp, ChevronDown, Edit3, Plus, Save, Trash2, X } from "l
 import { supabase } from "@/integrations/supabase/client";
 import { CmsImageUpload } from "@/components/admin/CmsImageUpload";
 import { SEO_NEIGHBORHOODS } from "@/lib/seo-neighborhoods";
+import { useSeoNeighborhoods } from "@/lib/use-seo-neighborhoods";
 
 const CATEGORY_LABELS: Record<string, string> = {
   hotels: "Hotels",
@@ -341,6 +342,7 @@ function LinkPicker({
   value: string;
   onChange: (link: string, suggestedName?: string) => void;
 }) {
+  const { data: liveHoods = SEO_NEIGHBORHOODS } = useSeoNeighborhoods();
   const parsed = useMemo(() => parseLinkTo(value), [value]);
   const [hood, setHood] = useState(parsed.hood);
   const [category, setCategory] = useState(parsed.category);
@@ -356,12 +358,12 @@ function LinkPicker({
     if (!p.hood && p.custom) setShowCustom(true);
   }, [value]);
 
-  const hoodObj = SEO_NEIGHBORHOODS.find((n) => n.slug === hood);
+  const hoodObj = liveHoods.find((n) => n.slug === hood);
   const cls =
     "mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm";
 
   const emit = (h: string, c: string, cu: string) => {
-    onChange(buildLinkTo(h, c, cu), h ? SEO_NEIGHBORHOODS.find((n) => n.slug === h)?.name : undefined);
+    onChange(buildLinkTo(h, c, cu), h ? liveHoods.find((n) => n.slug === h)?.name : undefined);
   };
 
   if (showCustom) {
@@ -398,7 +400,7 @@ function LinkPicker({
           value={hood}
           onChange={(e) => {
             const h = e.target.value;
-            const newHoodObj = SEO_NEIGHBORHOODS.find((n) => n.slug === h);
+            const newHoodObj = liveHoods.find((n) => n.slug === h);
             // Reset category if not valid for new hood
             const newCat =
               category === "__overview__" || newHoodObj?.categories.includes(category as any)
@@ -411,7 +413,7 @@ function LinkPicker({
           className={cls}
         >
           <option value="">— Pick a neighborhood —</option>
-          {SEO_NEIGHBORHOODS.map((n) => (
+          {liveHoods.map((n) => (
             <option key={n.slug} value={n.slug}>
               {n.name}
             </option>
