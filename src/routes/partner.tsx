@@ -1,12 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Megaphone, ArrowLeft, ExternalLink } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Megaphone, ArrowLeft, ExternalLink, BarChart3, MousePointerClick, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { ListingForm, type ListingFormValues } from "@/components/admin/ListingForm";
 import { hubForCategory } from "@/lib/listing-categories";
 
 export const Route = createFileRoute("/partner")({
+  head: () => ({
+    meta: [
+      { title: "Partner Dashboard — sandiego.com" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: PartnerDashboard,
 });
 
@@ -20,12 +26,17 @@ type OwnedListing = {
   partner_spotlight: unknown;
 };
 
+type ImpressionRow = { listing_id: string; impression_type: "view" | "click"; created_at: string };
+type PerfStat = { views: number; clicks: number; views30: number; clicks30: number };
+
 function PartnerDashboard() {
   const { user, loading, isPartner, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [listings, setListings] = useState<OwnedListing[] | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingData, setEditingData] = useState<Partial<ListingFormValues> | null>(null);
+  const [stats, setStats] = useState<Record<string, PerfStat>>({});
+  const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
@@ -42,6 +53,59 @@ function PartnerDashboard() {
       setListings((data as OwnedListing[] | null) ?? []);
     })();
   }, [user]);
+
+  // Load impressions for the partner's listings. RLS already scopes the
+  // listing_impressions table to rows the partner can see (partner_id match
+  // or admin role), so we don't need to pass partner_id in the query.
+  useEffect(() => {
+    if (!user || !listings || listings.length === 0) {
+      if (listings && listings.length === 0) setStatsLoading(false);
+      return;
+    }
+    (async () => {
+      setStatsLoading(true);
+      const ids = listings.map((l) => l.id);
+      const { data } = await supabase
+        .from("listing_impressions")
+        .select("listing_id, impression_type, created_at")
+        .in("listing_id", ids)
+        .limit(10000);
+
+      const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+      const map: Record<string, PerfStat> = {};
+      for (const id of ids) {
+        map[id] = { views: 0, clicks: 0, views30: 0, clicks30: 0 };
+      }
+      for (const r of (data as ImpressionRow[] | null) ?? []) {
+        const s = map[r.listing_id];
+        if (!s) continue;
+        const recent = new Date(r.created_at).getTime() >= cutoff;
+        if (r.impression_type === "view") {
+          s.views++;
+          if (recent) s.views30++;
+        } else {
+          s.clicks++;
+          if (recent) s.clicks30++;
+        }
+      }
+      setStats(map);
+      setStatsLoading(false);
+    })();
+  }, [user, listings]);
+
+  const totals = useMemo(() => {
+    const t = { views: 0, clicks: 0, views30: 0, clicks30: 0 };
+    for (const s of Object.values(stats)) {
+      t.views += s.views;
+      t.clicks += s.clicks;
+      t.views30 += s.views30;
+      t.clicks30 += s.clicks30;
+    }
+    return t;
+  }, [stats]);
+
+  const ctrPct = (clicks: number, views: number) =>
+    views > 0 ? ((clicks / views) * 100).toFixed(1) : "0.0";
 
   const startEdit = async (id: string) => {
     const { data: row } = await supabase.from("listings").select("*").eq("id", id).maybeSingle();
@@ -112,11 +176,105 @@ function PartnerDashboard() {
       </div>
       <h1 className="mt-2 font-display text-4xl font-semibold">Your listings</h1>
       <p className="mt-2 max-w-xl text-muted-foreground">
-        Manage your Partner Spotlight — promote a special offer, product, or experience on your
-        listing page.
+        Track how your listing is performing and manage your Partner Spotlight.
       </p>
 
-      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Performance summary — totals across this partner's listings */}
+      {listings && listings.length > 0 && (
+        <section className="mt-10">
+          <div className="flex items-end justify-between gap-4 mb-4">
+            <div>
+              <div className="eyebrow flex items-center gap-2">
+                <BarChart3 className="h-3.5 w-3.5 text-accent" />
+                Performance
+              </div>
+              <h2 className="mt-1 font-display text-2xl font-semibold">Your traffic at a glance</h2>
+            </div>
+            <span className="text-xs text-muted-foreground">All-time · last 30 days</span>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-2xl border border-border bg-card p-5">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Eye className="h-3.5 w-3.5" /> Listing views
+              </div>
+              <div className="mt-2 font-display text-3xl font-semibold tabular-nums">
+                {statsLoading ? "—" : totals.views.toLocaleString()}
+              </div>
+              <div className="mt-1 text-xs text-muted-foreground tabular-nums">
+                {statsLoading ? "" : `${totals.views30.toLocaleString()} in last 30 days`}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-border bg-card p-5">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <MousePointerClick className="h-3.5 w-3.5" /> Clicks to your site
+              </div>
+              <div className="mt-2 font-display text-3xl font-semibold tabular-nums">
+                {statsLoading ? "—" : totals.clicks.toLocaleString()}
+              </div>
+              <div className="mt-1 text-xs text-muted-foreground tabular-nums">
+                {statsLoading ? "" : `${totals.clicks30.toLocaleString()} in last 30 days`}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-border bg-card p-5">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <BarChart3 className="h-3.5 w-3.5" /> Click-through rate
+              </div>
+              <div className="mt-2 font-display text-3xl font-semibold tabular-nums">
+                {statsLoading ? "—" : `${ctrPct(totals.clicks, totals.views)}%`}
+              </div>
+              <div className="mt-1 text-xs text-muted-foreground tabular-nums">
+                {statsLoading ? "" : `${ctrPct(totals.clicks30, totals.views30)}% last 30 days`}
+              </div>
+            </div>
+          </div>
+
+          {/* Per-listing breakdown */}
+          <div className="mt-6 overflow-hidden rounded-2xl border border-border bg-card">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="text-left px-5 py-3 font-medium">Listing</th>
+                  <th className="text-right px-5 py-3 font-medium">Views (30d)</th>
+                  <th className="text-right px-5 py-3 font-medium">Clicks (30d)</th>
+                  <th className="text-right px-5 py-3 font-medium">CTR</th>
+                  <th className="text-right px-5 py-3 font-medium">All-time views</th>
+                </tr>
+              </thead>
+              <tbody>
+                {listings.map((l) => {
+                  const s = stats[l.id] ?? { views: 0, clicks: 0, views30: 0, clicks30: 0 };
+                  return (
+                    <tr key={l.id} className="border-t border-border">
+                      <td className="px-5 py-3 font-medium">{l.name}</td>
+                      <td className="px-5 py-3 text-right tabular-nums">{s.views30.toLocaleString()}</td>
+                      <td className="px-5 py-3 text-right tabular-nums">{s.clicks30.toLocaleString()}</td>
+                      <td className="px-5 py-3 text-right tabular-nums text-muted-foreground">
+                        {ctrPct(s.clicks30, s.views30)}%
+                      </td>
+                      <td className="px-5 py-3 text-right tabular-nums text-muted-foreground">
+                        {s.views.toLocaleString()}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      <div className="mt-12 mb-4 flex items-end justify-between gap-4">
+        <div>
+          <div className="eyebrow flex items-center gap-2">
+            <Megaphone className="h-3.5 w-3.5 text-accent" />
+            Manage
+          </div>
+          <h2 className="mt-1 font-display text-2xl font-semibold">Your listings</h2>
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {listings === null ? (
           Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="aspect-[4/3] animate-pulse rounded-2xl bg-muted" />

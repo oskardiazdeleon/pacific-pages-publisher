@@ -1,9 +1,10 @@
-import { Link } from "@tanstack/react-router";
-import { ChevronDown, Menu, Search, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { ChevronDown, Menu, Search, X, LogOut, LayoutDashboard, UserRound } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import sandiegoLogo from "@/assets/sandiego-logo.png";
 import { fetchPublishedMenu, fetchPublishedSettings, type NavItem, type SiteSettingsMap } from "@/lib/cms";
 import { insiderUTM, partnerUTM } from "@/lib/utm";
+import { useAuth } from "@/lib/auth";
 
 const FALLBACK_NAV: NavItem[] = [
   { label: "Things To Do", to: "/things-to-do" },
@@ -19,8 +20,21 @@ const FALLBACK_NAV: NavItem[] = [
 export function Header() {
   const [open, setOpen] = useState(false);
   const [openSection, setOpenSection] = useState<string | null>(null);
+  const [accountOpen, setAccountOpen] = useState(false);
   const [nav, setNav] = useState<NavItem[]>(FALLBACK_NAV);
   const [settings, setSettings] = useState<SiteSettingsMap>({});
+  const accountRef = useRef<HTMLDivElement | null>(null);
+  const { user, isAdmin, isEditor, isPartner, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  // Where this user's "dashboard" lives — partners land on /partner,
+  // editors/admins on /admin. Plain logged-in users get sent home.
+  const dashboardTo: "/partner" | "/admin" | "/" = isAdmin || isEditor
+    ? "/admin"
+    : isPartner
+      ? "/partner"
+      : "/";
+  const dashboardLabel = isAdmin || isEditor ? "Admin" : isPartner ? "Partner dashboard" : "Account";
 
   useEffect(() => {
     (async () => {
@@ -29,6 +43,24 @@ export function Header() {
       setSettings(s);
     })();
   }, []);
+
+  // Close the account dropdown when clicking outside.
+  useEffect(() => {
+    if (!accountOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
+        setAccountOpen(false);
+      }
+    };
+    window.addEventListener("mousedown", onDown);
+    return () => window.removeEventListener("mousedown", onDown);
+  }, [accountOpen]);
+
+  const handleSignOut = async () => {
+    setAccountOpen(false);
+    await signOut();
+    navigate({ to: "/" });
+  };
 
   const siteName = settings.brand?.site_name || "sandiego.com";
   const logoUrl = settings.brand?.logo_url || sandiegoLogo;
@@ -76,6 +108,59 @@ export function Header() {
           <Link to="/partners" search={partnerUTM("header")} className="hidden xl:inline-flex items-center rounded-full border border-border px-3 py-2 text-xs font-semibold text-foreground/75 hover:text-foreground hover:bg-secondary transition whitespace-nowrap">
             For Partners
           </Link>
+
+          {user ? (
+            <div ref={accountRef} className="relative hidden md:block">
+              <button
+                type="button"
+                onClick={() => setAccountOpen((v) => !v)}
+                aria-haspopup="menu"
+                aria-expanded={accountOpen}
+                aria-label="Account menu"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1.5 text-xs font-semibold text-foreground/80 hover:bg-secondary transition"
+              >
+                <span className="grid h-6 w-6 place-items-center rounded-full bg-accent/15 text-accent">
+                  <UserRound className="h-3.5 w-3.5" />
+                </span>
+                <span className="max-w-[140px] truncate">{user.email}</span>
+                <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+              </button>
+              {accountOpen && (
+                <div role="menu" className="absolute right-0 top-full mt-2 min-w-[220px] rounded-xl border border-border bg-popover text-popover-foreground shadow-xl p-2 z-50">
+                  <div className="px-3 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+                    Signed in as
+                  </div>
+                  <div className="px-3 pb-2 text-sm truncate">{user.email}</div>
+                  {dashboardTo !== "/" && (
+                    <Link
+                      to={dashboardTo}
+                      onClick={() => setAccountOpen(false)}
+                      className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-secondary transition"
+                    >
+                      <LayoutDashboard className="h-4 w-4" />
+                      {dashboardLabel}
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-secondary transition text-left"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              to="/auth"
+              className="hidden md:inline-flex items-center rounded-full border border-border px-3 py-2 text-xs font-semibold text-foreground/75 hover:text-foreground hover:bg-secondary transition whitespace-nowrap"
+            >
+              Sign in
+            </Link>
+          )}
+
           <Link to="/insider" search={insiderUTM("header")} className="hidden md:inline-flex items-center rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground hover:opacity-90 transition whitespace-nowrap">
             Join Insider
           </Link>
@@ -124,6 +209,27 @@ export function Header() {
             <Link to="/partners" search={partnerUTM("header")} onClick={() => setOpen(false)} className="mt-2 inline-flex items-center justify-center rounded-full border border-border px-4 py-2.5 text-sm font-medium text-foreground/80">
               For Partners
             </Link>
+            {user ? (
+              <>
+                {dashboardTo !== "/" && (
+                  <Link to={dashboardTo} onClick={() => setOpen(false)} className="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-border px-4 py-2.5 text-sm font-medium text-foreground/80">
+                    <LayoutDashboard className="h-4 w-4" /> {dashboardLabel}
+                  </Link>
+                )}
+                <button
+                  type="button"
+                  onClick={() => { setOpen(false); handleSignOut(); }}
+                  className="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-border px-4 py-2.5 text-sm font-medium text-foreground/80"
+                >
+                  <LogOut className="h-4 w-4" /> Sign out
+                </button>
+                <div className="mt-2 text-center text-xs text-muted-foreground">{user.email}</div>
+              </>
+            ) : (
+              <Link to="/auth" onClick={() => setOpen(false)} className="mt-2 inline-flex items-center justify-center rounded-full border border-border px-4 py-2.5 text-sm font-medium text-foreground/80">
+                Sign in
+              </Link>
+            )}
           </nav>
         </div>
       )}
