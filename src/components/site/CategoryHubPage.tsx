@@ -305,6 +305,7 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
               </div>
               <Link
                 to="/insider"
+                search={insiderUTM(`${hub.slug}_inline`)}
                 className="shrink-0 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground hover:opacity-90 transition"
               >
                 Join Insider
