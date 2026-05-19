@@ -100,6 +100,7 @@ export function ListingForm({
 }) {
   const navigate = useNavigate();
   const generateEditorialContextFn = useServerFn(generateEditorialContext);
+  const { data: hoods = [] } = useSeoNeighborhoods();
   const [v, setV] = useState<ListingFormValues>({
     ...empty,
     ...initial,

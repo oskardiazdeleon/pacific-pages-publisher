@@ -12,7 +12,7 @@ import type { CategoryHub } from "@/lib/listing-categories";
 import { insiderUTM } from "@/lib/utm";
 import { EmailCapture } from "@/components/site/EmailCapture";
 import { categoryContent } from "@/lib/category-seo-content";
-import { SEO_NEIGHBORHOODS } from "@/lib/seo-neighborhoods";
+import { useSeoNeighborhoods } from "@/lib/use-seo-neighborhoods";
 
 
 const SITE_URL = "https://sandiego.com";
