@@ -170,6 +170,11 @@ function BlogPostPage() {
         }}
       />
     </article>
+
+      <section className="container-page max-w-3xl mx-auto pb-16">
+        <EmailCapture source="blog_footer" variant="inline" />
+      </section>
+
       <Footer />
     </div>
   );
