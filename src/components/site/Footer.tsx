@@ -3,7 +3,7 @@ import { Facebook, Instagram, Twitter } from "lucide-react";
 import { useEffect, useState } from "react";
 import sandiegoLogo from "@/assets/sandiego-logo.png";
 import { fetchPublishedMenu, fetchPublishedSettings, type NavItem, type SiteSettingsMap } from "@/lib/cms";
-import { appendUTMs, insiderUTM, partnerUTM } from "@/lib/utm";
+import { insiderUTM, partnerUTM } from "@/lib/utm";
 
 export function Footer() {
   const [settings, setSettings] = useState<SiteSettingsMap>({});
