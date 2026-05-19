@@ -9,6 +9,8 @@ import { listings as mockListings } from "@/lib/mock-data";
 import { fetchPublishedListings } from "@/lib/content-queries";
 import { fetchPublishedHomepageSections, type HomepageSection } from "@/lib/cms";
 import type { CategoryHub } from "@/lib/listing-categories";
+import { insiderUTM, partnerUTM } from "@/lib/utm";
+import { EmailCapture } from "@/components/site/EmailCapture";
 
 const SITE_URL = "https://sandiego.com";
 
@@ -202,6 +204,7 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
               {hub.memberBenefit && (
                 <Link
                   to="/insider"
+                  search={insiderUTM(`${hub.slug}_member_pill`)}
                   className="mt-5 inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-xs md:text-sm font-bold text-accent-foreground shadow-md shadow-accent/30 ring-1 ring-accent-foreground/10 hover:opacity-90 transition"
                 >
                   <BadgePercent className="h-4 w-4" />
@@ -234,6 +237,7 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
                 </form>
                 <Link
                   to="/insider"
+                  search={insiderUTM(`${hub.slug}_banner`)}
                   className="inline-flex items-center justify-center gap-1.5 rounded-full border-2 border-accent bg-background px-5 py-3 text-sm font-bold text-accent hover:bg-accent hover:text-accent-foreground transition whitespace-nowrap"
                 >
                   <Sparkles className="h-4 w-4" />
@@ -301,6 +305,7 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
               </div>
               <Link
                 to="/insider"
+                search={insiderUTM(`${hub.slug}_inline`)}
                 className="shrink-0 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground hover:opacity-90 transition"
               >
                 Join Insider
@@ -381,12 +386,14 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link
                 to="/insider"
+                search={insiderUTM(`${hub.slug}_empty_state`)}
                 className="inline-flex items-center justify-center gap-1.5 rounded-full bg-accent px-5 py-3 text-sm font-bold text-accent-foreground hover:opacity-90 transition"
               >
                 Join Insider — Free 7-day trial
               </Link>
               <Link
                 to="/partners"
+                search={partnerUTM(`${hub.slug}_empty_state`)}
                 className="inline-flex items-center justify-center gap-1.5 rounded-full border-2 border-accent bg-background px-5 py-3 text-sm font-bold text-accent hover:bg-accent hover:text-accent-foreground transition"
               >
                 List your business →
@@ -404,6 +411,15 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
             ))}
           </div>
         )}
+
+        <div className="mt-12">
+          <EmailCapture
+            source={`${hub.slug}_sidebar`}
+            variant="inline"
+            title={`Get the Free 3-Day San Diego Insider Itinerary`}
+            subtitle={`Locals-only picks for ${hub.label.toLowerCase()} and more — sent instantly.`}
+          />
+        </div>
       </section>
 
       <script

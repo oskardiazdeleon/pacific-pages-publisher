@@ -3,6 +3,7 @@ import { Facebook, Instagram, Twitter } from "lucide-react";
 import { useEffect, useState } from "react";
 import sandiegoLogo from "@/assets/sandiego-logo.png";
 import { fetchPublishedMenu, fetchPublishedSettings, type NavItem, type SiteSettingsMap } from "@/lib/cms";
+import { insiderUTM, partnerUTM } from "@/lib/utm";
 
 export function Footer() {
   const [settings, setSettings] = useState<SiteSettingsMap>({});
@@ -74,7 +75,19 @@ export function Footer() {
               { label: "Insider Newsletter", to: "/insider" },
             ]).map((it) => (
               <li key={it.label}>
-                <Link to={it.to} className="hover:text-teal-soft">{it.label}</Link>
+                <Link
+                  to={it.to}
+                  search={
+                    it.to === "/insider"
+                      ? insiderUTM("footer")
+                      : it.to === "/partners" || it.to === "/partner"
+                        ? partnerUTM("footer")
+                        : undefined
+                  }
+                  className="hover:text-teal-soft"
+                >
+                  {it.label}
+                </Link>
               </li>
             ))}
           </ul>
@@ -91,7 +104,19 @@ export function Footer() {
               { label: "Terms of Service", to: "/terms" },
             ]).map((it) => (
               <li key={it.label}>
-                <Link to={it.to} className="hover:text-teal-soft">{it.label}</Link>
+                <Link
+                  to={it.to}
+                  search={
+                    it.to === "/insider"
+                      ? insiderUTM("footer")
+                      : it.to === "/partners" || it.to === "/partner"
+                        ? partnerUTM("footer")
+                        : undefined
+                  }
+                  className="hover:text-teal-soft"
+                >
+                  {it.label}
+                </Link>
               </li>
             ))}
           </ul>

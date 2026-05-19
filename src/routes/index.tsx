@@ -12,6 +12,7 @@ import { fetchPublishedListings, fetchPublishedArticles } from "@/lib/content-qu
 import { fetchPublishedHomepageSections, type HomepageSection } from "@/lib/cms";
 import { supabase } from "@/integrations/supabase/client";
 import hero from "@/assets/hero-sandiego.jpg";
+import { appendUTMs } from "@/lib/utm";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -164,7 +165,7 @@ function HomePage() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a
-              href={heroVal("primary_cta_to")}
+              href={appendUTMs(heroVal("primary_cta_to"), "site", "hero", "insider")}
               className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground hover:opacity-90 transition"
             >
               {!sponsorActive && <Sparkles className="h-4 w-4" />} {heroVal("primary_cta_label")}
@@ -291,7 +292,7 @@ function HomePage() {
               {c("partner_cta", "body", "Featured and Premium listings put your business in front of 40K+ active US travelers a quarter. Offer an Insider member discount and we send you bookings, too.")}
             </p>
             <a
-              href={c("partner_cta", "cta_to", "/partners")}
+              href={appendUTMs(c("partner_cta", "cta_to", "/partners"), "site", "partners_page", "b2b")}
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground"
             >
               {c("partner_cta", "cta_label", "Become a partner")} <ArrowRight className="h-4 w-4" />

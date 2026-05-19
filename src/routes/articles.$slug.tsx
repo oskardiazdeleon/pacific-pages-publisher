@@ -8,6 +8,7 @@ import { ArticleCard } from "@/components/site/ArticleCard";
 import { fetchArticleBySlug } from "@/lib/content-queries";
 import { supabase } from "@/integrations/supabase/client";
 import articleFallback from "@/assets/article-foodie.jpg";
+import { EmailCapture } from "@/components/site/EmailCapture";
 
 const SITE_URL = "https://sandiego.com";
 
@@ -512,6 +513,11 @@ function ArticleDetail() {
           </section>
         )}
       </article>
+
+      <section className="container-page max-w-3xl mx-auto pb-16">
+        <EmailCapture source="article_footer" variant="inline" />
+      </section>
+
 
       <script
         type="application/ld+json"

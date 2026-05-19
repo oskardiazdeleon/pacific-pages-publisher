@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { BlogBody } from "@/components/site/BlogBody";
+import { EmailCapture } from "@/components/site/EmailCapture";
 
 interface Post {
   id: string;
@@ -169,6 +170,11 @@ function BlogPostPage() {
         }}
       />
     </article>
+
+      <section className="container-page max-w-3xl mx-auto pb-16">
+        <EmailCapture source="blog_footer" variant="inline" />
+      </section>
+
       <Footer />
     </div>
   );
