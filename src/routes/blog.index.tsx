@@ -58,8 +58,8 @@ function BlogIndex() {
   const [activeCat, setActiveCat] = useState<string>("All");
 
 
-  const categories = ["All", ...Array.from(new Set(posts.map((p) => p.category).filter(Boolean) as string[]))];
-  const visible = activeCat === "All" ? posts : posts.filter((p) => p.category === activeCat);
+  const categories = ["All", ...Array.from(new Set(posts.map((p: Post) => p.category).filter(Boolean) as string[]))];
+  const visible = activeCat === "All" ? posts : posts.filter((p: Post) => p.category === activeCat);
   const [hero, ...rest] = visible;
 
   return (
