@@ -387,6 +387,13 @@ export function CategoryHubPage({
         </section>
       )}
 
+      {/* SEO intro — long-form editorial copy in SSR HTML before the grid */}
+      <section className="container-page pt-12">
+        <div className="mx-auto max-w-3xl text-base md:text-lg leading-relaxed text-foreground/85">
+          <p>{seoContent.intro}</p>
+        </div>
+      </section>
+
       <section className="container-page py-12">
         <div className="flex items-end justify-between gap-6 mb-8">
           <div>
@@ -398,9 +405,11 @@ export function CategoryHubPage({
               Browse every {hub.singular.toLowerCase()}
             </h2>
           </div>
-          <span className="text-sm text-muted-foreground">
-            {visibleItems.length} {visibleItems.length === 1 ? "result" : "results"}
-          </span>
+          {items.length > 0 && (
+            <span className="text-sm text-muted-foreground">
+              {visibleItems.length} {visibleItems.length === 1 ? "result" : "results"}
+            </span>
+          )}
         </div>
 
         {loading ? (
@@ -413,28 +422,22 @@ export function CategoryHubPage({
             ))}
           </div>
         ) : items.length === 0 ? (
-          <div className="rounded-3xl border border-border bg-card px-6 py-14 md:px-10 md:py-16 text-center">
-            <h3 className="font-display text-2xl md:text-3xl font-semibold tracking-tight">
-              {hub.label} — adding soon
-            </h3>
-            <p className="mx-auto mt-3 max-w-xl text-sm md:text-base text-muted-foreground">
-              We're hand-reviewing San Diego's best {hub.label.toLowerCase()} and adding them with member savings. The first batch goes live shortly.
-            </p>
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <Link
-                to="/insider"
-                search={insiderUTM(`${hub.slug}_empty_state`)}
-                className="inline-flex items-center justify-center gap-1.5 rounded-full bg-accent px-5 py-3 text-sm font-bold text-accent-foreground hover:opacity-90 transition"
-              >
-                Join Insider — Free 7-day trial
-              </Link>
-              <Link
-                to="/partners"
-                search={partnerUTM(`${hub.slug}_empty_state`)}
-                className="inline-flex items-center justify-center gap-1.5 rounded-full border-2 border-accent bg-background px-5 py-3 text-sm font-bold text-accent hover:bg-accent hover:text-accent-foreground transition"
-              >
-                List your business →
-              </Link>
+          <div className="rounded-3xl border border-border bg-card px-6 py-12 md:px-10 md:py-14">
+            <div className="mx-auto max-w-2xl text-center">
+              <h3 className="font-display text-2xl md:text-3xl font-semibold tracking-tight">
+                Editor's picks coming soon
+              </h3>
+              <p className="mx-auto mt-3 max-w-xl text-sm md:text-base text-muted-foreground">
+                Join the Insider list to be notified first when our editors publish their San Diego {hub.label.toLowerCase()} picks.
+              </p>
+            </div>
+            <div className="mt-8">
+              <EmailCapture
+                source={`${hub.slug}_empty_state`}
+                variant="inline"
+                title=""
+                subtitle=""
+              />
             </div>
           </div>
         ) : visibleItems.length === 0 ? (
@@ -448,16 +451,124 @@ export function CategoryHubPage({
             ))}
           </div>
         )}
+      </section>
 
-        <div className="mt-12">
-          <EmailCapture
-            source={`${hub.slug}_sidebar`}
-            variant="inline"
-            title={`Get the Free 3-Day San Diego Insider Itinerary`}
-            subtitle={`Locals-only picks for ${hub.label.toLowerCase()} and more — sent instantly.`}
-          />
+      {/* About [category] — long-form editorial body with H2/H3 */}
+      <section className="container-page py-12 border-t border-border">
+        <div className="mx-auto max-w-3xl">
+          <div className="eyebrow flex items-center gap-2">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
+            Local guide
+          </div>
+          <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold tracking-tight">
+            {seoContent.aboutHeading}
+          </h2>
+          <div className="mt-8 space-y-8 text-base md:text-lg leading-relaxed text-foreground/85">
+            {seoContent.aboutSections.map((s) => (
+              <div key={s.heading}>
+                <h3 className="font-display text-xl md:text-2xl font-semibold text-foreground">
+                  {s.heading}
+                </h3>
+                <p className="mt-2">{s.body}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
+
+      {/* Explore by neighborhood — internal links for SEO + discovery */}
+      {neighborhoodLinks.length > 0 && (
+        <section className="container-page py-12 border-t border-border">
+          <div className="mx-auto max-w-5xl">
+            <div className="eyebrow flex items-center gap-2">
+              <MapPin className="h-3.5 w-3.5" />
+              Explore by neighborhood
+            </div>
+            <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold tracking-tight">
+              {hub.label} in every San Diego neighborhood
+            </h2>
+            <p className="mt-3 max-w-2xl text-base text-muted-foreground">
+              Jump straight into the {hub.label.toLowerCase()} our editors recommend, neighborhood by neighborhood.
+            </p>
+            <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {neighborhoodLinks.map((n) => (
+                <li key={n.slug}>
+                  <a
+                    href={`/${hub.slug}/in/${n.slug}`}
+                    className="group flex items-start justify-between gap-4 rounded-2xl border border-border bg-card px-4 py-3.5 hover:border-accent transition"
+                  >
+                    <div className="min-w-0">
+                      <div className="font-display text-base font-semibold text-foreground truncate">
+                        {hub.label} in {n.name}
+                      </div>
+                      <div className="mt-0.5 text-xs text-muted-foreground truncate">{n.blurb}</div>
+                    </div>
+                    <ArrowRight className="h-4 w-4 shrink-0 mt-1 text-muted-foreground group-hover:text-accent group-hover:translate-x-0.5 transition" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {/* FAQ — paired with FAQPage JSON-LD for rich results */}
+      <section className="container-page py-12 border-t border-border">
+        <div className="mx-auto max-w-3xl">
+          <div className="eyebrow flex items-center gap-2">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
+            FAQ
+          </div>
+          <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold tracking-tight">
+            Frequently asked about {hub.label.toLowerCase()} in San Diego
+          </h2>
+          <dl className="mt-8 divide-y divide-border border-t border-b border-border">
+            {seoContent.faqs.map((f) => (
+              <div key={f.q} className="py-6">
+                <dt className="font-display text-lg md:text-xl font-semibold text-foreground">
+                  {f.q}
+                </dt>
+                <dd className="mt-2 text-foreground/80 leading-relaxed">{f.a}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+      {/* Final Insider CTA — closes the page with the membership pitch */}
+      <section className="container-page py-16 border-t border-border">
+        <div className="overflow-hidden rounded-3xl bg-primary text-primary-foreground p-10 md:p-14 grid md:grid-cols-[1.2fr_1fr] gap-8 items-center">
+          <div>
+            <div className="eyebrow text-teal-soft flex items-center gap-2">
+              <Sparkles className="h-3.5 w-3.5" /> SD Insider
+            </div>
+            <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold leading-tight">
+              {hub.memberBenefit || `Save on San Diego ${hub.label.toLowerCase()} with SD Insider.`}
+            </h2>
+            <p className="mt-3 max-w-md text-primary-foreground/80">
+              Member-only rates, curated itineraries, and our weekly dispatch on what's actually worth your time in San Diego.
+            </p>
+            <Link
+              to="/insider"
+              search={insiderUTM(`${hub.slug}_footer_cta`)}
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-bold text-accent-foreground hover:opacity-90 transition"
+            >
+              <BadgePercent className="h-4 w-4" />
+              Join Insider — Free 7-day trial
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div>
+            <EmailCapture
+              source={`${hub.slug}_footer_email`}
+              variant="inline"
+              title="Or get the free 3-Day Insider Itinerary"
+              subtitle="Locals-only picks sent instantly. No spam, ever."
+            />
+          </div>
+        </div>
+      </section>
+
 
       <script
         type="application/ld+json"
