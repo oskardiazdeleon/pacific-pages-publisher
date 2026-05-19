@@ -386,12 +386,14 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link
                 to="/insider"
+                search={insiderUTM(`${hub.slug}_empty_state`)}
                 className="inline-flex items-center justify-center gap-1.5 rounded-full bg-accent px-5 py-3 text-sm font-bold text-accent-foreground hover:opacity-90 transition"
               >
                 Join Insider — Free 7-day trial
               </Link>
               <Link
                 to="/partners"
+                search={partnerUTM(`${hub.slug}_empty_state`)}
                 className="inline-flex items-center justify-center gap-1.5 rounded-full border-2 border-accent bg-background px-5 py-3 text-sm font-bold text-accent hover:bg-accent hover:text-accent-foreground transition"
               >
                 List your business →
