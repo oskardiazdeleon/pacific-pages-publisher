@@ -204,6 +204,7 @@ export function CategoryHubPage({ hub }: { hub: CategoryHub }) {
               {hub.memberBenefit && (
                 <Link
                   to="/insider"
+                  search={insiderUTM(`${hub.slug}_member_pill`)}
                   className="mt-5 inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-xs md:text-sm font-bold text-accent-foreground shadow-md shadow-accent/30 ring-1 ring-accent-foreground/10 hover:opacity-90 transition"
                 >
                   <BadgePercent className="h-4 w-4" />
