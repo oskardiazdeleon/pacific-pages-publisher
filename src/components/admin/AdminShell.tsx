@@ -4,7 +4,7 @@ import { LogOut, LayoutDashboard, FileText, Building2, BarChart3, Download, Sett
 import { useAuth } from "@/lib/auth";
 
 type NavItem = {
-  to: "/admin" | "/admin/listings" | "/admin/articles" | "/admin/blog" | "/admin/claims" | "/admin/impressions" | "/admin/import" | "/admin/cms/settings" | "/admin/cms/navigation" | "/admin/cms/homepage" | "/admin/cms/home-neighborhoods" | "/admin/cms/pages" | "/admin/cms/neighborhoods" | "/admin/api-keys" | "/admin/cruises" | "/admin/users";
+  to: "/admin" | "/admin/listings" | "/admin/articles" | "/admin/blog" | "/admin/claims" | "/admin/impressions" | "/admin/import" | "/admin/cms/settings" | "/admin/cms/navigation" | "/admin/cms/homepage" | "/admin/cms/home-neighborhoods" | "/admin/cms/pages" | "/admin/cms/neighborhoods" | "/admin/cms/seo-neighborhoods" | "/admin/api-keys" | "/admin/cruises" | "/admin/users";
   label: string;
   icon: typeof LayoutDashboard;
   exact?: boolean;
@@ -49,7 +49,8 @@ const navGroups: ReadonlyArray<{ heading?: string; items: ReadonlyArray<NavItem>
       { to: "/admin/cms/home-neighborhoods", label: "Home Neighborhoods", icon: MapPin },
       { to: "/admin/cms/navigation", label: "Navigation", icon: MenuIcon },
       { to: "/admin/cms/pages", label: "Pages", icon: FileStack },
-      { to: "/admin/cms/neighborhoods", label: "Neighborhoods", icon: MapPin },
+      { to: "/admin/cms/seo-neighborhoods", label: "Neighborhoods (master list)", icon: MapPin },
+      { to: "/admin/cms/neighborhoods", label: "Neighborhood SEO Pages", icon: MapPin },
     ],
   },
   {
