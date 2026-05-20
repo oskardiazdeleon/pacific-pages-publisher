@@ -273,6 +273,8 @@ export function ListingForm({
               details: v.member_discount_details.trim() || null,
             }
           : null,
+        show_claim_box: v.show_claim_box,
+        show_insider_box: v.show_insider_box,
       };
 
       const res = v.id
