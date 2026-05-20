@@ -66,6 +66,8 @@ function EditListing() {
           : [],
         member_discount_label: (row.member_discount as { label?: string } | null)?.label ?? "",
         member_discount_details: (row.member_discount as { details?: string } | null)?.details ?? "",
+        show_claim_box: (row as { show_claim_box?: boolean }).show_claim_box ?? true,
+        show_insider_box: (row as { show_insider_box?: boolean }).show_insider_box ?? true,
       });
     };
     load();
