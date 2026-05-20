@@ -473,28 +473,32 @@ export function ListingDetailPage({
               </div>
             </div>
 
-            <ClaimListingCard
-              listingId={listing.id}
-              listingSlug={listing.slug}
-              listingName={listing.name}
-              hasPartner={!!listing.partner_id}
-            />
+            {(listing as { show_claim_box?: boolean }).show_claim_box !== false && (
+              <ClaimListingCard
+                listingId={listing.id}
+                listingSlug={listing.slug}
+                listingName={listing.name}
+                hasPartner={!!listing.partner_id}
+              />
+            )}
 
             {/* Insider perk card — also doubles as a sponsorship slot */}
-            <div className="rounded-3xl border border-accent/30 bg-gradient-to-br from-accent/10 via-background to-background p-5">
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent">
-                <Sparkles className="h-3 w-3" /> Insider perk
+            {(listing as { show_insider_box?: boolean }).show_insider_box !== false && (
+              <div className="rounded-3xl border border-accent/30 bg-gradient-to-br from-accent/10 via-background to-background p-5">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent">
+                  <Sparkles className="h-3 w-3" /> Insider perk
+                </div>
+                <p className="mt-3 text-sm font-medium">
+                  Members save up to 40% at partner {hub.label.toLowerCase()} like {listing.name}.
+                </p>
+                <a
+                  href="/insider"
+                  className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background hover:opacity-90"
+                >
+                  Become an Insider
+                </a>
               </div>
-              <p className="mt-3 text-sm font-medium">
-                Members save up to 40% at partner {hub.label.toLowerCase()} like {listing.name}.
-              </p>
-              <a
-                href="/insider"
-                className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background hover:opacity-90"
-              >
-                Become an Insider
-              </a>
-            </div>
+            )}
           </aside>
         </div>
 
