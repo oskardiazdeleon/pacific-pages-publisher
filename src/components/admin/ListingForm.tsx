@@ -81,6 +81,8 @@ const empty: ListingFormValues = {
   faqs: [],
   member_discount_label: "",
   member_discount_details: "",
+  show_claim_box: true,
+  show_insider_box: true,
 };
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
