@@ -426,6 +426,38 @@ export function ListingForm({
           <textarea className={inputCls} maxLength={170} value={v.meta_description}
             onChange={(e) => set("meta_description", e.target.value)} />
         </Field>
+        <div className="rounded-xl border border-border bg-background p-4 space-y-3">
+          <div>
+            <h3 className="text-sm font-semibold">Sidebar cards on public page</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Control which promotional boxes appear in the right rail of this listing's detail page.
+            </p>
+          </div>
+          <label className="flex items-start gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={v.show_claim_box}
+              onChange={(e) => set("show_claim_box", e.target.checked)}
+              className="mt-0.5 h-4 w-4 accent-accent"
+            />
+            <span className="text-sm">
+              <span className="font-medium">Show "Claim this listing" card</span>
+              <span className="block text-xs text-muted-foreground">Lets a business owner claim this listing.</span>
+            </span>
+          </label>
+          <label className="flex items-start gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={v.show_insider_box}
+              onChange={(e) => set("show_insider_box", e.target.checked)}
+              className="mt-0.5 h-4 w-4 accent-accent"
+            />
+            <span className="text-sm">
+              <span className="font-medium">Show "Become an Insider" card</span>
+              <span className="block text-xs text-muted-foreground">Promotes the Insider membership.</span>
+            </span>
+          </label>
+        </div>
       </section>
       )}
 
