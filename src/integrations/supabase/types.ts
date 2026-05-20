@@ -695,6 +695,8 @@ export type Database = {
           rating: number | null
           reservation_url: string | null
           short_description: string | null
+          show_claim_box: boolean
+          show_insider_box: boolean
           slug: string
           source_url: string | null
           sponsor_name: string | null
@@ -740,6 +742,8 @@ export type Database = {
           rating?: number | null
           reservation_url?: string | null
           short_description?: string | null
+          show_claim_box?: boolean
+          show_insider_box?: boolean
           slug: string
           source_url?: string | null
           sponsor_name?: string | null
@@ -785,6 +789,8 @@ export type Database = {
           rating?: number | null
           reservation_url?: string | null
           short_description?: string | null
+          show_claim_box?: boolean
+          show_insider_box?: boolean
           slug?: string
           source_url?: string | null
           sponsor_name?: string | null

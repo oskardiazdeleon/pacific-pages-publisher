@@ -53,6 +53,8 @@ export interface ListingFormValues {
   faqs: { q: string; a: string }[];
   member_discount_label: string;
   member_discount_details: string;
+  show_claim_box: boolean;
+  show_insider_box: boolean;
 }
 
 const emptySpotlight: PartnerSpotlightValues = {
@@ -79,6 +81,8 @@ const empty: ListingFormValues = {
   faqs: [],
   member_discount_label: "",
   member_discount_details: "",
+  show_claim_box: true,
+  show_insider_box: true,
 };
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -269,6 +273,8 @@ export function ListingForm({
               details: v.member_discount_details.trim() || null,
             }
           : null,
+        show_claim_box: v.show_claim_box,
+        show_insider_box: v.show_insider_box,
       };
 
       const res = v.id
@@ -420,6 +426,38 @@ export function ListingForm({
           <textarea className={inputCls} maxLength={170} value={v.meta_description}
             onChange={(e) => set("meta_description", e.target.value)} />
         </Field>
+        <div className="rounded-xl border border-border bg-background p-4 space-y-3">
+          <div>
+            <h3 className="text-sm font-semibold">Sidebar cards on public page</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Control which promotional boxes appear in the right rail of this listing's detail page.
+            </p>
+          </div>
+          <label className="flex items-start gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={v.show_claim_box}
+              onChange={(e) => set("show_claim_box", e.target.checked)}
+              className="mt-0.5 h-4 w-4 accent-accent"
+            />
+            <span className="text-sm">
+              <span className="font-medium">Show "Claim this listing" card</span>
+              <span className="block text-xs text-muted-foreground">Lets a business owner claim this listing.</span>
+            </span>
+          </label>
+          <label className="flex items-start gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={v.show_insider_box}
+              onChange={(e) => set("show_insider_box", e.target.checked)}
+              className="mt-0.5 h-4 w-4 accent-accent"
+            />
+            <span className="text-sm">
+              <span className="font-medium">Show "Become an Insider" card</span>
+              <span className="block text-xs text-muted-foreground">Promotes the Insider membership.</span>
+            </span>
+          </label>
+        </div>
       </section>
       )}
 
