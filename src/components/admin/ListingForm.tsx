@@ -53,6 +53,8 @@ export interface ListingFormValues {
   faqs: { q: string; a: string }[];
   member_discount_label: string;
   member_discount_details: string;
+  show_claim_box: boolean;
+  show_insider_box: boolean;
 }
 
 const emptySpotlight: PartnerSpotlightValues = {
