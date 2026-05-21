@@ -122,15 +122,6 @@ function SeoNeighborhoodsAdmin() {
     queryClient.invalidateQueries({ queryKey: ["seo-neighborhoods"] });
   };
 
-  const remove = async (id: string) => {
-    if (!confirm("Delete this neighborhood? Listings tagged with it will keep their tag, but it will disappear from picklists.")) return;
-    const { error } = await supabase.from("seo_neighborhoods").delete().eq("id", id);
-    if (error) {
-      alert(error.message);
-      return;
-    }
-    await load();
-  };
 
   const toggleCategory = (cat: string) => {
     if (!editing) return;
