@@ -149,6 +149,10 @@ export function RichTextEditor({ value, onChange, placeholder, uploadFolder }: P
   const [cruiseDialogOpen, setCruiseDialogOpen] = useState(false);
   const [venueDialogOpen, setVenueDialogOpen] = useState(false);
   const [listingDialogOpen, setListingDialogOpen] = useState(false);
+  // Track the most recent HTML the editor emitted, so we don't re-apply it
+  // via setContent (which would reset the cursor / scroll position and can
+  // clobber unflushed keystrokes during rapid typing).
+  const lastEmittedHtml = useRef<string>(value || "");
 
   const editor = useEditor({
     extensions: [
@@ -165,14 +169,24 @@ export function RichTextEditor({ value, onChange, placeholder, uploadFolder }: P
           "prose prose-neutral max-w-none min-h-[400px] focus:outline-none px-4 py-4 text-foreground prose-headings:font-display prose-a:text-accent",
       },
     },
-    onUpdate: ({ editor }) => onChange(editor.getHTML()),
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML();
+      lastEmittedHtml.current = html;
+      onChange(html);
+    },
   });
 
+  // Only push `value` into the editor when it changed from OUTSIDE the editor
+  // (e.g. initial load, AI auto-link, or a programmatic reset). If it matches
+  // what we last emitted, the editor already has it — skip to preserve the
+  // user's caret position.
   useEffect(() => {
     if (!editor) return;
-    if (value && value !== editor.getHTML()) {
-      editor.commands.setContent(value, false);
-    }
+    const current = editor.getHTML();
+    if (value === current) return;
+    if (value === lastEmittedHtml.current) return;
+    lastEmittedHtml.current = value || "";
+    editor.commands.setContent(value || "", false);
   }, [value, editor]);
 
   const uploadAndInsert = async (file: File) => {
