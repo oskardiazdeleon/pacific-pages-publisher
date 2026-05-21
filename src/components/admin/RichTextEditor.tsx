@@ -49,10 +49,10 @@ function ToolbarButton({
 }
 
 function Toolbar({
-  editor, onImage, uploading, onInsertCruise, onInsertVenue,
+  editor, onImage, uploading, onInsertCruise, onInsertVenue, onInsertListing,
 }: {
   editor: Editor; onImage: () => void; uploading: boolean;
-  onInsertCruise: () => void; onInsertVenue: () => void;
+  onInsertCruise: () => void; onInsertVenue: () => void; onInsertListing: () => void;
 }) {
   const promptLink = () => {
     const prev = editor.getAttributes("link").href;
@@ -118,6 +118,10 @@ function Toolbar({
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-52">
+          <DropdownMenuItem onSelect={onInsertListing}>
+            <MapPin className="mr-2 h-4 w-4 text-accent" />
+            Listing card
+          </DropdownMenuItem>
           <DropdownMenuItem onSelect={onInsertCruise}>
             <Ship className="mr-2 h-4 w-4 text-accent" />
             Cruise card
@@ -144,6 +148,7 @@ export function RichTextEditor({ value, onChange, placeholder, uploadFolder }: P
   const [uploading, setUploading] = useState(false);
   const [cruiseDialogOpen, setCruiseDialogOpen] = useState(false);
   const [venueDialogOpen, setVenueDialogOpen] = useState(false);
+  const [listingDialogOpen, setListingDialogOpen] = useState(false);
 
   const editor = useEditor({
     extensions: [
