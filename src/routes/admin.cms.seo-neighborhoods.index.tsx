@@ -54,6 +54,14 @@ function SeoNeighborhoodsAdmin() {
   const [editing, setEditing] = useState<Row | (Omit<Row, "id"> & { id?: string }) | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const editorRef = useRef<HTMLDivElement | null>(null);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (editing && editorRef.current) {
+      editorRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [editing]);
 
   const load = async () => {
     const { data } = await supabase
