@@ -33,7 +33,7 @@ function splitHtml(html: string): Segment[] {
     const variant = (getAttr(tag, "data-variant") === "compact" ? "compact" : "full") as
       | "full"
       | "compact";
-    const kind: Segment["kind"] =
+    const kind: "cruise" | "venue" | "listing" =
       kindRaw === "venue" ? "venue" : kindRaw === "listing" ? "listing" : "cruise";
     if (slug) out.push({ type: "embed", kind, slug, variant });
     last = m.index + tag.length;
