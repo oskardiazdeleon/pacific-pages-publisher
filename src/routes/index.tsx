@@ -176,7 +176,7 @@ function HomePage() {
   };
   const heroImg = heroVal("image_url");
 
-  const [leadArticle, ...moreArticles] = posts;
+  
 
   return (
     <div className="min-h-screen bg-background">
