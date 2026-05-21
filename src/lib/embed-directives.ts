@@ -13,7 +13,7 @@
 //     <div data-embed-card data-kind="cruise" data-slug="..." data-variant="..."></div>
 //     <div data-embed-card data-kind="venue"  data-slug="..." data-variant="..."></div>
 
-export type EmbedCardKind = "cruise" | "venue";
+export type EmbedCardKind = "cruise" | "venue" | "listing";
 
 export interface EmbedCardDirective {
   kind: EmbedCardKind;
@@ -22,16 +22,18 @@ export interface EmbedCardDirective {
 }
 
 const DIRECTIVE_RE =
-  /:::(cruise-card|venue-card)\{([^}]*)\}\s*(?:\r?\n)?:::/g;
+  /:::(cruise-card|venue-card|listing-card)\{([^}]*)\}\s*(?:\r?\n)?:::/g;
 
 const KIND_FROM_DIRECTIVE: Record<string, EmbedCardKind> = {
   "cruise-card": "cruise",
   "venue-card": "venue",
+  "listing-card": "listing",
 };
 
 const DIRECTIVE_FROM_KIND: Record<EmbedCardKind, string> = {
   cruise: "cruise-card",
   venue: "venue-card",
+  listing: "listing-card",
 };
 
 function parseAttrs(raw: string): Record<string, string> {

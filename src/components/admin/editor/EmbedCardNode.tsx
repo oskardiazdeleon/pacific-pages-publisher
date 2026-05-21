@@ -1,17 +1,19 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer, NodeViewWrapper } from "@tiptap/react";
 import { useEffect, useState } from "react";
-import { Ship, Heart, Trash2, ArrowLeftRight } from "lucide-react";
+import { Ship, Heart, MapPin, Trash2, ArrowLeftRight } from "lucide-react";
 import { CruiseCard, CruiseCardSkeleton } from "@/components/site/CruiseCard";
 import { WeddingVenueCard, WeddingVenueCardSkeleton } from "@/components/site/WeddingVenueCard";
+import { ListingEmbedCard, ListingEmbedCardSkeleton } from "@/components/site/ListingEmbedCard";
 import { fetchCruiseLineBySlug, type CruiseLine } from "@/lib/cruise-lines";
 import { fetchWeddingVenueBySlug, type WeddingVenue } from "@/lib/wedding-venues";
+import { fetchEmbedListingBySlug, type EmbedListing } from "@/lib/listings-embed";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     embedCard: {
       insertEmbedCard: (attrs: {
-        kind: "cruise" | "venue";
+        kind: "cruise" | "venue" | "listing";
         slug: string;
         variant?: "full" | "compact";
       }) => ReturnType;
