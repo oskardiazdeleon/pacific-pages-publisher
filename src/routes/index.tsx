@@ -176,7 +176,7 @@ function HomePage() {
   };
   const heroImg = heroVal("image_url");
 
-  const [leadArticle, ...moreArticles] = posts;
+  
 
   return (
     <div className="min-h-screen bg-background">
@@ -292,22 +292,17 @@ function HomePage() {
 
       {/* Editorial */}
       <section className="container-page mt-24">
-        <div className="flex items-end justify-between">
+        <div className="flex items-end justify-between gap-6">
           <div>
             <div className="eyebrow">{c("editorial", "eyebrow", "Local Dispatch")}</div>
-            <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">{c("editorial", "heading", "Postcards from San Diego")}</h2>
+            <h2 className="mt-2 font-display text-3xl md:text-4xl font-semibold">{c("editorial", "heading", "Latest from San Diego")}</h2>
           </div>
-          <a href={c("editorial", "cta_to", "/articles")} className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-accent">
+          <a href={c("editorial", "cta_to", "/articles")} className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-accent whitespace-nowrap">
             {c("editorial", "cta_label", "All articles")} <ArrowRight className="h-4 w-4" />
           </a>
         </div>
-        <div className="mt-10 grid gap-10 lg:grid-cols-12">
-          <div className="lg:col-span-7">
-            {leadArticle && <ArticleCard article={leadArticle} />}
-          </div>
-          <div className="lg:col-span-5 space-y-8">
-            {moreArticles.map((a: ArticleCardData) => <ArticleCard key={a.slug} article={a} />)}
-          </div>
+        <div className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {posts.slice(0, 3).map((a: ArticleCardData) => <ArticleCard key={a.slug} article={a} />)}
         </div>
       </section>
 
