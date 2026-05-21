@@ -55,6 +55,8 @@ export type Database = {
       }
       articles: {
         Row: {
+          ai_generated: boolean
+          ai_prompt: string | null
           author_avatar: string | null
           author_bio: string | null
           author_id: string | null
@@ -85,6 +87,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_generated?: boolean
+          ai_prompt?: string | null
           author_avatar?: string | null
           author_bio?: string | null
           author_id?: string | null
@@ -115,6 +119,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_generated?: boolean
+          ai_prompt?: string | null
           author_avatar?: string | null
           author_bio?: string | null
           author_id?: string | null
@@ -136,75 +142,6 @@ export type Database = {
           og_image?: string | null
           published_at?: string | null
           pull_quote?: string | null
-          read_time_minutes?: number | null
-          slug?: string
-          status?: Database["public"]["Enums"]["content_status"]
-          subtitle?: string | null
-          tags?: string[] | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      blog_posts: {
-        Row: {
-          ai_generated: boolean
-          ai_prompt: string | null
-          author_id: string | null
-          author_name: string | null
-          body: string | null
-          category: string | null
-          cover_image: string | null
-          created_at: string
-          excerpt: string | null
-          id: string
-          meta_description: string | null
-          meta_title: string | null
-          published_at: string | null
-          read_time_minutes: number | null
-          slug: string
-          status: Database["public"]["Enums"]["content_status"]
-          subtitle: string | null
-          tags: string[] | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          ai_generated?: boolean
-          ai_prompt?: string | null
-          author_id?: string | null
-          author_name?: string | null
-          body?: string | null
-          category?: string | null
-          cover_image?: string | null
-          created_at?: string
-          excerpt?: string | null
-          id?: string
-          meta_description?: string | null
-          meta_title?: string | null
-          published_at?: string | null
-          read_time_minutes?: number | null
-          slug: string
-          status?: Database["public"]["Enums"]["content_status"]
-          subtitle?: string | null
-          tags?: string[] | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          ai_generated?: boolean
-          ai_prompt?: string | null
-          author_id?: string | null
-          author_name?: string | null
-          body?: string | null
-          category?: string | null
-          cover_image?: string | null
-          created_at?: string
-          excerpt?: string | null
-          id?: string
-          meta_description?: string | null
-          meta_title?: string | null
-          published_at?: string | null
           read_time_minutes?: number | null
           slug?: string
           status?: Database["public"]["Enums"]["content_status"]
