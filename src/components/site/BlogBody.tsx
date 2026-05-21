@@ -6,13 +6,17 @@ import { fetchCruiseLineBySlug, type CruiseLine } from "@/lib/cruise-lines";
 import { CruiseCard, CruiseCardSkeleton } from "@/components/site/CruiseCard";
 import { fetchWeddingVenueBySlug, type WeddingVenue } from "@/lib/wedding-venues";
 import { WeddingVenueCard, WeddingVenueCardSkeleton } from "@/components/site/WeddingVenueCard";
+import { fetchEmbedListingBySlug, type EmbedListing } from "@/lib/listings-embed";
+import { ListingEmbedCard, ListingEmbedCardSkeleton } from "@/components/site/ListingEmbedCard";
 
 export function BlogBody({ markdown }: { markdown: string }) {
   const segments = splitBody(markdown || "");
   const cruiseSlugs = collectEmbedSlugs(markdown || "", "cruise");
   const venueSlugs = collectEmbedSlugs(markdown || "", "venue");
+  const listingSlugs = collectEmbedSlugs(markdown || "", "listing");
   const [cruises, setCruises] = useState<Record<string, CruiseLine | null>>({});
   const [venues, setVenues] = useState<Record<string, WeddingVenue | null>>({});
+  const [listings, setListings] = useState<Record<string, EmbedListing | null>>({});
 
   useEffect(() => {
     if (cruiseSlugs.length === 0) return;
@@ -44,6 +48,21 @@ export function BlogBody({ markdown }: { markdown: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [venueSlugs.join("|")]);
 
+  useEffect(() => {
+    if (listingSlugs.length === 0) return;
+    let mounted = true;
+    Promise.all(listingSlugs.map((s) => fetchEmbedListingBySlug(s).then((l) => [s, l] as const))).then(
+      (entries) => {
+        if (!mounted) return;
+        setListings(Object.fromEntries(entries));
+      },
+    );
+    return () => {
+      mounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listingSlugs.join("|")]);
+
   return (
     <>
       {segments.map((seg, i) => {
@@ -65,6 +84,12 @@ export function BlogBody({ markdown }: { markdown: string }) {
           if (v === undefined) return <WeddingVenueCardSkeleton key={i} slug={seg.embed.slug} />;
           if (v === null) return null;
           return <WeddingVenueCard key={i} venue={v} variant={seg.embed.variant} />;
+        }
+        if (seg.embed.kind === "listing") {
+          const l = listings[seg.embed.slug];
+          if (l === undefined) return <ListingEmbedCardSkeleton key={i} slug={seg.embed.slug} />;
+          if (l === null) return null;
+          return <ListingEmbedCard key={i} listing={l} variant={seg.embed.variant} />;
         }
         return null;
       })}
