@@ -214,6 +214,7 @@ export function RichTextEditor({ value, onChange, placeholder, uploadFolder }: P
         onImage={() => fileRef.current?.click()}
         onInsertCruise={() => setCruiseDialogOpen(true)}
         onInsertVenue={() => setVenueDialogOpen(true)}
+        onInsertListing={() => setListingDialogOpen(true)}
       />
       <EditorContent editor={editor} />
       <input
@@ -239,6 +240,13 @@ export function RichTextEditor({ value, onChange, placeholder, uploadFolder }: P
         onOpenChange={setVenueDialogOpen}
         onSelect={(slug, variant) => {
           editor.chain().focus().insertEmbedCard({ kind: "venue", slug, variant }).run();
+        }}
+      />
+      <InsertListingDialog
+        open={listingDialogOpen}
+        onOpenChange={setListingDialogOpen}
+        onSelect={(slug, variant) => {
+          editor.chain().focus().insertEmbedCard({ kind: "listing", slug, variant }).run();
         }}
       />
     </div>
