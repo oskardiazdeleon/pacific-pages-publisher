@@ -7,13 +7,14 @@ import { useEffect, useRef, useState } from "react";
 import {
   Bold, Italic, Strikethrough, Code, Heading2, Heading3, List, ListOrdered,
   Quote, Link as LinkIcon, Image as ImageIcon, Undo2, Redo2, Minus, Loader2,
-  Ship, Heart, Plus, ChevronDown,
+  Ship, Heart, MapPin, Plus, ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { EmbedCardNode } from "@/components/admin/editor/EmbedCardNode";
 import { InsertCruiseCardDialog } from "@/components/admin/editor/InsertCruiseCardDialog";
 import { InsertWeddingVenueDialog } from "@/components/admin/editor/InsertWeddingVenueDialog";
+import { InsertListingDialog } from "@/components/admin/editor/InsertListingDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
