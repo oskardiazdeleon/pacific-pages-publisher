@@ -1,17 +1,19 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer, NodeViewWrapper } from "@tiptap/react";
 import { useEffect, useState } from "react";
-import { Ship, Heart, Trash2, ArrowLeftRight } from "lucide-react";
+import { Ship, Heart, MapPin, Trash2, ArrowLeftRight } from "lucide-react";
 import { CruiseCard, CruiseCardSkeleton } from "@/components/site/CruiseCard";
 import { WeddingVenueCard, WeddingVenueCardSkeleton } from "@/components/site/WeddingVenueCard";
+import { ListingEmbedCard, ListingEmbedCardSkeleton } from "@/components/site/ListingEmbedCard";
 import { fetchCruiseLineBySlug, type CruiseLine } from "@/lib/cruise-lines";
 import { fetchWeddingVenueBySlug, type WeddingVenue } from "@/lib/wedding-venues";
+import { fetchEmbedListingBySlug, type EmbedListing } from "@/lib/listings-embed";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     embedCard: {
       insertEmbedCard: (attrs: {
-        kind: "cruise" | "venue";
+        kind: "cruise" | "venue" | "listing";
         slug: string;
         variant?: "full" | "compact";
       }) => ReturnType;
@@ -77,10 +79,11 @@ export const EmbedCardNode = Node.create({
 });
 
 function EmbedCardView(props: any) {
-  const attrs = props.node.attrs as { kind: "cruise" | "venue"; slug: string; variant: "full" | "compact" };
+  const attrs = props.node.attrs as { kind: "cruise" | "venue" | "listing"; slug: string; variant: "full" | "compact" };
   const { kind, slug, variant } = attrs;
   const [cruise, setCruise] = useState<CruiseLine | null>(null);
   const [venue, setVenue] = useState<WeddingVenue | null>(null);
+  const [listing, setListing] = useState<EmbedListing | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -98,6 +101,10 @@ function EmbedCardView(props: any) {
       fetchWeddingVenueBySlug(slug)
         .then((v) => mounted && setVenue(v))
         .finally(() => mounted && setLoading(false));
+    } else if (kind === "listing") {
+      fetchEmbedListingBySlug(slug)
+        .then((l) => mounted && setListing(l))
+        .finally(() => mounted && setLoading(false));
     } else {
       setLoading(false);
     }
@@ -106,8 +113,8 @@ function EmbedCardView(props: any) {
     };
   }, [kind, slug]);
 
-  const Icon = kind === "venue" ? Heart : Ship;
-  const label = kind === "venue" ? "Wedding venue" : "Cruise card";
+  const Icon = kind === "venue" ? Heart : kind === "listing" ? MapPin : Ship;
+  const label = kind === "venue" ? "Wedding venue" : kind === "listing" ? "Listing card" : "Cruise card";
 
   return (
     <NodeViewWrapper
@@ -154,6 +161,12 @@ function EmbedCardView(props: any) {
           <WeddingVenueCardSkeleton slug={slug || "(no slug)"} />
         ) : (
           <WeddingVenueCard venue={venue} variant={variant} />
+        )
+      ) : kind === "listing" ? (
+        loading || !listing ? (
+          <ListingEmbedCardSkeleton slug={slug || "(no slug)"} />
+        ) : (
+          <ListingEmbedCard listing={listing} variant={variant} />
         )
       ) : null}
     </NodeViewWrapper>

@@ -7,13 +7,14 @@ import { useEffect, useRef, useState } from "react";
 import {
   Bold, Italic, Strikethrough, Code, Heading2, Heading3, List, ListOrdered,
   Quote, Link as LinkIcon, Image as ImageIcon, Undo2, Redo2, Minus, Loader2,
-  Ship, Heart, Plus, ChevronDown,
+  Ship, Heart, MapPin, Plus, ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { EmbedCardNode } from "@/components/admin/editor/EmbedCardNode";
 import { InsertCruiseCardDialog } from "@/components/admin/editor/InsertCruiseCardDialog";
 import { InsertWeddingVenueDialog } from "@/components/admin/editor/InsertWeddingVenueDialog";
+import { InsertListingDialog } from "@/components/admin/editor/InsertListingDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,10 +49,10 @@ function ToolbarButton({
 }
 
 function Toolbar({
-  editor, onImage, uploading, onInsertCruise, onInsertVenue,
+  editor, onImage, uploading, onInsertCruise, onInsertVenue, onInsertListing,
 }: {
   editor: Editor; onImage: () => void; uploading: boolean;
-  onInsertCruise: () => void; onInsertVenue: () => void;
+  onInsertCruise: () => void; onInsertVenue: () => void; onInsertListing: () => void;
 }) {
   const promptLink = () => {
     const prev = editor.getAttributes("link").href;
@@ -117,6 +118,10 @@ function Toolbar({
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-52">
+          <DropdownMenuItem onSelect={onInsertListing}>
+            <MapPin className="mr-2 h-4 w-4 text-accent" />
+            Listing card
+          </DropdownMenuItem>
           <DropdownMenuItem onSelect={onInsertCruise}>
             <Ship className="mr-2 h-4 w-4 text-accent" />
             Cruise card
@@ -143,6 +148,7 @@ export function RichTextEditor({ value, onChange, placeholder, uploadFolder }: P
   const [uploading, setUploading] = useState(false);
   const [cruiseDialogOpen, setCruiseDialogOpen] = useState(false);
   const [venueDialogOpen, setVenueDialogOpen] = useState(false);
+  const [listingDialogOpen, setListingDialogOpen] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -208,6 +214,7 @@ export function RichTextEditor({ value, onChange, placeholder, uploadFolder }: P
         onImage={() => fileRef.current?.click()}
         onInsertCruise={() => setCruiseDialogOpen(true)}
         onInsertVenue={() => setVenueDialogOpen(true)}
+        onInsertListing={() => setListingDialogOpen(true)}
       />
       <EditorContent editor={editor} />
       <input
@@ -233,6 +240,13 @@ export function RichTextEditor({ value, onChange, placeholder, uploadFolder }: P
         onOpenChange={setVenueDialogOpen}
         onSelect={(slug, variant) => {
           editor.chain().focus().insertEmbedCard({ kind: "venue", slug, variant }).run();
+        }}
+      />
+      <InsertListingDialog
+        open={listingDialogOpen}
+        onOpenChange={setListingDialogOpen}
+        onSelect={(slug, variant) => {
+          editor.chain().focus().insertEmbedCard({ kind: "listing", slug, variant }).run();
         }}
       />
     </div>
