@@ -9,6 +9,7 @@ import { fetchArticleBySlug } from "@/lib/content-queries";
 import { supabase } from "@/integrations/supabase/client";
 import articleFallback from "@/assets/article-foodie.jpg";
 import { EmailCapture } from "@/components/site/EmailCapture";
+import { ArticleBodyRenderer } from "@/components/site/ArticleBodyRenderer";
 
 const SITE_URL = "https://sandiego.com";
 
