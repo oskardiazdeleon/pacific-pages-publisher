@@ -9,6 +9,7 @@ import { fetchArticleBySlug } from "@/lib/content-queries";
 import { supabase } from "@/integrations/supabase/client";
 import articleFallback from "@/assets/article-foodie.jpg";
 import { EmailCapture } from "@/components/site/EmailCapture";
+import { ArticleBodyRenderer } from "@/components/site/ArticleBodyRenderer";
 
 const SITE_URL = "https://sandiego.com";
 
@@ -377,7 +378,8 @@ function ArticleDetail() {
               )}
 
               {bodyHtml && (
-                <div
+                <ArticleBodyRenderer
+                  html={bodyHtml}
                   className="prose prose-neutral max-w-none text-foreground leading-relaxed
                     prose-headings:font-display prose-headings:tracking-tight prose-headings:scroll-mt-24
                     prose-h2:text-3xl md:prose-h2:text-4xl prose-h2:mt-14 prose-h2:mb-5
@@ -388,7 +390,6 @@ function ArticleDetail() {
                     prose-img:rounded-2xl prose-img:shadow-md
                     prose-blockquote:border-l-accent prose-blockquote:bg-secondary/40 prose-blockquote:rounded-r-xl prose-blockquote:py-1 prose-blockquote:px-5 prose-blockquote:not-italic
                     prose-li:marker:text-accent"
-                  dangerouslySetInnerHTML={{ __html: bodyHtml }}
                 />
               )}
 
