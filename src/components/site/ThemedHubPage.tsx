@@ -80,20 +80,9 @@ export function ThemedHubPage({ hub }: { hub: ThemedHub }) {
     })();
   }, [hub]);
 
-  // Blog posts
+  // Blog merged into Articles — keep posts empty (the strip renders nothing).
   useEffect(() => {
-    (async () => {
-      const { data } = await supabase
-        .from("blog_posts")
-        .select(
-          "id, slug, title, subtitle, excerpt, cover_image, category, tags, author_name, read_time_minutes, ai_generated, published_at",
-        )
-        .eq("status", "published")
-        .order("published_at", { ascending: false })
-        .limit(30);
-      const all = (data ?? []) as any[];
-      setPosts(all.filter((p) => contentMatchesHub(p, hub)).slice(0, 3));
-    })();
+    setPosts([]);
   }, [hub]);
 
   const sponsorActive = cms["sponsor_active"] === true || cms["sponsor_active"] === "true";

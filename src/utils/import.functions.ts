@@ -1290,22 +1290,17 @@ export const aiInsertInternalLinks = createServerFn({ method: "POST" })
 
     // 1) Build candidate pool from the database.
     const supabase = supabaseAdmin;
-    const [listingsRes, blogRes, articlesRes] = await Promise.all([
+    const [listingsRes, articlesRes] = await Promise.all([
       supabase
         .from("listings")
         .select("name,slug,category,neighborhood,short_description")
         .eq("status", "published")
         .limit(300),
       supabase
-        .from("blog_posts")
-        .select("title,slug,category,excerpt")
-        .eq("status", "published")
-        .limit(200),
-      supabase
         .from("articles")
         .select("title,slug,excerpt")
         .eq("status", "published")
-        .limit(200),
+        .limit(400),
     ]);
 
     const candidates: LinkCandidate[] = [];
@@ -1319,9 +1314,6 @@ export const aiInsertInternalLinks = createServerFn({ method: "POST" })
         type: "listing",
         description: [l.neighborhood, l.short_description].filter(Boolean).join(" — "),
       });
-    }
-    for (const b of blogRes.data ?? []) {
-      candidates.push({ url: `/blog/${b.slug}`, title: b.title, type: "blog", description: b.excerpt ?? undefined });
     }
     for (const a of articlesRes.data ?? []) {
       candidates.push({ url: `/articles/${a.slug}`, title: a.title, type: "article", description: a.excerpt ?? undefined });

@@ -8,7 +8,6 @@ const SITE_URL = "https://sandiego.com";
 const STATIC = [
   { p: "/", pri: "1.0", freq: "daily" },
   { p: "/articles", pri: "0.8", freq: "daily" },
-  { p: "/blog", pri: "0.8", freq: "daily" },
   { p: "/neighborhoods", pri: "0.8", freq: "weekly" },
   { p: "/partners", pri: "0.6", freq: "monthly" },
   { p: "/insider", pri: "0.8", freq: "monthly" },

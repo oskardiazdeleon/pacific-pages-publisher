@@ -10,11 +10,10 @@ export type LinkTarget = {
 export async function fetchLinkTargets(excludeSlug?: string): Promise<LinkTarget[]> {
   const targets: LinkTarget[] = [];
 
-  const [articles, listings, cruises, blog] = await Promise.all([
+  const [articles, listings, cruises] = await Promise.all([
     supabase.from("articles").select("title, slug").eq("status", "published").limit(500),
     supabase.from("listings").select("name, slug").limit(500),
     supabase.from("cruise_lines").select("name, slug").limit(200),
-    supabase.from("blog_posts").select("title, slug").eq("status", "published").limit(500),
   ]);
 
   for (const a of (articles.data as Array<{ title: string; slug: string }> | null) ?? []) {
@@ -26,10 +25,6 @@ export async function fetchLinkTargets(excludeSlug?: string): Promise<LinkTarget
   }
   for (const c of (cruises.data as Array<{ name: string; slug: string }> | null) ?? []) {
     if (c.name && c.slug) targets.push({ title: c.name, url: `/cruises/${c.slug}` });
-  }
-  for (const b of (blog.data as Array<{ title: string; slug: string }> | null) ?? []) {
-    if (b.slug === excludeSlug) continue;
-    if (b.title && b.slug) targets.push({ title: b.title, url: `/blog/${b.slug}` });
   }
   for (const n of neighborhoodHubs) {
     if (n.name && n.slug) targets.push({ title: n.name, url: `/neighborhoods/${n.slug}` });

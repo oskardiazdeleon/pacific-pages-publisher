@@ -23,7 +23,6 @@ SanDiego.com is a 30-year-old premium travel publication covering America's Fine
 - [Wineries](https://sandiego.com/wineries)
 - [Neighborhoods](https://sandiego.com/neighborhoods)
 - [Articles](https://sandiego.com/articles)
-- [Blog](https://sandiego.com/blog)
 
 ## SD Insider Travel Club
 
