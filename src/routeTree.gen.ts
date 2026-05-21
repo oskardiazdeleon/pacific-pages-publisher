@@ -67,10 +67,8 @@ import { Route as AdminClaimsRouteImport } from './routes/admin.claims'
 import { Route as AdminApiKeysRouteImport } from './routes/admin.api-keys'
 import { Route as AdminListingsIndexRouteImport } from './routes/admin.listings.index'
 import { Route as AdminCruisesIndexRouteImport } from './routes/admin.cruises.index'
-import { Route as AdminBlogIndexRouteImport } from './routes/admin.blog.index'
 import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
 import { Route as ApiPublicListingsRouteImport } from './routes/api/public/listings'
-import { Route as ApiPublicBlogRouteImport } from './routes/api/public/blog'
 import { Route as ApiPublicArticlesRouteImport } from './routes/api/public/articles'
 import { Route as AdminListingsNewRouteImport } from './routes/admin.listings.new'
 import { Route as AdminListingsIdRouteImport } from './routes/admin.listings.$id'
@@ -80,7 +78,6 @@ import { Route as AdminCmsSettingsRouteImport } from './routes/admin.cms.setting
 import { Route as AdminCmsNavigationRouteImport } from './routes/admin.cms.navigation'
 import { Route as AdminCmsHomepageRouteImport } from './routes/admin.cms.homepage'
 import { Route as AdminCmsHomeNeighborhoodsRouteImport } from './routes/admin.cms.home-neighborhoods'
-import { Route as AdminBlogNewRouteImport } from './routes/admin.blog.new'
 import { Route as AdminBlogIdRouteImport } from './routes/admin.blog.$id'
 import { Route as AdminArticlesNewRouteImport } from './routes/admin.articles.new'
 import { Route as AdminArticlesIdRouteImport } from './routes/admin.articles.$id'
@@ -381,11 +378,6 @@ const AdminCruisesIndexRoute = AdminCruisesIndexRouteImport.update({
   path: '/cruises/',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminBlogIndexRoute = AdminBlogIndexRouteImport.update({
-  id: '/blog/',
-  path: '/blog/',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminArticlesIndexRoute = AdminArticlesIndexRouteImport.update({
   id: '/articles/',
   path: '/articles/',
@@ -394,11 +386,6 @@ const AdminArticlesIndexRoute = AdminArticlesIndexRouteImport.update({
 const ApiPublicListingsRoute = ApiPublicListingsRouteImport.update({
   id: '/api/public/listings',
   path: '/api/public/listings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicBlogRoute = ApiPublicBlogRouteImport.update({
-  id: '/api/public/blog',
-  path: '/api/public/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicArticlesRoute = ApiPublicArticlesRouteImport.update({
@@ -447,11 +434,6 @@ const AdminCmsHomeNeighborhoodsRoute =
     path: '/cms/home-neighborhoods',
     getParentRoute: () => AdminRoute,
   } as any)
-const AdminBlogNewRoute = AdminBlogNewRouteImport.update({
-  id: '/blog/new',
-  path: '/blog/new',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminBlogIdRoute = AdminBlogIdRouteImport.update({
   id: '/blog/$id',
   path: '/blog/$id',
@@ -561,7 +543,6 @@ export interface FileRoutesByFullPath {
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
-  '/admin/blog/new': typeof AdminBlogNewRoute
   '/admin/cms/home-neighborhoods': typeof AdminCmsHomeNeighborhoodsRoute
   '/admin/cms/homepage': typeof AdminCmsHomepageRoute
   '/admin/cms/navigation': typeof AdminCmsNavigationRoute
@@ -571,10 +552,8 @@ export interface FileRoutesByFullPath {
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
   '/api/public/articles': typeof ApiPublicArticlesRoute
-  '/api/public/blog': typeof ApiPublicBlogRoute
   '/api/public/listings': typeof ApiPublicListingsRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
-  '/admin/blog/': typeof AdminBlogIndexRoute
   '/admin/cruises/': typeof AdminCruisesIndexRoute
   '/admin/listings/': typeof AdminListingsIndexRoute
   '/admin/cms/neighborhoods/$id': typeof AdminCmsNeighborhoodsIdRoute
@@ -641,7 +620,6 @@ export interface FileRoutesByTo {
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
-  '/admin/blog/new': typeof AdminBlogNewRoute
   '/admin/cms/home-neighborhoods': typeof AdminCmsHomeNeighborhoodsRoute
   '/admin/cms/homepage': typeof AdminCmsHomepageRoute
   '/admin/cms/navigation': typeof AdminCmsNavigationRoute
@@ -651,10 +629,8 @@ export interface FileRoutesByTo {
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
   '/api/public/articles': typeof ApiPublicArticlesRoute
-  '/api/public/blog': typeof ApiPublicBlogRoute
   '/api/public/listings': typeof ApiPublicListingsRoute
   '/admin/articles': typeof AdminArticlesIndexRoute
-  '/admin/blog': typeof AdminBlogIndexRoute
   '/admin/cruises': typeof AdminCruisesIndexRoute
   '/admin/listings': typeof AdminListingsIndexRoute
   '/admin/cms/neighborhoods/$id': typeof AdminCmsNeighborhoodsIdRoute
@@ -725,7 +701,6 @@ export interface FileRoutesById {
   '/admin/articles/$id': typeof AdminArticlesIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
-  '/admin/blog/new': typeof AdminBlogNewRoute
   '/admin/cms/home-neighborhoods': typeof AdminCmsHomeNeighborhoodsRoute
   '/admin/cms/homepage': typeof AdminCmsHomepageRoute
   '/admin/cms/navigation': typeof AdminCmsNavigationRoute
@@ -735,10 +710,8 @@ export interface FileRoutesById {
   '/admin/listings/$id': typeof AdminListingsIdRoute
   '/admin/listings/new': typeof AdminListingsNewRoute
   '/api/public/articles': typeof ApiPublicArticlesRoute
-  '/api/public/blog': typeof ApiPublicBlogRoute
   '/api/public/listings': typeof ApiPublicListingsRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
-  '/admin/blog/': typeof AdminBlogIndexRoute
   '/admin/cruises/': typeof AdminCruisesIndexRoute
   '/admin/listings/': typeof AdminListingsIndexRoute
   '/admin/cms/neighborhoods/$id': typeof AdminCmsNeighborhoodsIdRoute
@@ -810,7 +783,6 @@ export interface FileRouteTypes {
     | '/admin/articles/$id'
     | '/admin/articles/new'
     | '/admin/blog/$id'
-    | '/admin/blog/new'
     | '/admin/cms/home-neighborhoods'
     | '/admin/cms/homepage'
     | '/admin/cms/navigation'
@@ -820,10 +792,8 @@ export interface FileRouteTypes {
     | '/admin/listings/$id'
     | '/admin/listings/new'
     | '/api/public/articles'
-    | '/api/public/blog'
     | '/api/public/listings'
     | '/admin/articles/'
-    | '/admin/blog/'
     | '/admin/cruises/'
     | '/admin/listings/'
     | '/admin/cms/neighborhoods/$id'
@@ -890,7 +860,6 @@ export interface FileRouteTypes {
     | '/admin/articles/$id'
     | '/admin/articles/new'
     | '/admin/blog/$id'
-    | '/admin/blog/new'
     | '/admin/cms/home-neighborhoods'
     | '/admin/cms/homepage'
     | '/admin/cms/navigation'
@@ -900,10 +869,8 @@ export interface FileRouteTypes {
     | '/admin/listings/$id'
     | '/admin/listings/new'
     | '/api/public/articles'
-    | '/api/public/blog'
     | '/api/public/listings'
     | '/admin/articles'
-    | '/admin/blog'
     | '/admin/cruises'
     | '/admin/listings'
     | '/admin/cms/neighborhoods/$id'
@@ -973,7 +940,6 @@ export interface FileRouteTypes {
     | '/admin/articles/$id'
     | '/admin/articles/new'
     | '/admin/blog/$id'
-    | '/admin/blog/new'
     | '/admin/cms/home-neighborhoods'
     | '/admin/cms/homepage'
     | '/admin/cms/navigation'
@@ -983,10 +949,8 @@ export interface FileRouteTypes {
     | '/admin/listings/$id'
     | '/admin/listings/new'
     | '/api/public/articles'
-    | '/api/public/blog'
     | '/api/public/listings'
     | '/admin/articles/'
-    | '/admin/blog/'
     | '/admin/cruises/'
     | '/admin/listings/'
     | '/admin/cms/neighborhoods/$id'
@@ -1044,7 +1008,6 @@ export interface RootRouteChildren {
   WineriesIndexRoute: typeof WineriesIndexRoute
   CategoryInNeighborhoodRoute: typeof CategoryInNeighborhoodRoute
   ApiPublicArticlesRoute: typeof ApiPublicArticlesRoute
-  ApiPublicBlogRoute: typeof ApiPublicBlogRoute
   ApiPublicListingsRoute: typeof ApiPublicListingsRoute
 }
 
@@ -1456,13 +1419,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCruisesIndexRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/blog/': {
-      id: '/admin/blog/'
-      path: '/blog'
-      fullPath: '/admin/blog/'
-      preLoaderRoute: typeof AdminBlogIndexRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/articles/': {
       id: '/admin/articles/'
       path: '/articles'
@@ -1475,13 +1431,6 @@ declare module '@tanstack/react-router' {
       path: '/api/public/listings'
       fullPath: '/api/public/listings'
       preLoaderRoute: typeof ApiPublicListingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/blog': {
-      id: '/api/public/blog'
-      path: '/api/public/blog'
-      fullPath: '/api/public/blog'
-      preLoaderRoute: typeof ApiPublicBlogRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/articles': {
@@ -1545,13 +1494,6 @@ declare module '@tanstack/react-router' {
       path: '/cms/home-neighborhoods'
       fullPath: '/admin/cms/home-neighborhoods'
       preLoaderRoute: typeof AdminCmsHomeNeighborhoodsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/blog/new': {
-      id: '/admin/blog/new'
-      path: '/blog/new'
-      fullPath: '/admin/blog/new'
-      preLoaderRoute: typeof AdminBlogNewRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/blog/$id': {
@@ -1630,7 +1572,6 @@ interface AdminRouteChildren {
   AdminArticlesIdRoute: typeof AdminArticlesIdRoute
   AdminArticlesNewRoute: typeof AdminArticlesNewRoute
   AdminBlogIdRoute: typeof AdminBlogIdRoute
-  AdminBlogNewRoute: typeof AdminBlogNewRoute
   AdminCmsHomeNeighborhoodsRoute: typeof AdminCmsHomeNeighborhoodsRoute
   AdminCmsHomepageRoute: typeof AdminCmsHomepageRoute
   AdminCmsNavigationRoute: typeof AdminCmsNavigationRoute
@@ -1640,7 +1581,6 @@ interface AdminRouteChildren {
   AdminListingsIdRoute: typeof AdminListingsIdRoute
   AdminListingsNewRoute: typeof AdminListingsNewRoute
   AdminArticlesIndexRoute: typeof AdminArticlesIndexRoute
-  AdminBlogIndexRoute: typeof AdminBlogIndexRoute
   AdminCruisesIndexRoute: typeof AdminCruisesIndexRoute
   AdminListingsIndexRoute: typeof AdminListingsIndexRoute
   AdminCmsNeighborhoodsIdRoute: typeof AdminCmsNeighborhoodsIdRoute
@@ -1660,7 +1600,6 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminArticlesIdRoute: AdminArticlesIdRoute,
   AdminArticlesNewRoute: AdminArticlesNewRoute,
   AdminBlogIdRoute: AdminBlogIdRoute,
-  AdminBlogNewRoute: AdminBlogNewRoute,
   AdminCmsHomeNeighborhoodsRoute: AdminCmsHomeNeighborhoodsRoute,
   AdminCmsHomepageRoute: AdminCmsHomepageRoute,
   AdminCmsNavigationRoute: AdminCmsNavigationRoute,
@@ -1670,7 +1609,6 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminListingsIdRoute: AdminListingsIdRoute,
   AdminListingsNewRoute: AdminListingsNewRoute,
   AdminArticlesIndexRoute: AdminArticlesIndexRoute,
-  AdminBlogIndexRoute: AdminBlogIndexRoute,
   AdminCruisesIndexRoute: AdminCruisesIndexRoute,
   AdminListingsIndexRoute: AdminListingsIndexRoute,
   AdminCmsNeighborhoodsIdRoute: AdminCmsNeighborhoodsIdRoute,
@@ -1770,9 +1708,17 @@ const rootRouteChildren: RootRouteChildren = {
   WineriesIndexRoute: WineriesIndexRoute,
   CategoryInNeighborhoodRoute: CategoryInNeighborhoodRoute,
   ApiPublicArticlesRoute: ApiPublicArticlesRoute,
-  ApiPublicBlogRoute: ApiPublicBlogRoute,
   ApiPublicListingsRoute: ApiPublicListingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
