@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Edit3, Plus, Trash2, Save, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORY_HUBS } from "@/lib/listing-categories";
@@ -53,6 +54,14 @@ function SeoNeighborhoodsAdmin() {
   const [editing, setEditing] = useState<Row | (Omit<Row, "id"> & { id?: string }) | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const editorRef = useRef<HTMLDivElement | null>(null);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (editing && editorRef.current) {
+      editorRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [editing]);
 
   const load = async () => {
     const { data } = await supabase
@@ -99,6 +108,7 @@ function SeoNeighborhoodsAdmin() {
     }
     setEditing(null);
     await load();
+    queryClient.invalidateQueries({ queryKey: ["seo-neighborhoods"] });
   };
 
   const remove = async (id: string) => {
@@ -109,7 +119,9 @@ function SeoNeighborhoodsAdmin() {
       return;
     }
     await load();
+    queryClient.invalidateQueries({ queryKey: ["seo-neighborhoods"] });
   };
+
 
   const toggleCategory = (cat: string) => {
     if (!editing) return;
@@ -139,7 +151,7 @@ function SeoNeighborhoodsAdmin() {
       </div>
 
       {editing && (
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <div ref={editorRef} className="rounded-xl border border-border bg-card p-5 space-y-4 scroll-mt-4">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold">
               {"id" in editing && editing.id ? "Edit neighborhood" : "New neighborhood"}
