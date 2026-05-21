@@ -20,20 +20,19 @@ interface ApiKeyRow {
   created_at: string;
 }
 
-type Scope = "blog:write" | "listings:write" | "articles:write";
+type Scope = "listings:write" | "articles:write";
 const ALL_SCOPES: { value: Scope; label: string }[] = [
-  { value: "blog:write", label: "Blog posts" },
-  { value: "listings:write", label: "Listings" },
   { value: "articles:write", label: "Articles" },
+  { value: "listings:write", label: "Listings" },
 ];
 
 function ApiKeysPage() {
   const [rows, setRows] = useState<ApiKeyRow[]>([]);
   const [name, setName] = useState("");
-  const [scopes, setScopes] = useState<Scope[]>(["blog:write"]);
+  const [scopes, setScopes] = useState<Scope[]>(["articles:write"]);
   const [creating, setCreating] = useState(false);
   const [newKey, setNewKey] = useState<string | null>(null);
-  const [docsTab, setDocsTab] = useState<"blog" | "listings" | "articles">("blog");
+  const [docsTab, setDocsTab] = useState<"listings" | "articles">("articles");
   const create = useServerFn(createApiKey);
   const revoke = useServerFn(revokeApiKey);
 
@@ -107,8 +106,7 @@ function ApiKeysPage() {
       <h1 className="mt-2 font-display text-4xl font-semibold">API Keys</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Create scoped keys to publish content programmatically. Endpoints:{" "}
-        <code className="rounded bg-muted px-1.5 py-0.5">/api/public/blog</code>,{" "}
-        <code className="rounded bg-muted px-1.5 py-0.5">/api/public/articles</code>, and{" "}
+        <code className="rounded bg-muted px-1.5 py-0.5">/api/public/articles</code> and{" "}
         <code className="rounded bg-muted px-1.5 py-0.5">/api/public/listings</code>.
       </p>
 
@@ -271,7 +269,7 @@ function ApiKeysPage() {
         </p>
 
         <div className="mt-5 inline-flex rounded-full border border-border bg-card p-1">
-          {(["blog", "listings", "articles"] as const).map((t) => (
+          {(["articles", "listings"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setDocsTab(t)}
@@ -281,14 +279,12 @@ function ApiKeysPage() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {t === "blog" ? "Blog posts" : t === "listings" ? "Listings" : "Articles"}
+              {t === "listings" ? "Listings" : "Articles"}
             </button>
           ))}
         </div>
 
-        {docsTab === "blog" ? (
-          <BlogDocs baseUrl={baseUrl} />
-        ) : docsTab === "listings" ? (
+        {docsTab === "listings" ? (
           <ListingsDocs baseUrl={baseUrl} />
         ) : (
           <ArticlesDocs baseUrl={baseUrl} />

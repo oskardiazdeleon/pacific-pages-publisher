@@ -14,7 +14,6 @@ const FALLBACK_NAV: NavItem[] = [
   { label: "Wineries", to: "/wineries" },
   { label: "Neighborhoods", to: "/neighborhoods" },
   { label: "Articles", to: "/articles" },
-  { label: "Blog", to: "/blog" },
 ];
 
 export function Header() {

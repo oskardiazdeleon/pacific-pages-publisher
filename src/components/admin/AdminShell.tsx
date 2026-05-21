@@ -4,7 +4,7 @@ import { LogOut, LayoutDashboard, FileText, Building2, BarChart3, Download, Sett
 import { useAuth } from "@/lib/auth";
 
 type NavItem = {
-  to: "/admin" | "/admin/listings" | "/admin/articles" | "/admin/blog" | "/admin/claims" | "/admin/impressions" | "/admin/import" | "/admin/cms/settings" | "/admin/cms/navigation" | "/admin/cms/homepage" | "/admin/cms/home-neighborhoods" | "/admin/cms/pages" | "/admin/cms/neighborhoods" | "/admin/cms/seo-neighborhoods" | "/admin/api-keys" | "/admin/cruises" | "/admin/users";
+  to: "/admin" | "/admin/listings" | "/admin/articles" | "/admin/claims" | "/admin/impressions" | "/admin/import" | "/admin/cms/settings" | "/admin/cms/navigation" | "/admin/cms/homepage" | "/admin/cms/home-neighborhoods" | "/admin/cms/pages" | "/admin/cms/neighborhoods" | "/admin/cms/seo-neighborhoods" | "/admin/api-keys" | "/admin/cruises" | "/admin/users";
   label: string;
   icon: typeof LayoutDashboard;
   exact?: boolean;
@@ -25,7 +25,6 @@ const navGroups: ReadonlyArray<{ heading?: string; items: ReadonlyArray<NavItem>
     heading: "Editorial",
     items: [
       { to: "/admin/articles", label: "Articles", icon: FileText },
-      { to: "/admin/blog", label: "Blog", icon: Sparkles },
     ],
   },
   {
